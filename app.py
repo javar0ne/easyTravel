@@ -1,5 +1,5 @@
 from flask import Flask
-from config.log import configure_logging
+from config.logging import configure_logging
 
 app = Flask(__name__)
 configure_logging(app)
