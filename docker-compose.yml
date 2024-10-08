@@ -3,6 +3,18 @@ services:
     build: .
     ports:
       - "5000:5000"
+    environment:
+      - MONGO_URI=${MONGO_URI}
     # uncomment only for development purpose
     #volumes:
     #  - .:/app:ro
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27017:27017"
