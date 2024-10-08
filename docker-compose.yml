@@ -5,6 +5,7 @@ services:
       - "5000:5000"
     environment:
       - MONGO_URI=${MONGO_URI}
+      - LOG_LEVEL=INFO
     # uncomment only for development purpose
     #volumes:
     #  - .:/app:ro
