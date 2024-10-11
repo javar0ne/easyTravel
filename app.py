@@ -1,12 +1,15 @@
+import os
+
 from flask import Flask
-from config.logging import configure_logging
+from traveler import traveler
 
 app = Flask(__name__)
-configure_logging(app)
+app.register_blueprint(traveler)
 
-@app.route('/')
-def handle_hello_world():
-    return 'Hello World!'
+
+def get_logging_level():
+    log_level = os.getenv('LOG_LEVEL')
+    return log_level if log_level else 'DEBUG'
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, host='0.0.0.0')
