@@ -1,16 +1,19 @@
 import logging
 import os
 
-from flask import Flask, request, jsonify
-from traveler import traveler
+from flask import Flask, request
+from flask_jwt_extended import JWTManager
 
-def get_logging_level():
-    log_level = os.getenv('LOG_LEVEL')
-    return log_level if log_level else 'DEBUG'
+from common.extensions import redis
+from common.response_wrapper import not_found_response, unauthorized_response, error_response
+from traveler import traveler
+from user import user
+
 app = Flask(__name__)
 app.register_blueprint(traveler)
+app.register_blueprint(user)
 
-logging.basicConfig(level=get_logging_level(), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=os.getenv('LOG_LEVEL', 'DEBUG'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # log requests before processing
@@ -27,12 +30,25 @@ def log_response_info(response):
 # handling 404 error
 @app.errorhandler(404)
 def handle_not_found(error):
-    return jsonify({"status": "FAILURE", "description": error.description}), 404
+    return not_found_response({"description": error.description})
+
+# handling 401 error
+@app.errorhandler(401)
+def handle_not_found(error):
+    return unauthorized_response({"description": error.description})
 
 # handling 500 error
 @app.errorhandler(500)
 def handle_not_found():
-    return jsonify({"status": "FAILURE", "description": "There was an internal error"}), 500
+    return error_response()
+
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'default-secret-key')
+jwt = JWTManager(app)
+
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blacklist(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    return redis.exists(jti)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
