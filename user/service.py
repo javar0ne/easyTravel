@@ -5,6 +5,8 @@ from typing import Optional
 from bson import ObjectId
 
 from flask_jwt_extended import decode_token, create_access_token, create_refresh_token
+
+from common.exception import ElementAlreadyExistsException
 from common.extensions import db, redis
 from common.password_utils import hash_password
 from user.model import COLLECTION_NAME, User, Token
@@ -20,7 +22,10 @@ def get_user_by_email(email: str) -> Optional[User]:
 
     return User(**stored_user)
 
-def create_user(email: str, password: str, roles: list[str]) -> ObjectId:
+def create_user(email: str, password: str, roles: list[str]) -> Optional[ObjectId]:
+    if get_user_by_email(email):
+        raise ElementAlreadyExistsException(f"user already exists with email: {email}")
+
     password = hash_password(password)
 
     user = User(email=email, password=password, roles=roles)
