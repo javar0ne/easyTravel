@@ -5,7 +5,7 @@ from bson import ObjectId
 
 from common.extensions import db
 from common.role import Role
-from traveler.model import COLLECTION_NAME, TravelerModel, TravelerCreateModel, TravelerUpdateModel
+from traveler.model import COLLECTION_NAME, TravelerCreateModel, TravelerUpdateModel
 from user.service import create_user
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def create_traveler(traveler: TravelerCreateModel) -> str:
     user_id = create_user(traveler.email, traveler.password, [Role.TRAVELER.name])
 
     traveler.user_id = str(user_id)
-    stored_traveler = collection.insert_one(traveler.model_dump(exclude=['email', 'password']))
+    stored_traveler = collection.insert_one(traveler.model_dump(exclude={'email', 'password'}))
     logger.info("traveler stored successfully with id %s", stored_traveler.inserted_id)
 
     return str(stored_traveler.inserted_id)
