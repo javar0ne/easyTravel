@@ -14,6 +14,10 @@ from user.model import COLLECTION_NAME, User, Token
 logger = logging.getLogger(__name__)
 collection = db[COLLECTION_NAME]
 
+class NotFoundException(Exception):
+    def __init__(self,msg):
+        super().__init__(msg)
+
 def get_user_by_email(email: str) -> Optional[User]:
     stored_user = collection.find_one({'email': email})
 
