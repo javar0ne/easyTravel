@@ -43,3 +43,10 @@ def bad_request_response(response, code=400):
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "response": response
     }), code
+
+def conflict_response(response, code=409):
+    return jsonify({
+        "status": "FAILURE",
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "response": response
+    }), code
