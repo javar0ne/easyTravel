@@ -36,12 +36,12 @@ def handle_not_found(error):
 
 # handling 401 error
 @app.errorhandler(401)
-def handle_not_found(error):
+def handle_unauthorized(error):
     return unauthorized_response({"description": error.description})
 
 # handling 500 error
 @app.errorhandler(500)
-def handle_not_found():
+def handle_internal_server_error():
     return error_response()
 
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'default-secret-key')
