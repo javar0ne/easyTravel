@@ -1,6 +1,8 @@
-from datetime import datetime
+from typing import Optional
 
-from marshmallow import Schema, fields
+from pydantic import BaseModel, Field
+
+from common.json_encoders import PyObjectId
 
 COLLECTION_NAME = "organizations"
 
@@ -10,7 +12,7 @@ class Organization:
         phone_number: str = None,
         currency: str = None,
         organization_name: str = None,
-        coordinates: str = None,
+        coordinates: list[str] = None,
         website: str = None,
         status: str = None,
         user_id: str = None,
@@ -35,33 +37,33 @@ class Organization:
             "user_id": self.user_id
         }
 
-class OrganizationCreateRequest(Schema):
-    _id = fields.Str(dump_only=True)
-    email = fields.Str(required=True)
-    password = fields.Str(required=True)
-    phone_number = fields.Str(required=True)
-    currency = fields.Str(required=True)
-    organization_name = fields.Str(required=True)
-    coordinates = fields.Str(required=True)
-    website = fields.Str(required=True)
-    status = fields.Str(required=True)
+class OrganizationCreateModel(BaseModel):
+    email: str
+    password: str
+    phone_number: str
+    currency: str
+    organization_name: str
+    coordinates: list[str]
+    website: str
+    status: str
+    user_id: Optional[str] = None
 
-class OrganizationUpdateRequest(Schema):
-    _id = fields.Str(dump_only=True)
-    email = fields.Str(required=True)
-    phone_number = fields.Str(required=True)
-    currency = fields.Str(required=True)
-    organization_name = fields.Str(required=True)
-    coordinates = fields.Str(required=True)
-    website = fields.Str(required=True)
-    status = fields.Str(required=True)
+class OrganizationUpdateModel(BaseModel):
+    email: str
+    phone_number: str
+    currency: str
+    organization_name: str
+    coordinates: list[str]
+    website: str
+    status: str
+    user_id: str
 
-class OrganizationResponse(Schema):
-    _id = fields.Str(required=True)
-    email = fields.Str(required=True)
-    phone_number = fields.Str(required=True)
-    currency = fields.Str(required=True)
-    organization_name = fields.Str(required=True)
-    coordinates = fields.Str(required=True)
-    website = fields.Str(required=True)
-    status = fields.Str(required=True)
+class OrganizationResponse(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    phone_number: str
+    currency: str
+    organization_name: str
+    coordinates: list[str]
+    website: str
+    status: str
+    user_id: Optional[str]
