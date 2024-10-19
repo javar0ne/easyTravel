@@ -1,7 +1,7 @@
 import logging
 
 from flask import request, jsonify, abort
-from marshmallow import ValidationError
+from pydantic import ValidationError
 
 from organization import organization
 from organization.model import OrganizationCreateRequest, OrganizationResponse, OrganizationUpdateRequest
@@ -22,11 +22,10 @@ def get(organization_id):
 def create():
     try:
         logger.debug("parsing request body to organization..")
-        data = request.get_json()
-        organization_data = OrganizationCreateRequest().load(data)
+        organization_data = OrganizationCreateRequest(**request.json)
     except ValidationError as err:
         logger.error("validation error while parsing organization request", err)
-        return jsonify(err.messages), 400
+        return jsonify(err.errors()), 400
 
     try:
         inserted_id = create_organization(organization_data)
@@ -39,11 +38,10 @@ def create():
 def update(organization_id):
     try:
         logger.debug("parsing request body to organization..")
-        data = request.get_json()
-        organization_data = OrganizationUpdateRequest().load(data)
+        organization_data = OrganizationUpdateRequest(**request.json)
     except ValidationError as err:
         logger.error("validation error while parsing organization request", err)
-        return jsonify(err.messages), 400
+        return jsonify(err.errors()), 400
 
     try:
         result = update_organization(organization_id, organization_data)

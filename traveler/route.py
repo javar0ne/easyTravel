@@ -1,10 +1,10 @@
 import logging
 
 from flask import request, jsonify, abort
-from marshmallow import ValidationError
+from pydantic import ValidationError
 
 from traveler import traveler
-from traveler.model import TravelerCreateRequest, TravelerResponse, TravelerUpdateRequest
+from traveler.model import TravelerCreateModel, TravelerUpdateModel, TravelerModel
 from traveler.service import create_traveler, get_traveler_by_id, update_traveler
 
 logger = logging.getLogger(__name__)
@@ -16,17 +16,16 @@ def get(traveler_id):
     if traveler is None:
         return abort(404, description=f'No traveler found with id {traveler_id}')
 
-    return TravelerResponse().dump(traveler), 200
+    return TravelerModel(**traveler).model_dump(), 200
 
 @traveler.post('/')
 def create():
     try:
         logger.debug("parsing request body to traveler..")
-        data = request.get_json()
-        traveler_data = TravelerCreateRequest().load(data)
+        traveler_data = TravelerCreateModel(**request.json)
     except ValidationError as err:
         logger.error("validation error while parsing traveler request", err)
-        return jsonify(err.messages), 400
+        return jsonify(err.errors()), 400
 
     try:
         inserted_id = create_traveler(traveler_data)
@@ -39,11 +38,10 @@ def create():
 def update(traveler_id):
     try:
         logger.debug("parsing request body to traveler..")
-        data = request.get_json()
-        traveler_data = TravelerUpdateRequest().load(data)
+        traveler_data = TravelerUpdateModel(**request.json)
     except ValidationError as err:
         logger.error("validation error while parsing traveler request", err)
-        return jsonify(err.messages), 400
+        return jsonify(err.errors()), 400
 
     try:
         result = update_traveler(traveler_id, traveler_data)
