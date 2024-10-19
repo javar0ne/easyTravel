@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 from common.exception import ElementAlreadyExistsException, ElementNotFoundException
 from common.response_wrapper import bad_request_response, conflict_response, success_response, not_found_response, \
-    error_response
+    error_response, no_content_response
 from traveler import traveler
 from traveler.model import TravelerCreateModel, TravelerUpdateModel, TravelerModel
 from traveler.service import create_traveler, get_traveler_by_id, update_traveler
@@ -49,7 +49,7 @@ def update(traveler_id):
         traveler_data = TravelerUpdateModel(**request.json)
 
         update_traveler(traveler_id, traveler_data)
-        return '', 204
+        return no_content_response()
     except ValidationError as err:
         logger.error("validation error while parsing traveler request", err)
         return bad_request_response(err.errors())
