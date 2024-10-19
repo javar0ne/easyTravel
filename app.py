@@ -6,11 +6,13 @@ from flask_jwt_extended import JWTManager
 
 from common.extensions import redis
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
+from organization import organization
 from traveler import traveler
 from user import user
 
 app = Flask(__name__)
 app.register_blueprint(traveler)
+app.register_blueprint(organization)
 app.register_blueprint(user)
 
 logging.basicConfig(level=os.getenv('LOG_LEVEL', 'DEBUG'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
