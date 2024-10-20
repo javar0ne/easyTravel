@@ -21,7 +21,6 @@ def get_city_description(city: str) -> Optional[CityDescription]:
     if city_description is None:
         return None
 
-    # TODO: create specific redis db for city descriptions
     redis_city_description.set(city_key, json.dumps(city_description.model_dump()), DAILY_EXPIRE)
 
     return city_description
