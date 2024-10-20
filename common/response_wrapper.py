@@ -56,3 +56,10 @@ def no_content_response(code=204):
         "status": "SUCCESS",
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }), code
+
+def bad_gateway_response(code=502):
+    return jsonify({
+        "status": "FAILURE",
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "response": "External service returned with an error. Please try again later."
+    }), code
