@@ -7,7 +7,7 @@ from bson import ObjectId
 from flask_jwt_extended import decode_token, create_access_token, create_refresh_token
 
 from common.exception import ElementAlreadyExistsException
-from common.extensions import db, redis
+from common.extensions import db, redis_auth
 from common.password_utils import hash_password
 from user.model import COLLECTION_NAME, User, Token
 
@@ -43,7 +43,7 @@ def blacklist_token(jwt: dict):
     current_timestamp = datetime.now()
     expire = expire_timestamp - current_timestamp
 
-    redis.set(jti, "", expire)
+    redis_auth.set(jti, "", expire)
 
 def blacklist_refresh_token(token: str):
     jwt = decode_token(token)
@@ -56,7 +56,7 @@ def blacklist_tokens(access_token: dict, refresh_token: str):
 def generate_tokens_from_refresh_token(refresh_token: str) -> Optional[Token]:
     jwt = decode_token(refresh_token)
 
-    if redis.exists(jwt['jti']):
+    if redis_auth.exists(jwt['jti']):
         logging.info("refresh token has been revoked")
         return None
 

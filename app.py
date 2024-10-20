@@ -4,7 +4,7 @@ import os
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
 
-from common.extensions import redis
+from common.extensions import redis_auth
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
 from itinerary import itinerary
 from organization import organization
@@ -52,7 +52,7 @@ jwt = JWTManager(app)
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blacklist(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]
-    return redis.exists(jti)
+    return redis_auth.exists(jti)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
