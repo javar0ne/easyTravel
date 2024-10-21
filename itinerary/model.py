@@ -6,6 +6,12 @@ from pydantic import BaseModel, Field
 
 from common.json_encoders import PyObjectId
 
+COLLECTION_NAME = "itineraries"
+
+class ItineraryRequestStatus(Enum):
+    PENDING = "pending"
+    COMPLETED = "completed"
+    ERROR = "error"
 
 class ItineraryStatus(Enum):
     PENDING = "pending"
@@ -68,12 +74,15 @@ class Stage(BaseModel):
     distance_from_center: float
     accessible: bool
     coordinates: Coordinates
-    avg_duration: float
+    avg_duration: int
 
 class AssistantItinerary(BaseModel):
     day: int
     title: str
     stages: list[Stage]
+
+class AssistantItineraryResponse(BaseModel):
+    itinerary: list[AssistantItinerary]
 
 class CityDescription(BaseModel):
     name: str

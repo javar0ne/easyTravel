@@ -43,7 +43,7 @@ def handle_unauthorized(error):
 
 # handling 500 error
 @app.errorhandler(500)
-def handle_internal_server_error():
+def handle_internal_server_error(error):
     return error_response()
 
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'default-secret-key')
