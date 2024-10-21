@@ -4,7 +4,7 @@ from openai import APIStatusError
 
 from common.response_wrapper import success_response, bad_gateway_response
 from itinerary import itinerary
-from itinerary.service import get_city_description
+from itinerary.service import get_city_description, generate_itinerary
 
 logger = logging.getLogger(__name__)
 
@@ -17,3 +17,9 @@ def get(city_name):
     except APIStatusError as err:
         logger.error(err)
         return bad_gateway_response()
+
+@itinerary.get('/')
+def gen_itinerary():
+    request_id = generate_itinerary()
+
+    return success_response({"request_id": str(request_id)})
