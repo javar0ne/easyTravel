@@ -29,8 +29,10 @@ CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS = {
 }
 
 ITINERARY_USER_PROMPT = """
-    i'm going to visit London for 4 days in December, with a range budget per person of 0 to max 500 EUR with my family. 
-    i'm interested into food exploration and nightlife. generate the itinerary for day {day}.
+    In {month} I’m visiting {city} {travelling_with}. I’m staying there for {trip_duration} day(s) and 
+    with a range budget per person between {min_budget} and {max_budget} EUR.  
+    I’m interested into: {interested_in}. 
+    Generate the itinerary for day {day}.
 """
 ITINERARY_SYSTEM_INSTRUCTIONS = {
     "role": "system",

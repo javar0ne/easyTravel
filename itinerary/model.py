@@ -1,8 +1,9 @@
-from datetime import date
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator, field_serializer
+from typing_extensions import Self
 
 from common.json_encoders import PyObjectId
 
@@ -30,9 +31,9 @@ class Activity(Enum):
 
 class TravellingWith(Enum):
     SOLO = "solo"
-    COUPLE = "couple"
-    FAMILY = "family"
-    FRIENDS = "friends"
+    COUPLE = "in couple"
+    FAMILY = "with family"
+    FRIENDS = "with friends"
 
 class Budget(Enum):
     LOW = (0, 500)
@@ -50,8 +51,8 @@ class Budget(Enum):
 class Itinerary(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     city: str
-    start_date: date
-    end_date: date
+    start_date: datetime
+    end_date: datetime
     budget: Budget
     travelling_with: TravellingWith
     accessibility: bool
@@ -89,3 +90,35 @@ class CityDescription(BaseModel):
     description: str
     lat: float
     lon: float
+
+class ItineraryRequest(BaseModel):
+    city: str
+    start_date: datetime
+    end_date: datetime
+    budget: Budget
+    travelling_with: TravellingWith
+    accessibility: bool
+    interested_in: list[Activity]
+    status: ItineraryRequestStatus = ItineraryRequestStatus.PENDING
+    itinerary: list[AssistantItinerary] = []
+
+    @field_serializer('budget')
+    def serialize_budget(self, budget: str):
+        return Budget[budget]
+
+    @field_serializer('interested_in')
+    def serialize_interested_in(self, interested_in: str):
+        return [Activity[activity] for activity in interested_in]
+
+    @field_serializer('travelling_with')
+    def serialize_travelling_with(self, travelling_with: str):
+        return TravellingWith[travelling_with]
+
+    @model_validator(mode='after')
+    def check_dates(self) -> Self:
+        start_date = self.start_date
+        end_date = self.end_date
+        # Check that end_date is greater than or equal to start_date
+        if end_date < start_date:
+            raise ValueError('end_date must be greater than or equal to start_date')
+        return self

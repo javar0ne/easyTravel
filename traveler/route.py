@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, abort
+from flask import request
 from pydantic import ValidationError
 
 from common.exception import ElementAlreadyExistsException, ElementNotFoundException

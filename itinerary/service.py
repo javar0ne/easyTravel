@@ -8,7 +8,8 @@ from bson import ObjectId
 from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
-from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus
+
+from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest
 
 logger = logging.getLogger(__name__)
 
@@ -31,21 +32,41 @@ def get_city_description(city: str) -> Optional[CityDescription]:
 
     return city_description
 
-def generate_itinerary():
-    request_id = db["itinerary_requests"].insert_one({"itinerary": [], "status": ItineraryRequestStatus.PENDING.name}).inserted_id
+def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
+    itinerary_request = db["itinerary_requests"].find_one({"_id": ObjectId(request_id)})
+    return ItineraryRequest(**itinerary_request)
+
+def generate_itinerary_request(itinerary_request: ItineraryRequest):
+    request_id = db["itinerary_requests"].insert_one(itinerary_request.model_dump()).inserted_id
     conversation = Conversation(AssistantItineraryResponse)
     conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
 
-    threading.Thread(target=generate_day_by_day, args=(conversation, request_id)).start()
+    threading.Thread(target=generate_day_by_day, args=(conversation, request_id, itinerary_request)).start()
 
     return request_id
 
-def generate_day_by_day(conversation: Conversation, request_id: ObjectId):
+def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itinerary_request: ItineraryRequest):
     logger.info("starting itinerary generation..")
-    for day in range(1,5):
+    trip_duration = (itinerary_request.end_date - itinerary_request.start_date).days + 1
+    month = itinerary_request.start_date.strftime("%B")
+    interested_in = ','.join(activity.value for activity in itinerary_request.interested_in)
+
+    for day in range(1,trip_duration):
         try:
             logger.info("starting day %d", day)
-            conversation.add_message(ConversationRole.USER.value, ITINERARY_USER_PROMPT.format(day=day))
+            conversation.add_message(
+                ConversationRole.USER.value,
+                ITINERARY_USER_PROMPT.format(
+                    month=month,
+                    city=itinerary_request.city,
+                    travelling_with=itinerary_request.travelling_with.value,
+                    trip_duration=trip_duration,
+                    min_budget=itinerary_request.budget.min,
+                    max_budget=itinerary_request.budget.max,
+                    interested_in=interested_in,
+                    day=day
+                )
+            )
 
             itinerary_response = ask_assistant(conversation)
 
