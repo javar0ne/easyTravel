@@ -9,7 +9,8 @@ from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
 
-from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest
+from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
+    Activity, Budget, TravellingWith
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +48,11 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest):
 
 def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itinerary_request: ItineraryRequest):
     logger.info("starting itinerary generation..")
-    trip_duration = (itinerary_request.end_date - itinerary_request.start_date).days + 1
+    trip_duration = (itinerary_request.end_date - itinerary_request.start_date).days + 2
     month = itinerary_request.start_date.strftime("%B")
-    interested_in = ','.join(activity.value for activity in itinerary_request.interested_in)
+    interested_in = ','.join(Activity[activity].value for activity in itinerary_request.interested_in)
+    budget = Budget[itinerary_request.budget]
+    travelling_with = TravellingWith[itinerary_request.travelling_with]
 
     for day in range(1,trip_duration):
         try:
@@ -59,10 +62,10 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
                 ITINERARY_USER_PROMPT.format(
                     month=month,
                     city=itinerary_request.city,
-                    travelling_with=itinerary_request.travelling_with.value,
+                    travelling_with=travelling_with.value,
                     trip_duration=trip_duration,
-                    min_budget=itinerary_request.budget.min,
-                    max_budget=itinerary_request.budget.max,
+                    min_budget=budget.min,
+                    max_budget=budget.max,
                     interested_in=interested_in,
                     day=day
                 )
@@ -82,6 +85,7 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
             db["itinerary_requests"].update_one({"_id": request_id},{"$set": {"status": ItineraryRequestStatus.ERROR.name}})
             logger.info("error on day %d", day)
             logger.info("stopped itinerary generation!")
+            return
 
     db["itinerary_requests"].update_one({"_id": request_id}, {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}})
     logger.info("completed itinerary generation!")

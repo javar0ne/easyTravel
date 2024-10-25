@@ -1,11 +1,12 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator, field_serializer
+from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
 from common.json_encoders import PyObjectId
+from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
 
@@ -95,30 +96,38 @@ class ItineraryRequest(BaseModel):
     city: str
     start_date: datetime
     end_date: datetime
-    budget: Budget
-    travelling_with: TravellingWith
+    budget: str
+    travelling_with: str
     accessibility: bool
-    interested_in: list[Activity]
-    status: ItineraryRequestStatus = ItineraryRequestStatus.PENDING
+    interested_in: list[str]
+    status: ItineraryRequestStatus = ItineraryRequestStatus.PENDING.name
     itinerary: list[AssistantItinerary] = []
 
-    @field_serializer('budget')
-    def serialize_budget(self, budget: str):
-        return Budget[budget]
+    @model_validator(mode='before')
+    def check_enums(self) -> Self:
+        if not is_valid_enum_name(Budget, self["budget"]):
+            raise ValueError(f'Invalid Budget name: {self["budget"]}')
 
-    @field_serializer('interested_in')
-    def serialize_interested_in(self, interested_in: str):
-        return [Activity[activity] for activity in interested_in]
+        if not is_valid_enum_name(TravellingWith, self["travelling_with"]):
+            raise ValueError(f'Invalid TravellingWith name: {self["travelling_with"]}')
 
-    @field_serializer('travelling_with')
-    def serialize_travelling_with(self, travelling_with: str):
-        return TravellingWith[travelling_with]
+        for activity in self["interested_in"]:
+            if not is_valid_enum_name(Activity, activity):
+                raise ValueError(f'Invalid budget name: {activity}')
+
+        return self
 
     @model_validator(mode='after')
     def check_dates(self) -> Self:
         start_date = self.start_date
         end_date = self.end_date
+
         # Check that end_date is greater than or equal to start_date
         if end_date < start_date:
             raise ValueError('end_date must be greater than or equal to start_date')
+
+        # check that end_date is grater or equal to end_date
+        if start_date < datetime.today().astimezone(timezone.utc):
+            raise ValueError('start_date must be greater than or equal to today')
+
         return self

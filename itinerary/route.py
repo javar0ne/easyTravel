@@ -1,3 +1,4 @@
+import json
 import logging
 
 from flask import request
@@ -30,7 +31,7 @@ def gen_itinerary():
         return success_response({"request_id": str(request_id)})
     except ValidationError as err:
         logger.error("validation error while parsing traveler request", err)
-        return bad_request_response(err.errors())
+        return bad_request_response(err.errors(include_context=False))
     except Exception as err:
         logger.error(str(err))
         return error_response()
