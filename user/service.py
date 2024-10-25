@@ -12,14 +12,14 @@ from common.password_utils import hash_password
 from user.model import COLLECTION_NAME, User, Token
 
 logger = logging.getLogger(__name__)
-collection = db[COLLECTION_NAME]
+users = db[COLLECTION_NAME]
 
 class NotFoundException(Exception):
     def __init__(self,msg):
         super().__init__(msg)
 
 def get_user_by_email(email: str) -> Optional[User]:
-    stored_user = collection.find_one({'email': email})
+    stored_user = users.find_one({'email': email})
 
     if not stored_user:
         return None
@@ -34,7 +34,7 @@ def create_user(email: str, password: str, roles: list[str]) -> Optional[ObjectI
 
     user = User(email=email, password=password, roles=roles)
 
-    return collection.insert_one(user.to_dict()).inserted_id
+    return users.insert_one(user.to_dict()).inserted_id
 
 def blacklist_token(jwt: dict):
     jti = jwt["jti"]

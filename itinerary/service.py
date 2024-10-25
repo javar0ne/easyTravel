@@ -6,13 +6,42 @@ from typing import Optional
 from bson import ObjectId
 
 from common.assistant import ask_assistant, Conversation, ConversationRole
+from common.exception import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
 
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
-    Activity, Budget, TravellingWith
+    Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary
 
 logger = logging.getLogger(__name__)
+itineraries = db[COLLECTION_NAME]
+
+def get_itinerary_by_id(itinerary_id):
+    logger.info("retrieving itinerary eith id %s", itinerary_id)
+    itinerary_document = itineraries.find_one({'_id': ObjectId(itinerary_id)})
+
+    if itinerary_document is None:
+        logger.warning("no itinerary found with id %s", itinerary_id)
+        raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
+
+    logger.info("found itinerary with id %s", itinerary_document)
+    return itinerary_document
+
+def create_itinerary(itinerary_request_id: str) -> Optional[str]:
+    logger.info("storing itinerary..")
+    stored_itinerary_request = db["itinerary_requests"].find_one({'_id': ObjectId(itinerary_request_id)})
+
+    if stored_itinerary_request is None:
+        logger.warning(f"no itinerary request found with id {itinerary_request_id}")
+        raise ElementNotFoundException(f"no itinerary request found with id {itinerary_request_id}")
+
+    itinerary = Itinerary.from_request_document(stored_itinerary_request)
+    result = itineraries.insert_one(itinerary.model_dump(exclude={'id'}))
+
+    db["itinerary_requests"].delete_one({'_id': ObjectId(itinerary_request_id)})
+    logger.info("itinerary stored successfully with id %s", result.inserted_id)
+
+    return str(result.inserted_id)
 
 def get_city_description(city: str) -> Optional[CityDescription]:
     city_key = f"{city.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"

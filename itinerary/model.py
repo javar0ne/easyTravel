@@ -49,21 +49,6 @@ class Budget(Enum):
     def max(self):
         return self.value[1]
 
-class Itinerary(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    city: str
-    start_date: datetime
-    end_date: datetime
-    budget: Budget
-    travelling_with: TravellingWith
-    accessibility: bool
-    interested_in: list[Activity]
-    shared_with: list[str]
-    status: ItineraryStatus
-    docs_notification: bool
-    reminder_notification: bool
-    is_public: bool
-
 class Coordinates(BaseModel):
     lat: float
     lng: float
@@ -131,3 +116,47 @@ class ItineraryRequest(BaseModel):
             raise ValueError('start_date must be greater than or equal to today')
 
         return self
+
+class Itinerary(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    city: str
+    start_date: datetime
+    end_date: datetime
+    budget: Budget
+    travelling_with: TravellingWith
+    accessibility: bool
+    interested_in: list[Activity]
+    shared_with: list[str] = []
+    details: list[AssistantItinerary]
+    status: ItineraryStatus = ItineraryStatus.PENDING.name
+    docs_notification: bool = False
+    reminder_notification: bool = False
+    is_public: bool = False
+
+    @staticmethod
+    def from_request(itinerary_request: ItineraryRequest):
+        itinerary = Itinerary()
+        itinerary.city = itinerary_request.city
+        itinerary.start_date = itinerary_request.start_date
+        itinerary.end_date = itinerary_request.end_date
+        itinerary.budget = itinerary_request.budget
+        itinerary.travelling_with = itinerary_request.travelling_with
+        itinerary.accessibility = itinerary_request.accessibility
+        itinerary.interested_in = itinerary_request.interested_in
+        itinerary.details = itinerary_request.itinerary
+
+        return itinerary
+
+    @staticmethod
+    def from_request_document(itinerary_request: dict):
+        itinerary = Itinerary()
+        itinerary.city = itinerary_request["city"]
+        itinerary.start_date = itinerary_request["start_date"]
+        itinerary.end_date = itinerary_request["end_date"]
+        itinerary.budget = itinerary_request["budget"]
+        itinerary.travelling_with = itinerary_request["travelling_with"]
+        itinerary.accessibility = itinerary_request["accessibility"]
+        itinerary.interested_in = itinerary_request["interested_in"]
+        itinerary.details = itinerary_request["itinerary"]
+
+        return itinerary

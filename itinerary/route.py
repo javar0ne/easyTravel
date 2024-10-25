@@ -5,22 +5,51 @@ from flask import request
 from openai import APIStatusError
 from pydantic import ValidationError
 
-from common.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response
+from common.exception import ElementAlreadyExistsException
+from common.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
+    conflict_response
 from itinerary import itinerary
-from itinerary.model import ItineraryRequest
-from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id
+from itinerary.model import ItineraryRequest, Itinerary
+from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
+    get_itinerary_by_id, create_itinerary
 
 logger = logging.getLogger(__name__)
 
-@itinerary.get('/<city_name>')
-def get(city_name):
+@itinerary.get('/<itinerary_id>')
+def get_itinerary(itinerary_id):
     try:
-        city_description = get_city_description(city_name)
+        itinerary = get_itinerary_by_id(itinerary_id)
+        return Itinerary(**itinerary)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
 
-        return success_response(city_description.model_dump())
+@itinerary.post('/create/<itinerary_request_id>')
+def create(itinerary_request_id):
+    try:
+        inserted_id = create_itinerary(itinerary_request_id)
+        return success_response({"id": inserted_id})
+    except ValidationError as err:
+        logger.error("validation error while parsing traveler request", err)
+        return bad_request_response(err.errors())
+    except ElementAlreadyExistsException as err:
+        logger.error(err.message, err)
+        return conflict_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.get('/city-description/<city_name>')
+def city_description(city_name):
+    try:
+        cd = get_city_description(city_name)
+        return success_response(cd.model_dump())
     except APIStatusError as err:
-        logger.error(err)
+        logger.error(str(err))
         return bad_gateway_response()
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
 
 @itinerary.post('/itinerary-request')
 def gen_itinerary():
