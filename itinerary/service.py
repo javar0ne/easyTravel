@@ -9,9 +9,8 @@ from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exception import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
-
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
-    Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary
+    Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, IsPublicRequest
 
 logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
@@ -42,6 +41,24 @@ def create_itinerary(itinerary_request_id: str) -> Optional[str]:
     logger.info("itinerary stored successfully with id %s", result.inserted_id)
 
     return str(result.inserted_id)
+
+def share_with(share_with: ShareWithRequest):
+    result = itineraries.update_one(
+        {"_id": ObjectId(share_with.id)},
+        {"$push": {"shared_with": {"$each": share_with.users}}}
+    )
+
+    if result.matched_count == 0:
+        raise ElementNotFoundException(f"no itinerary found with id {share_with.id}")
+
+def publish(is_public_req: IsPublicRequest):
+    result = itineraries.update_one(
+        {"_id": ObjectId(is_public_req.id)},
+        {"$set": {"is_public": is_public_req.is_public}}
+    )
+
+    if result.matched_count == 0:
+        raise ElementNotFoundException(f"no itinerary found with id {is_public_req.id}")
 
 def get_city_description(city: str) -> Optional[CityDescription]:
     city_key = f"{city.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"

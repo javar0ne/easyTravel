@@ -12,7 +12,8 @@ Content-Type: application/json
   "interested_in": [
     "NIGHTLIFE",
     "OUTDOOR_ADVENTURES"
-  ]
+  ],
+  "user_id": "67138a600801669c166b8301"
 }
 
 <> 2024-10-26T101520.200.json

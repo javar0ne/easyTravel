@@ -10,6 +10,14 @@ from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
 
+class IsPublicRequest(BaseModel):
+    id: PyObjectId
+    is_public: bool
+
+class ShareWithRequest(BaseModel):
+    id: PyObjectId
+    users: list[str]
+
 class ItineraryRequestStatus(Enum):
     PENDING = "pending"
     COMPLETED = "completed"
@@ -85,6 +93,7 @@ class ItineraryRequest(BaseModel):
     travelling_with: str
     accessibility: bool
     interested_in: list[str]
+    user_id: str
     status: ItineraryRequestStatus = ItineraryRequestStatus.PENDING.name
     details: list[AssistantItinerary] = []
 
@@ -135,5 +144,6 @@ class Itinerary(ItineraryRequest):
             travelling_with=itinerary_request["travelling_with"],
             accessibility=itinerary_request["accessibility"],
             interested_in=itinerary_request["interested_in"],
-            details=itinerary_request["details"]
+            details=itinerary_request["details"],
+            user_id=itinerary_request["user_id"]
         )

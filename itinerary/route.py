@@ -1,17 +1,16 @@
-import json
 import logging
 
 from flask import request
 from openai import APIStatusError
 from pydantic import ValidationError
 
-from common.exception import ElementAlreadyExistsException
+from common.exception import ElementNotFoundException
 from common.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
-    conflict_response
+    no_content_response, not_found_response
 from itinerary import itinerary
-from itinerary.model import ItineraryRequest, Itinerary
+from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, IsPublicRequest
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
-    get_itinerary_by_id, create_itinerary
+    get_itinerary_by_id, create_itinerary, share_with, publish
 
 logger = logging.getLogger(__name__)
 
@@ -32,9 +31,33 @@ def create(itinerary_request_id):
     except ValidationError as err:
         logger.error("validation error while parsing traveler request", err)
         return bad_request_response(err.errors())
-    except ElementAlreadyExistsException as err:
-        logger.error(err.message, err)
-        return conflict_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.post('/share-with')
+def share_itinerary_with():
+    try:
+        users = ShareWithRequest(**request.json)
+        share_with(users)
+
+        return no_content_response()
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.post('/publish')
+def publish_itinerary():
+    try:
+        publish(IsPublicRequest(**request.json))
+
+        return no_content_response()
+    except ValidationError as err:
+        logger.error("validation error while parsing publish itinerary reqeust", err)
+        return bad_request_response(err.errors(include_context=False))
     except Exception as err:
         logger.error(str(err))
         return error_response()
@@ -59,7 +82,7 @@ def gen_itinerary():
         request_id = generate_itinerary_request(itinerary_request)
         return success_response({"request_id": str(request_id)})
     except ValidationError as err:
-        logger.error("validation error while parsing traveler request", err)
+        logger.error("validation error while parsing itinerary request", err)
         return bad_request_response(err.errors(include_context=False))
     except Exception as err:
         logger.error(str(err))
