@@ -104,7 +104,7 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
 
             db["itinerary_requests"].update_one(
                 {"_id": request_id},
-                {"$push": {"itinerary": itinerary_response.itinerary[0].model_dump()}}
+                {"$push": {"details": itinerary_response.itinerary[0].model_dump()}}
             )
 
             conversation.add_message(ConversationRole.ASSISTANT.value, f"{itinerary_response.model_dump()}")
