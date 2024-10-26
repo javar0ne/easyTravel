@@ -10,7 +10,8 @@ from common.exception import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
-    Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, IsPublicRequest
+    Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
+    DuplicateRequest
 
 logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
@@ -51,7 +52,7 @@ def share_with(share_with: ShareWithRequest):
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {share_with.id}")
 
-def publish(is_public_req: IsPublicRequest):
+def publish(is_public_req: PublishReqeust):
     result = itineraries.update_one(
         {"_id": ObjectId(is_public_req.id)},
         {"$set": {"is_public": is_public_req.is_public}}
@@ -59,6 +60,21 @@ def publish(is_public_req: IsPublicRequest):
 
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {is_public_req.id}")
+
+def completed(itinerary_id: str):
+    result = itineraries.update_one({"_id": ObjectId(itinerary_id)}, {"$set": {"status": ItineraryStatus.COMPLETED.name}})
+
+    if result.matched_count == 0:
+        raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
+
+def duplicate(duplicate_req: DuplicateRequest):
+    itinerary_document = get_itinerary_by_id(duplicate_req.id)
+    itinerary_document["user_id"] = duplicate_req.user_id
+
+    new_itinerary = Itinerary.from_document(itinerary_document)
+    result = itineraries.insert_one(new_itinerary.model_dump(exclude={'id'}))
+
+    return str(result.inserted_id)
 
 def get_city_description(city: str) -> Optional[CityDescription]:
     city_key = f"{city.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"

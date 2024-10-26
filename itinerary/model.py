@@ -10,7 +10,11 @@ from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
 
-class IsPublicRequest(BaseModel):
+class DuplicateRequest(BaseModel):
+    id: PyObjectId
+    user_id: str
+
+class PublishReqeust(BaseModel):
     id: PyObjectId
     is_public: bool
 
@@ -133,6 +137,20 @@ class Itinerary(ItineraryRequest):
     docs_notification: bool = False
     reminder_notification: bool = False
     is_public: bool = False
+
+    @staticmethod
+    def from_document(itinerary: dict):
+        return Itinerary(
+            city=itinerary["city"],
+            start_date=itinerary["start_date"],
+            end_date=itinerary["end_date"],
+            budget=itinerary["budget"],
+            travelling_with=itinerary["travelling_with"],
+            accessibility=itinerary["accessibility"],
+            interested_in=itinerary["interested_in"],
+            details=itinerary["details"],
+            user_id=itinerary["user_id"]
+        )
 
     @staticmethod
     def from_request_document(itinerary_request: dict):
