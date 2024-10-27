@@ -10,11 +10,11 @@ from organization.model import COLLECTION_NAME, Organization, OrganizationCreate
 from user.service import create_user, NotFoundException
 
 logger = logging.getLogger(__name__)
-collection = db[COLLECTION_NAME]
+organizations = db[COLLECTION_NAME]
 
 def get_organization_by_id(organization_id: str) -> Optional[dict]:
     logger.info("retrieving organization with id %s", organization_id)
-    organization_document = collection.find_one({'_id': ObjectId(organization_id)})
+    organization_document = organizations.find_one({'_id': ObjectId(organization_id)})
 
     if organization_document is None:
         raise NotFoundException("no organization found with id {organization_id}")
@@ -30,7 +30,7 @@ def create_organization(organization: OrganizationCreateModel) -> Optional[str]:
                           [Role.ORGANIZATION.name])
 
     organization.user_id = str(user_id)
-    stored_organization = collection.insert_one(organization.model_dump(exclude={"email","password"}))
+    stored_organization = organizations.insert_one(organization.model_dump(exclude={"email", "password"}))
     logger.info("organization stored successfully with id %s", stored_organization.inserted_id)
 
     return str(stored_organization.inserted_id)
@@ -40,5 +40,5 @@ def update_organization(id: str, updated_organization: OrganizationUpdateModel) 
     if get_organization_by_id(id) is None:
         raise ElementNotFoundException(f"no traveler found with id: {id}")
 
-    collection.update_one({'_id': ObjectId(id)}, {'$set': updated_organization.model_dump()})
+    organizations.update_one({'_id': ObjectId(id)}, {'$set': updated_organization.model_dump()})
     logger.info("organization with id %s updated successfully", id)

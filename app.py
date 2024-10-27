@@ -4,8 +4,9 @@ import os
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
 
-from common.extensions import redis
+from common.extensions import redis_auth
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
+from itinerary import itinerary
 from organization import organization
 from traveler import traveler
 from user import user
@@ -14,6 +15,7 @@ app = Flask(__name__)
 app.register_blueprint(traveler)
 app.register_blueprint(organization)
 app.register_blueprint(user)
+app.register_blueprint(itinerary)
 
 logging.basicConfig(level=os.getenv('LOG_LEVEL', 'DEBUG'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -41,7 +43,7 @@ def handle_unauthorized(error):
 
 # handling 500 error
 @app.errorhandler(500)
-def handle_internal_server_error():
+def handle_internal_server_error(error):
     return error_response()
 
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'default-secret-key')
@@ -50,7 +52,7 @@ jwt = JWTManager(app)
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blacklist(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]
-    return redis.exists(jti)
+    return redis_auth.exists(jti)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

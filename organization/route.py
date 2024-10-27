@@ -49,7 +49,7 @@ def update(organization_id):
         logger.error("validation error while parsing organization request", err)
         return bad_request_response(err.errors())
     except ElementNotFoundException as err:
-        logger.error(err.message,err)
+        logger.warning(str(err))
         return not_found_response(err.message)
     except Exception as e:
         logger.error(str(e))

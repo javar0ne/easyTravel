@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, abort
+from flask import request
 from pydantic import ValidationError
 
 from common.exception import ElementAlreadyExistsException, ElementNotFoundException
@@ -18,8 +18,8 @@ def get(traveler_id):
         traveler = get_traveler_by_id(traveler_id)
         return TravelerModel(**traveler).model_dump(), 200
     except ElementNotFoundException as err:
-        logger.error(err.message, err)
-        return conflict_response(err.message)
+        logger.warning(str(err))
+        return not_found_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
@@ -54,7 +54,7 @@ def update(traveler_id):
         logger.error("validation error while parsing traveler request", err)
         return bad_request_response(err.errors())
     except ElementNotFoundException as err:
-        logger.error(err.message, err)
+        logger.warning(str(err))
         return not_found_response(err.message)
     except Exception as err:
         logger.error(str(err))
