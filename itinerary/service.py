@@ -43,6 +43,17 @@ def create_itinerary(itinerary_request_id: str) -> Optional[str]:
 
     return str(result.inserted_id)
 
+def update_itinerary(itinerary_id: str, updated_itinerary: Itinerary):
+    logger.info("updating itinerary With id %s", itinerary_id)
+
+    result = itineraries.update_one(
+        {'_id': ObjectId(itinerary_id)},
+        {"$set": updated_itinerary.model_dump(exclude={'id'})}
+    )
+
+    if result.matched_count == 0:
+        raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
+
 def share_with(share_with: ShareWithRequest):
     result = itineraries.update_one(
         {"_id": ObjectId(share_with.id)},
@@ -52,14 +63,14 @@ def share_with(share_with: ShareWithRequest):
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {share_with.id}")
 
-def publish(is_public_req: PublishReqeust):
+def publish(publish_req: PublishReqeust):
     result = itineraries.update_one(
-        {"_id": ObjectId(is_public_req.id)},
-        {"$set": {"is_public": is_public_req.is_public}}
+        {"_id": ObjectId(publish_req.id)},
+        {"$set": {"is_public": publish_req.is_public}}
     )
 
     if result.matched_count == 0:
-        raise ElementNotFoundException(f"no itinerary found with id {is_public_req.id}")
+        raise ElementNotFoundException(f"no itinerary found with id {publish_req.id}")
 
 def completed(itinerary_id: str):
     result = itineraries.update_one({"_id": ObjectId(itinerary_id)}, {"$set": {"status": ItineraryStatus.COMPLETED.name}})
@@ -143,7 +154,7 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
             conversation.add_message(ConversationRole.ASSISTANT.value, f"{itinerary_response.model_dump()}")
             logger.info("completed day %d", day)
         except Exception as err:
-            logger.error(err)
+            logger.error(str(err))
             db["itinerary_requests"].update_one({"_id": request_id},{"$set": {"status": ItineraryRequestStatus.ERROR.name}})
             logger.info("error on day %d", day)
             logger.info("stopped itinerary generation!")

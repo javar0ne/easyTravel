@@ -133,7 +133,7 @@ class ItineraryRequest(BaseModel):
 class Itinerary(ItineraryRequest):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     shared_with: list[str] = []
-    status: ItineraryStatus = ItineraryStatus.PENDING.name
+    status: str = ItineraryStatus.PENDING.name
     docs_notification: bool = False
     reminder_notification: bool = False
     is_public: bool = False

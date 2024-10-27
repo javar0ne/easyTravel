@@ -18,7 +18,7 @@ def get(traveler_id):
         traveler = get_traveler_by_id(traveler_id)
         return TravelerModel(**traveler).model_dump(), 200
     except ElementNotFoundException as err:
-        logger.warning(err.message, err)
+        logger.warning(str(err))
         return not_found_response(err.message)
     except Exception as err:
         logger.error(str(err))
@@ -54,7 +54,7 @@ def update(traveler_id):
         logger.error("validation error while parsing traveler request", err)
         return bad_request_response(err.errors())
     except ElementNotFoundException as err:
-        logger.warning(err.message, err)
+        logger.warning(str(err))
         return not_found_response(err.message)
     except Exception as err:
         logger.error(str(err))

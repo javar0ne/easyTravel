@@ -10,7 +10,7 @@ from common.response_wrapper import success_response, bad_gateway_response, erro
 from itinerary import itinerary
 from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
-    get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate
+    get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,23 @@ def create(itinerary_request_id):
     except ValidationError as err:
         logger.error("validation error while parsing traveler request", err)
         return bad_request_response(err.errors())
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.put('/<itinerary_id>')
+def update(itinerary_id):
+    try:
+        updated_itinerary = Itinerary(**request.json)
+        update_itinerary(itinerary_id, updated_itinerary)
+
+        return no_content_response()
+    except ValidationError as err:
+        logger.error("validation error while parsing itinerary request", err)
+        return bad_request_response(err.errors())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
@@ -104,7 +121,7 @@ def city_description(city_name):
         return error_response()
 
 @itinerary.post('/itinerary-request')
-def gen_itinerary():
+def generate_itinerary():
     try:
         logger.debug("parsing request body..")
         itinerary_request = ItineraryRequest(**request.json)
