@@ -9,9 +9,10 @@ from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exception import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
+from common.model import PaginatedResponse
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
-    DuplicateRequest
+    DuplicateRequest, ItinerarySearch
 
 logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
@@ -54,14 +55,47 @@ def update_itinerary(itinerary_id: str, updated_itinerary: Itinerary):
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
 
-def share_with(share_with: ShareWithRequest):
+def search_itineraries(itinerary_search: ItinerarySearch):
+    pipeline = []
+    filters = {}
+
+    if itinerary_search.city:
+        filters["city"] = itinerary_search.city
+    if Budget[itinerary_search.budget] != Budget.NONE:
+        filters["budget"] = itinerary_search.budget
+    if TravellingWith[itinerary_search.travelling_with] != TravellingWith.NONE:
+        filters["travelling_with"] = {"$in": {"$each": itinerary_search.travelling_with}}
+    if itinerary_search.interested_in:
+        filters["interested_in"] = {"$in": {"$each": itinerary_search.interested_in}}
+
+    pipeline.append({"$match": filters})
+    pipeline.append({"$project": {"details": 0}})
+    pipeline.append({"$skip": itinerary_search.elements_to_skip})
+    pipeline.append({"$limit": itinerary_search.page_size})
+
+    cursor = itineraries.aggregate(pipeline)
+    total_itineraries = itineraries.count_documents(filters)
+
+    found_itineraries = []
+    for it in list(cursor):
+        model_dump = Itinerary(**it).model_dump()
+        found_itineraries.append(model_dump)
+
+    return PaginatedResponse(
+        content=found_itineraries,
+        total_elements=total_itineraries,
+        page_size=itinerary_search.page_size,
+        page_number=itinerary_search.page_number
+    )
+
+def share_with(share_with_req: ShareWithRequest):
     result = itineraries.update_one(
-        {"_id": ObjectId(share_with.id)},
-        {"$push": {"shared_with": {"$each": share_with.users}}}
+        {"_id": ObjectId(share_with_req.id)},
+        {"$push": {"shared_with": {"$each": share_with_req.users}}}
     )
 
     if result.matched_count == 0:
-        raise ElementNotFoundException(f"no itinerary found with id {share_with.id}")
+        raise ElementNotFoundException(f"no itinerary found with id {share_with_req.id}")
 
 def publish(publish_req: PublishReqeust):
     result = itineraries.update_one(

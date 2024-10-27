@@ -8,9 +8,11 @@ from common.exception import ElementNotFoundException
 from common.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
     no_content_response, not_found_response
 from itinerary import itinerary
-from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest
+from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest, \
+    ItinerarySearch
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
-    get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary
+    get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
+    search_itineraries
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,20 @@ def update(itinerary_id):
     except ElementNotFoundException as err:
         logger.warning(str(err))
         return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.post('/search')
+def search():
+    try:
+        itinerary_search = ItinerarySearch(**request.json)
+        itineraries = search_itineraries(itinerary_search)
+
+        return success_response(itineraries.model_dump())
+    except ValidationError as err:
+        logger.error("validation error while parsing itinerary request", err)
+        return bad_request_response(err.errors())
     except Exception as err:
         logger.error(str(err))
         return error_response()

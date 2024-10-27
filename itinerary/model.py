@@ -6,21 +6,10 @@ from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
 from common.json_encoders import PyObjectId
+from common.model import Paginated
 from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
-
-class DuplicateRequest(BaseModel):
-    id: PyObjectId
-    user_id: str
-
-class PublishReqeust(BaseModel):
-    id: PyObjectId
-    is_public: bool
-
-class ShareWithRequest(BaseModel):
-    id: PyObjectId
-    users: list[str]
 
 class ItineraryRequestStatus(Enum):
     PENDING = "pending"
@@ -43,12 +32,14 @@ class Activity(Enum):
     SPA_WELLNESS = "spa wellness"
 
 class TravellingWith(Enum):
+    NONE = "none"
     SOLO = "solo"
     COUPLE = "in couple"
     FAMILY = "with family"
     FRIENDS = "with friends"
 
 class Budget(Enum):
+    NONE = (-1, -1)
     LOW = (0, 500)
     MEDIUM = (500, 1000)
     HIGH = (1000, 5000)
@@ -60,6 +51,52 @@ class Budget(Enum):
     @property
     def max(self):
         return self.value[1]
+
+class ItinerarySearch(Paginated):
+    city: str = ""
+    budget: str = Budget.NONE.name
+    interested_in: list[str] = []
+    travelling_with: str = TravellingWith.NONE.name
+
+    @model_validator(mode='before')
+    def check_enums(self) -> Self:
+        if "budget" in self and not is_valid_enum_name(Budget, self["budget"]):
+            raise ValueError(f'Invalid Budget name: {self["budget"]}')
+
+        if "interested_in" in self:
+            for activity in self["interested_in"]:
+                if not is_valid_enum_name(Activity, activity):
+                    raise ValueError(f'Invalid Activity name: {activity}')
+
+        if "travelling_with" in self and not is_valid_enum_name(TravellingWith, self["travelling_with"]):
+            raise ValueError(f'Invalid TravellingWith name: {self["travelling_with"]}')
+
+        return self
+
+    @model_validator(mode='after')
+    def check_filters(self) -> Self:
+        if (
+            self.city == "" and
+            self.budget == Budget.NONE.name and
+            self.travelling_with == TravellingWith.NONE.name and
+            self.interested_in == []
+        ):
+            raise ValueError('No filter provided, at least one should not be empty!')
+
+        return self
+
+
+class DuplicateRequest(BaseModel):
+    id: PyObjectId
+    user_id: str
+
+class PublishReqeust(BaseModel):
+    id: PyObjectId
+    is_public: bool
+
+class ShareWithRequest(BaseModel):
+    id: PyObjectId
+    users: list[str]
 
 class Coordinates(BaseModel):
     lat: float
@@ -97,7 +134,7 @@ class ItineraryRequest(BaseModel):
     travelling_with: str
     accessibility: bool
     interested_in: list[str]
-    user_id: str
+    user_id: PyObjectId
     status: ItineraryRequestStatus = ItineraryRequestStatus.PENDING.name
     details: list[AssistantItinerary] = []
 
@@ -111,7 +148,7 @@ class ItineraryRequest(BaseModel):
 
         for activity in self["interested_in"]:
             if not is_valid_enum_name(Activity, activity):
-                raise ValueError(f'Invalid budget name: {activity}')
+                raise ValueError(f'Invalid Activity name: {activity}')
 
         return self
 
