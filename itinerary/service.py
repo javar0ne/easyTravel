@@ -12,7 +12,7 @@ from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTI
 from common.model import PaginatedResponse
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
-    DuplicateRequest, ItinerarySearch
+    DuplicateRequest, ItinerarySearch, ItineraryMeta
 
 logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
@@ -39,6 +39,9 @@ def create_itinerary(itinerary_request_id: str) -> Optional[str]:
     itinerary = Itinerary.from_request_document(stored_itinerary_request)
     result = itineraries.insert_one(itinerary.model_dump(exclude={'id'}))
 
+    itinerary_meta = ItineraryMeta(itinerary_id=result.inserted_id)
+    db["itinerary_metas"].insert_one(itinerary_meta.model_dump(exclude={'id'}))
+
     db["itinerary_requests"].delete_one({'_id': ObjectId(itinerary_request_id)})
     logger.info("itinerary stored successfully with id %s", result.inserted_id)
 
@@ -58,6 +61,7 @@ def update_itinerary(itinerary_id: str, updated_itinerary: Itinerary):
 def search_itineraries(itinerary_search: ItinerarySearch):
     pipeline = []
     filters = {}
+    found_itineraries = []
 
     if itinerary_search.city:
         filters["city"] = itinerary_search.city
@@ -76,10 +80,8 @@ def search_itineraries(itinerary_search: ItinerarySearch):
     cursor = itineraries.aggregate(pipeline)
     total_itineraries = itineraries.count_documents(filters)
 
-    found_itineraries = []
     for it in list(cursor):
-        model_dump = Itinerary(**it).model_dump()
-        found_itineraries.append(model_dump)
+        found_itineraries.append(Itinerary(**it).model_dump())
 
     return PaginatedResponse(
         content=found_itineraries,
@@ -87,6 +89,19 @@ def search_itineraries(itinerary_search: ItinerarySearch):
         page_size=itinerary_search.page_size,
         page_number=itinerary_search.page_number
     )
+
+def get_completed_itineraries(user_id: str):
+    found_itineraries = []
+
+    cursor = itineraries.aggregate([
+        {"$match": {"user_id": user_id, "status": ItineraryStatus.COMPLETED.name}},
+        {"$project": {"details": 0}}
+    ])
+
+    for it in list(cursor):
+        found_itineraries.append(Itinerary(**it).model_dump())
+
+    return found_itineraries
 
 def share_with(share_with_req: ShareWithRequest):
     result = itineraries.update_one(

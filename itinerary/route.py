@@ -1,18 +1,20 @@
 import logging
 
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from openai import APIStatusError
 from pydantic import ValidationError
 
 from common.exception import ElementNotFoundException
 from common.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
     no_content_response, not_found_response
+from common.role import roles_required, Role
 from itinerary import itinerary
 from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest, \
     ItinerarySearch
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
-    search_itineraries
+    search_itineraries, get_completed_itineraries
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +66,17 @@ def search():
     except ValidationError as err:
         logger.error("validation error while parsing itinerary request", err)
         return bad_request_response(err.errors())
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.get('/completed')
+@roles_required([Role.TRAVELER.name, Role.ORGANIZATION.name])
+def completed_itineraries():
+    try:
+        itineraries = get_completed_itineraries(get_jwt_identity())
+
+        return success_response(itineraries)
     except Exception as err:
         logger.error(str(err))
         return error_response()

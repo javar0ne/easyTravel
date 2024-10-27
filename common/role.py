@@ -9,14 +9,20 @@ class Role(Enum):
     ORGANIZATION = "organization"
     ADMIN = "admin"
 
-def role_required(required_role):
+def roles_required(required_roles: list[str]):
     def decorator(fn):
         @wraps(fn)
         @jwt_required()
         def wrapper(*args, **kwargs):
+            has_required_role = False
             claims = get_jwt()
-            if required_role not in claims["roles"]:
+            for required_role in required_roles:
+                if required_role in claims["roles"]:
+                    has_required_role = True
+
+            if not has_required_role:
                 return forbidden_response()
+
             return fn(*args, **kwargs)
         return wrapper
     return decorator

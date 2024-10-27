@@ -202,3 +202,10 @@ class Itinerary(ItineraryRequest):
             details=itinerary_request["details"],
             user_id=itinerary_request["user_id"]
         )
+
+class ItineraryMeta(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    itinerary_id: PyObjectId
+    duplicated_by: list[str] = []
+    saved_by: list[str] = []
+    views: int = 0
