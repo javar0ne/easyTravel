@@ -18,7 +18,7 @@ class ItineraryRequestStatus(Enum):
 
 class ItineraryStatus(Enum):
     PENDING = "pending"
-    STARTED = "started"
+    READY = "ready"
     COMPLETED = "completed"
 
 class Activity(Enum):
