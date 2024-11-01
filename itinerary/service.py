@@ -9,7 +9,7 @@ from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exception import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
-from common.model import PaginatedResponse
+from common.model import PaginatedResponse, Paginated
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta
@@ -102,6 +102,29 @@ def get_completed_itineraries(user_id: str):
         found_itineraries.append(Itinerary(**it).model_dump())
 
     return found_itineraries
+
+def get_shared_itineraries(user_id: str, paginated: Paginated):
+    found_itineraries = []
+    shared_with_filter = {"shared_with": user_id}
+
+    cursor = itineraries.aggregate([
+        {"$match": shared_with_filter},
+        {"$project": {"details": 0}},
+        {"$skip": paginated.elements_to_skip},
+        {"$limit": paginated.page_size}
+
+    ])
+    total_itineraries = itineraries.count_documents(shared_with_filter)
+
+    for it in list(cursor):
+        found_itineraries.append(Itinerary(**it).model_dump())
+
+    return PaginatedResponse(
+        content=found_itineraries,
+        total_elements=total_itineraries,
+        page_size=paginated.page_size,
+        page_number=paginated.page_number
+    )
 
 def share_with(share_with_req: ShareWithRequest):
     result = itineraries.update_one(

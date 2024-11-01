@@ -6,6 +6,7 @@ from openai import APIStatusError
 from pydantic import ValidationError
 
 from common.exception import ElementNotFoundException
+from common.model import Paginated
 from common.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
     no_content_response, not_found_response
 from common.role import roles_required, Role
@@ -14,7 +15,7 @@ from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, Publi
     ItinerarySearch
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
-    search_itineraries, get_completed_itineraries
+    search_itineraries, get_completed_itineraries, get_shared_itineraries
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +82,21 @@ def completed_itineraries():
         logger.error(str(err))
         return error_response()
 
+@itinerary.post('/shared')
+@roles_required([Role.TRAVELER.name])
+def shared_itineraries():
+    try:
+        paginated = Paginated(**request.json)
+        itineraries = get_shared_itineraries(get_jwt_identity(), paginated)
+
+        return success_response(itineraries.model_dump())
+    except ValidationError as err:
+        logger.error("validation error while parsing shared itineraries reqeust", err)
+        return bad_request_response(err.errors(include_context=False))
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
 @itinerary.post('/share-with')
 def share_itinerary_with():
     try:
@@ -88,6 +104,9 @@ def share_itinerary_with():
         share_with(users)
 
         return no_content_response()
+    except ValidationError as err:
+        logger.error("validation error while parsing share itinerary with reqeust", err)
+        return bad_request_response(err.errors(include_context=False))
     except ElementNotFoundException as err:
         logger.warning(str(err))
         return not_found_response(err.message)
