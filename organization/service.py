@@ -3,11 +3,11 @@ from typing import Optional
 
 from bson import ObjectId
 
-from common.exception import ElementNotFoundException
+from common.exceptions import ElementNotFoundException
 from common.extensions import db
 from common.role import Role
-from organization.model import COLLECTION_NAME, Organization, OrganizationCreateModel, OrganizationUpdateModel
-from user.service import create_user, NotFoundException
+from organization.model import COLLECTION_NAME, OrganizationCreateModel, OrganizationUpdateModel
+from user.service import create_user
 
 logger = logging.getLogger(__name__)
 organizations = db[COLLECTION_NAME]
@@ -17,7 +17,7 @@ def get_organization_by_id(organization_id: str) -> Optional[dict]:
     organization_document = organizations.find_one({'_id': ObjectId(organization_id)})
 
     if organization_document is None:
-        raise NotFoundException("no organization found with id {organization_id}")
+        raise ElementNotFoundException("no organization found with id {organization_id}")
 
     logger.info("found organization with id %s", organization_id)
     return organization_document

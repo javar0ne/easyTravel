@@ -1,8 +1,15 @@
 import os
 
+from flask_mailman import Mail
 from openai import OpenAI
 from pymongo import MongoClient
 from redis import Redis
+
+# general
+APP_HOST = os.getenv("APP_HOST", "http://127.0.0.1:5000")
+
+# mail
+mail = Mail()
 
 # redis_auth
 DAILY_EXPIRE = 60*60*24
@@ -32,8 +39,10 @@ ITINERARY_USER_PROMPT = """
     In {month} I’m visiting {city} {travelling_with}. I’m staying there for {trip_duration} day(s) and 
     with a range budget per person between {min_budget} and {max_budget} EUR.  
     I’m interested into: {interested_in}. 
-    Generate the itinerary for day {day}.
 """
+
+ITINERARY_DAILY_PROMPT = "Generate the itinerary for day {day}."
+
 ITINERARY_SYSTEM_INSTRUCTIONS = {
     "role": "system",
     "content": """
