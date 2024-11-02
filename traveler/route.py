@@ -3,7 +3,7 @@ import logging
 from flask import request
 from pydantic import ValidationError
 
-from common.exception import ElementAlreadyExistsException, ElementNotFoundException
+from common.exceptions import ElementAlreadyExistsException, ElementNotFoundException
 from common.response_wrapper import bad_request_response, conflict_response, success_response, not_found_response, \
     error_response, no_content_response
 from traveler import traveler

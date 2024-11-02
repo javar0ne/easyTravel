@@ -1,18 +1,20 @@
 import json
 import logging
 import threading
+from datetime import datetime, timezone
 from typing import Optional
 
 from bson import ObjectId
 
 from common.assistant import ask_assistant, Conversation, ConversationRole
-from common.exception import ElementNotFoundException
+from common.exceptions import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
-    redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
+    redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
+    ITINERARY_DAILY_PROMPT
 from common.model import PaginatedResponse, Paginated
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
-    DuplicateRequest, ItinerarySearch, ItineraryMeta
+    DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException
 
 logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
@@ -183,6 +185,9 @@ def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
     return ItineraryRequest(**itinerary_request)
 
 def generate_itinerary_request(itinerary_request: ItineraryRequest):
+    if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
+        raise DateNotValidException("start date must be greater or equal to today")
+
     request_id = db["itinerary_requests"].insert_one(itinerary_request.model_dump()).inserted_id
     conversation = Conversation(AssistantItineraryResponse)
     conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
@@ -199,21 +204,25 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
     budget = Budget[itinerary_request.budget]
     travelling_with = TravellingWith[itinerary_request.travelling_with]
 
+    conversation.add_message(
+        ConversationRole.USER.value,
+        ITINERARY_USER_PROMPT.format(
+            month=month,
+            city=itinerary_request.city,
+            travelling_with=travelling_with.value,
+            trip_duration=trip_duration,
+            min_budget=budget.min,
+            max_budget=budget.max,
+            interested_in=interested_in
+        )
+    )
+
     for day in range(1,trip_duration):
         try:
             logger.info("starting day %d", day)
             conversation.add_message(
                 ConversationRole.USER.value,
-                ITINERARY_USER_PROMPT.format(
-                    month=month,
-                    city=itinerary_request.city,
-                    travelling_with=travelling_with.value,
-                    trip_duration=trip_duration,
-                    min_budget=budget.min,
-                    max_budget=budget.max,
-                    interested_in=interested_in,
-                    day=day
-                )
+                ITINERARY_DAILY_PROMPT.format(day=day)
             )
 
             itinerary_response = ask_assistant(conversation)

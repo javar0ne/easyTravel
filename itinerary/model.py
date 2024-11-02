@@ -11,6 +11,11 @@ from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
 
+class DateNotValidException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
 class ItineraryRequestStatus(Enum):
     PENDING = "pending"
     COMPLETED = "completed"
@@ -161,19 +166,53 @@ class ItineraryRequest(BaseModel):
         if end_date < start_date:
             raise ValueError('end_date must be greater than or equal to start_date')
 
-        # check that end_date is grater or equal to end_date
+        # check that end_date is grater or equal to today
         if start_date.astimezone(timezone.utc) < datetime.today().astimezone(timezone.utc):
             raise ValueError('start_date must be greater than or equal to today')
 
         return self
 
-class Itinerary(ItineraryRequest):
+class Itinerary(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    city: str
+    start_date: datetime
+    end_date: datetime
+    budget: str
+    travelling_with: str
+    accessibility: bool
+    interested_in: list[str]
+    user_id: PyObjectId
+    details: list[AssistantItinerary] = []
     shared_with: list[str] = []
     status: str = ItineraryStatus.PENDING.name
     docs_notification: bool = False
     reminder_notification: bool = False
     is_public: bool = False
+
+    @model_validator(mode='before')
+    def check_enums(self) -> Self:
+        if not is_valid_enum_name(Budget, self["budget"]):
+            raise ValueError(f'Invalid Budget name: {self["budget"]}')
+
+        if not is_valid_enum_name(TravellingWith, self["travelling_with"]):
+            raise ValueError(f'Invalid TravellingWith name: {self["travelling_with"]}')
+
+        for activity in self["interested_in"]:
+            if not is_valid_enum_name(Activity, activity):
+                raise ValueError(f'Invalid Activity name: {activity}')
+
+        return self
+
+    @model_validator(mode='after')
+    def check_dates(self) -> Self:
+        start_date = self.start_date
+        end_date = self.end_date
+
+        # Check that end_date is greater than or equal to start_date
+        if end_date < start_date:
+            raise ValueError('end_date must be greater than or equal to start_date')
+
+        return self
 
     @staticmethod
     def from_document(itinerary: dict):
