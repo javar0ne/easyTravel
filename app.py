@@ -6,9 +6,8 @@ from flask import Flask, request
 from flask_jwt_extended import JWTManager
 from flask_apscheduler import APScheduler
 
-from common.job import notification_daily_travel
-from common.extensions import redis_auth, mail
-from common.extensions import redis_auth, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES
+from common.extensions import redis_auth, mail, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES
+from common.job import job_daily_travel_schedule
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
 from itinerary import itinerary
 from organization import organization
@@ -82,7 +81,7 @@ def check_if_token_not_valid(jwt_header, jwt_payload):
 
 #initializer scheduler
 scheduler = APScheduler()
-scheduler.add_job(id= "job_daily_travel_schedule", func = notification_daily_travel, trigger = 'cron', hour = JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, minute = JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES)
+scheduler.add_job(id= "job_daily_travel_schedule", func = job_daily_travel_schedule, trigger = 'cron', hour = JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, minute = JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES)
 scheduler.start()
 
 if __name__ == '__main__':

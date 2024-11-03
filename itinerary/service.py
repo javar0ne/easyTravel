@@ -12,6 +12,7 @@ from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTI
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
     ITINERARY_DAILY_PROMPT
 from common.model import PaginatedResponse, Paginated
+from itinerary import itinerary
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
 
 def get_itinerary_by_id(itinerary_id):
-    logger.info("retrieving itinerary eith id %s", itinerary_id)
+    logger.info("retrieving itinerary with id %s", itinerary_id)
     itinerary_document = itineraries.find_one({'_id': ObjectId(itinerary_id)})
 
     if itinerary_document is None:
@@ -29,6 +30,16 @@ def get_itinerary_by_id(itinerary_id):
 
     logger.info("found itinerary with id %s", itinerary_document)
     return itinerary_document
+
+def get_itineraries_by_status(status):
+    logger.info("retrieving itineraries with status %s", status)
+    cursor = itineraries.find({"status": status})
+    itinerary_documents = list(cursor)
+    if len(itinerary_documents) == 0:
+        logger.warning("no itinerary found with status %s", status)
+        raise ElementNotFoundException(f"no itinerary found with status {status}")
+
+    return itinerary_documents
 
 def create_itinerary(itinerary_request_id: str) -> Optional[str]:
     logger.info("storing itinerary..")
