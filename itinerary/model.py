@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
 from common.json_encoders import PyObjectId
-from common.model import Paginated
+from common.model import Paginated, Coordinates
 from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
@@ -98,7 +98,6 @@ class ItinerarySearch(Paginated):
 
 class DuplicateRequest(BaseModel):
     id: PyObjectId
-    user_id: str
 
 class PublishReqeust(BaseModel):
     id: PyObjectId
@@ -107,10 +106,6 @@ class PublishReqeust(BaseModel):
 class ShareWithRequest(BaseModel):
     id: PyObjectId
     users: list[str]
-
-class Coordinates(BaseModel):
-    lat: float
-    lng: float
 
 class Stage(BaseModel):
     period: str

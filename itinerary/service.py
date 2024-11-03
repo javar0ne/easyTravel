@@ -2,7 +2,6 @@ import json
 import logging
 import threading
 from datetime import datetime, timezone
-from typing import Optional
 
 from bson import ObjectId
 
@@ -12,7 +11,6 @@ from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTI
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
     ITINERARY_DAILY_PROMPT
 from common.model import PaginatedResponse, Paginated
-from itinerary import itinerary
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException
@@ -25,7 +23,6 @@ def get_itinerary_by_id(itinerary_id) -> Itinerary:
     itinerary_document = itineraries.find_one({'_id': ObjectId(itinerary_id)})
 
     if itinerary_document is None:
-        logger.warning("no itinerary found with id %s", itinerary_id)
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
 
     logger.info("found itinerary with id %s", itinerary_document)
@@ -44,6 +41,8 @@ def get_itineraries_by_status(status) -> list[Itinerary]:
     for it in itinerary_documents:
         found_itineraries.append(Itinerary(**it))
 
+    logger.info("found %d itineraries with status %s", len(found_itineraries), status)
+
     return found_itineraries
 
 def create_itinerary(itinerary_request_id: str) -> str:
@@ -51,7 +50,6 @@ def create_itinerary(itinerary_request_id: str) -> str:
     stored_itinerary_request = db["itinerary_requests"].find_one({'_id': ObjectId(itinerary_request_id)})
 
     if stored_itinerary_request is None:
-        logger.warning(f"no itinerary request found with id {itinerary_request_id}")
         raise ElementNotFoundException(f"no itinerary request found with id {itinerary_request_id}")
 
     itinerary = Itinerary.from_request_document(stored_itinerary_request)
@@ -66,7 +64,7 @@ def create_itinerary(itinerary_request_id: str) -> str:
     return str(result.inserted_id)
 
 def update_itinerary(itinerary_id: str, updated_itinerary: Itinerary):
-    logger.info("updating itinerary With id %s", itinerary_id)
+    logger.info("updating itinerary with id %s", itinerary_id)
 
     result = itineraries.update_one(
         {'_id': ObjectId(itinerary_id)},
@@ -76,10 +74,14 @@ def update_itinerary(itinerary_id: str, updated_itinerary: Itinerary):
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
 
+    logger.info("updated itinerary with id %s", itinerary_id)
+
 def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
     pipeline = []
     filters = {}
     found_itineraries = []
+
+    logger.info("searching for itineraries..")
 
     if itinerary_search.city:
         filters["city"] = itinerary_search.city
@@ -101,6 +103,8 @@ def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
     for it in list(cursor):
         found_itineraries.append(Itinerary(**it).model_dump())
 
+    logger.info("found %d itineraries!", len(found_itineraries))
+
     return PaginatedResponse(
         content=found_itineraries,
         total_elements=total_itineraries,
@@ -111,6 +115,8 @@ def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
 def get_completed_itineraries(user_id: str) -> list[Itinerary]:
     found_itineraries = []
 
+    logger.info("searching for completed itineraries..")
+
     cursor = itineraries.aggregate([
         {"$match": {"user_id": user_id, "status": ItineraryStatus.COMPLETED.name}},
         {"$project": {"details": 0}}
@@ -119,11 +125,15 @@ def get_completed_itineraries(user_id: str) -> list[Itinerary]:
     for it in list(cursor):
         found_itineraries.append(Itinerary(**it))
 
+    logger.info("found %d itineraries completed!", len(found_itineraries))
+
     return found_itineraries
 
 def get_shared_itineraries(user_id: str, paginated: Paginated) -> PaginatedResponse:
     found_itineraries = []
     shared_with_filter = {"shared_with": user_id}
+
+    logger.info("searching for shared itineraries for user id %s..", user_id)
 
     cursor = itineraries.aggregate([
         {"$match": shared_with_filter},
@@ -137,6 +147,8 @@ def get_shared_itineraries(user_id: str, paginated: Paginated) -> PaginatedRespo
     for it in list(cursor):
         found_itineraries.append(Itinerary(**it).model_dump())
 
+    logger.info("found %d shared itineraries for user id %s!", len(found_itineraries), user_id)
+
     return PaginatedResponse(
         content=found_itineraries,
         total_elements=total_itineraries,
@@ -145,6 +157,8 @@ def get_shared_itineraries(user_id: str, paginated: Paginated) -> PaginatedRespo
     )
 
 def share_with(share_with_req: ShareWithRequest):
+    logger.info("sharing itinerary %s with users %s", share_with_req.id, ','.join(share_with_req.users))
+
     result = itineraries.update_one(
         {"_id": ObjectId(share_with_req.id)},
         {"$push": {"shared_with": {"$each": share_with_req.users}}}
@@ -153,7 +167,11 @@ def share_with(share_with_req: ShareWithRequest):
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {share_with_req.id}")
 
+    logger.info("shared itinerary %s with users %s!", share_with_req.id, ','.join(share_with_req.users))
+
 def publish(publish_req: PublishReqeust):
+    logger.info("setting itinerary %s is_public field to %s..", publish_req.id, publish_req.is_public)
+
     result = itineraries.update_one(
         {"_id": ObjectId(publish_req.id)},
         {"$set": {"is_public": publish_req.is_public}}
@@ -162,17 +180,28 @@ def publish(publish_req: PublishReqeust):
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {publish_req.id}")
 
+    logger.info("set itinerary %s is_public field to %s!", publish_req.id, publish_req.is_public)
+
 def completed(itinerary_id: str):
+    logger.info("marking itinerary %s as completed..", itinerary_id)
+
     result = itineraries.update_one({"_id": ObjectId(itinerary_id)}, {"$set": {"status": ItineraryStatus.COMPLETED.name}})
 
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
 
-def duplicate(duplicate_req: DuplicateRequest) -> str:
+    logger.info("marked itinerary %s as completed!", itinerary_id)
+
+def duplicate(user_id: str, duplicate_req: DuplicateRequest) -> str:
+    logger.info("duplicating itinerary %s for user with id %s..", duplicate_req.id, user_id)
+
     itinerary = get_itinerary_by_id(duplicate_req.id)
-    itinerary.user_id = duplicate_req.user_id
+    itinerary.user_id = user_id
 
     result = itineraries.insert_one(itinerary.model_dump(exclude={'id'}))
+
+    logger.info("duplicated itinerary %s for user with id!", duplicate_req.id, user_id)
+
     return str(result.inserted_id)
 
 def get_city_description(city: str) -> CityDescription:
@@ -195,10 +224,17 @@ def get_city_description(city: str) -> CityDescription:
     return city_description
 
 def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
+    logger.info("retrieving itinerary request with id %s", request_id)
+
     itinerary_request = db["itinerary_requests"].find_one({"_id": ObjectId(request_id)})
+    if not itinerary_request:
+        raise ElementNotFoundException(f"no itinerary request found with id {request_id}")
+
     return ItineraryRequest(**itinerary_request)
 
 def generate_itinerary_request(itinerary_request: ItineraryRequest) -> str:
+    logger.info("generating itinerary request..")
+
     if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
         raise DateNotValidException("start date must be greater or equal to today")
 
@@ -233,13 +269,17 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
 
     for day in range(1,trip_duration):
         try:
-            logger.info("starting day %d", day)
+            logger.info("starting day %d itinerary generation..", day)
             conversation.add_message(
                 ConversationRole.USER.value,
                 ITINERARY_DAILY_PROMPT.format(day=day)
             )
 
+            logger.info("asking assistant..")
+
             itinerary_response = ask_assistant(conversation)
+
+            logger.info("assistant answered with: %s", itinerary_response.itinerary[0].model_dump())
 
             db["itinerary_requests"].update_one(
                 {"_id": request_id},
@@ -257,9 +297,3 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
 
     db["itinerary_requests"].update_one({"_id": request_id}, {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}})
     logger.info("completed itinerary generation!")
-
-def get_by_status(status):
-    stored_itineraries = itineraries.find({"status": status})
-    for it in list(stored_itineraries):
-        logger.info(Itinerary(**it).model_dump())
-
