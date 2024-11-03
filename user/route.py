@@ -1,52 +1,100 @@
 import logging
 
-from flask import request, abort
+from flask import request
 from flask_jwt_extended import jwt_required, get_jwt
+from pydantic import ValidationError
 
-from common.password_utils import check_password
-from common.response_wrapper import success_response, bad_request_response
+from common.exceptions import ElementNotFoundException
+from common.response_wrapper import success_response, bad_request_response, error_response, no_content_response, \
+    not_found_response, unauthorized_response
 from user import user
-from user.service import get_user_by_email, blacklist_tokens, generate_tokens_from_refresh_token, generate_tokens
+from user.model import ForgotPasswordRequest, ResetPasswordRequest, LoginRequest, WrongPasswordException, LogoutRequest, \
+    RefreshTokenRequest, RefreshTokenRevoked
+from user.service import handle_login, handle_logout, \
+    handle_refresh_token, handle_forgot_password, handle_reset_password
 
 logger = logging.getLogger(__name__)
 
 @user.post('/login')
 def login():
-    email = request.json.get('email', None)
-    password = request.json.get('password', None)
+    try:
+        login_req = LoginRequest(**request.json)
+        token = handle_login(login_req)
 
-    found_user = get_user_by_email(email)
+        return success_response(token.model_dump())
+    except ValidationError as err:
+        logger.error("validation error while parsing login request")
+        return bad_request_response(err.errors())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except WrongPasswordException as err:
+        logger.info(str(err))
+        return unauthorized_response()
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
 
-    if not found_user:
-        return abort(404, description=f"No user found with email {email}")
-
-    if not check_password(found_user.password, password):
-        return abort(401, description=f"Bad credentials")
-
-    token = generate_tokens(found_user)
-    return success_response({"access_token": token.access_token, "refresh_token": token.refresh_token})
 
 @user.post('/logout')
 @jwt_required()
 def logout():
-    refresh_token_provided = request.get_json()["refresh_token"]
+    try:
+        logout_req = LogoutRequest(**request.json)
+        handle_logout(get_jwt(), logout_req)
 
-    blacklist_tokens(get_jwt(), refresh_token_provided)
-
-    return success_response({"message": "successfully logged out!"})
+        return success_response({"message": "successfully logged out!"})
+    except ValidationError as err:
+        logger.error("validation error while parsing login request")
+        return bad_request_response(err.errors())
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
 
 @user.post('/refresh-token')
 def refresh_token():
-    refresh_token_provided = request.get_json()["refresh_token"]
+    try:
+        refresh_token_req = RefreshTokenRequest(**request.json)
+        token = handle_refresh_token(refresh_token_req)
 
-    if not refresh_token_provided:
-        logger.info("no refresh token provided!")
-        return bad_request_response({"description": "No refresh token provided!"})
+        return success_response(token.model_dump())
+    except ValidationError as err:
+        logger.error("validation error while parsing login request")
+        return bad_request_response(err.errors())
+    except RefreshTokenRevoked as err:
+        logger.warning(str(err))
+        return bad_request_response(str(err))
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
 
-    token = generate_tokens_from_refresh_token(refresh_token_provided)
+@user.post('/forgot-password')
+def forgot_password():
+    try:
+        forgot_password_req = ForgotPasswordRequest(**request.json)
+        handle_forgot_password(forgot_password_req)
 
-    if not token:
-        logger.info("token has been revoked or no user found with email provided!")
-        return bad_request_response({"description": "Token has been revoked or no user found with email provided!"})
+        return no_content_response()
+    except ValidationError as err:
+        logger.error("validation error while parsing forgot password request", err)
+        return bad_request_response(err.errors())
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
 
-    return success_response({"access_token": token.access_token, "refresh_token": token.refresh_token})
+@user.post('/reset-password')
+def reset_password():
+    try:
+        reset_password_req = ResetPasswordRequest(**request.json)
+        token = handle_reset_password(reset_password_req)
+
+        return success_response(token.model_dump())
+    except ValidationError as err:
+        logger.error("validation error while parsing reset password request", err)
+        return bad_request_response(err.errors())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()

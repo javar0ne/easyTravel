@@ -3,7 +3,7 @@ from typing import Optional
 
 from bson import ObjectId
 
-from common.exception import ElementNotFoundException
+from common.exceptions import ElementNotFoundException
 from common.extensions import db
 from common.role import Role
 from traveler.model import COLLECTION_NAME, TravelerCreateModel, TravelerUpdateModel

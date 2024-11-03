@@ -5,14 +5,14 @@ from flask_jwt_extended import get_jwt_identity
 from openai import APIStatusError
 from pydantic import ValidationError
 
-from common.exception import ElementNotFoundException
+from common.exceptions import ElementNotFoundException
 from common.model import Paginated
 from common.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
     no_content_response, not_found_response
 from common.role import roles_required, Role
 from itinerary import itinerary
 from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest, \
-    ItinerarySearch
+    ItinerarySearch, DateNotValidException
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries
@@ -178,6 +178,9 @@ def generate_itinerary():
     except ValidationError as err:
         logger.error("validation error while parsing itinerary request", err)
         return bad_request_response(err.errors(include_context=False))
+    except DateNotValidException as err:
+        logger.error(str(err))
+        return bad_request_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
