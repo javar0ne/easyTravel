@@ -3,12 +3,8 @@ import logging
 import threading
 from io import BytesIO
 from datetime import datetime, timezone
-from typing import Optional
 
 from bson import ObjectId
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import BaseDocTemplate, Paragraph, PageTemplate, Frame
 
 from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exceptions import ElementNotFoundException
@@ -16,7 +12,6 @@ from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTI
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
     ITINERARY_DAILY_PROMPT
 from common.model import PaginatedResponse, Paginated
-from itinerary import itinerary
 from common.pdf import PdfItinerary
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
@@ -263,15 +258,15 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
     db["itinerary_requests"].update_one({"_id": request_id}, {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}})
     logger.info("completed itinerary generation!")
 
-def download_itinerary(itinerary_id):
-    itinerary_document = get_itinerary_by_id(itinerary_id)
-    logger.info("generate pdf for itinerary with id %s", itinerary_document)
+def download_itinerary(itinerary_id) -> BytesIO:
+    itinerary = get_itinerary_by_id(itinerary_id)
+    logger.info("generate pdf for itinerary with id %s", itinerary)
 
     buffer = BytesIO()
     doc = PdfItinerary(buffer)
-    doc.draw_header(itinerary_document)
-    doc.draw_itinerary_information(itinerary_document)
-    doc.draw_days_itinerary(itinerary_document)
+    doc.draw_header(itinerary)
+    doc.draw_itinerary_information(itinerary)
+    doc.draw_days_itinerary(itinerary)
     doc.save()
     buffer.seek(0)
     return buffer
