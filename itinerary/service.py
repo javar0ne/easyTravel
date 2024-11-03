@@ -1,15 +1,20 @@
 import json
 import logging
 import threading
+from io import BytesIO
 from typing import Optional
 
 from bson import ObjectId
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import BaseDocTemplate, Paragraph, PageTemplate, Frame
 
 from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exception import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT
 from common.model import PaginatedResponse, Paginated
+from common.pdf import PdfItinerary
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta
@@ -18,7 +23,7 @@ logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
 
 def get_itinerary_by_id(itinerary_id):
-    logger.info("retrieving itinerary eith id %s", itinerary_id)
+    logger.info("retrieving itinerary with id %s", itinerary_id)
     itinerary_document = itineraries.find_one({'_id': ObjectId(itinerary_id)})
 
     if itinerary_document is None:
@@ -234,3 +239,16 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
 
     db["itinerary_requests"].update_one({"_id": request_id}, {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}})
     logger.info("completed itinerary generation!")
+
+def download_itinerary(itinerary_id):
+    itinerary_document = get_itinerary_by_id(itinerary_id)
+    logger.info("generate pdf for itinerary with id %s", itinerary_document)
+
+    buffer = BytesIO()
+    doc = PdfItinerary(buffer)
+    doc.draw_header(itinerary_document)
+    doc.draw_itinerary_information(itinerary_document)
+    doc.draw_days_itinerary(itinerary_document)
+    doc.save()
+    buffer.seek(0)
+    return buffer
