@@ -2,6 +2,7 @@ import json
 import logging
 import threading
 from datetime import datetime, timezone
+from io import BytesIO
 
 from bson import ObjectId
 
@@ -297,3 +298,16 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
 
     db["itinerary_requests"].update_one({"_id": request_id}, {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}})
     logger.info("completed itinerary generation!")
+
+def download_itinerary(itinerary_id) -> BytesIO:
+    itinerary = get_itinerary_by_id(itinerary_id)
+    logger.info("generate pdf for itinerary with id %s", itinerary)
+
+    buffer = BytesIO()
+    doc = PdfItinerary(buffer)
+    doc.draw_header(itinerary)
+    doc.draw_itinerary_information(itinerary)
+    doc.draw_days_itinerary(itinerary)
+    doc.save()
+    buffer.seek(0)
+    return buffer

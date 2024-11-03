@@ -1,6 +1,6 @@
 import logging
 
-from flask import request
+from flask import request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from openai import APIStatusError
 from pydantic import ValidationError
@@ -15,7 +15,7 @@ from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, Publi
     ItinerarySearch, DateNotValidException
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
-    search_itineraries, get_completed_itineraries, get_shared_itineraries
+    search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +53,21 @@ def update(itinerary_id):
     except ValidationError as err:
         logger.error("validation error while parsing itinerary request", err)
         return bad_request_response(err.errors())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.get("/download/<itinerary_id>")
+def download(itinerary_id):
+    try:
+        pdf_file = download_itinerary(itinerary_id)
+        return send_file(pdf_file,
+                         as_attachment=True,
+                         download_name="itinerary.pdf",
+                         mimetype="application/pdf")
     except ElementNotFoundException as err:
         logger.warning(str(err))
         return not_found_response(err.message)
