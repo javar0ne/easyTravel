@@ -1,8 +1,8 @@
 import json
 import logging
 import threading
+from io import BytesIO
 from datetime import datetime, timezone
-from typing import Optional
 
 from bson import ObjectId
 
@@ -12,7 +12,7 @@ from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTI
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
     ITINERARY_DAILY_PROMPT
 from common.model import PaginatedResponse, Paginated
-from itinerary import itinerary
+from common.pdf import PdfItinerary
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException
@@ -258,8 +258,15 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
     db["itinerary_requests"].update_one({"_id": request_id}, {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}})
     logger.info("completed itinerary generation!")
 
-def get_by_status(status):
-    stored_itineraries = itineraries.find({"status": status})
-    for it in list(stored_itineraries):
-        logger.info(Itinerary(**it).model_dump())
+def download_itinerary(itinerary_id) -> BytesIO:
+    itinerary = get_itinerary_by_id(itinerary_id)
+    logger.info("generate pdf for itinerary with id %s", itinerary)
 
+    buffer = BytesIO()
+    doc = PdfItinerary(buffer)
+    doc.draw_header(itinerary)
+    doc.draw_itinerary_information(itinerary)
+    doc.draw_days_itinerary(itinerary)
+    doc.save()
+    buffer.seek(0)
+    return buffer

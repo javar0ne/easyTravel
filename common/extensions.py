@@ -12,6 +12,8 @@ APP_HOST = os.getenv("APP_HOST", "http://127.0.0.1:5000")
 # mail
 mail = Mail()
 
+NAME_APPLICATION = "easyTravel"
+
 # redis_auth
 DAILY_EXPIRE = 60*60*24
 redis_auth = Redis(host=os.getenv('REDIS_HOST', '127.0.0.1'), port=6379, password=os.getenv('REDIS_PASSWORD', 'admin'), db=0)
@@ -22,7 +24,7 @@ CITY_KEY_SUFFIX = "itinerary-description"
 # mongodb
 mongo_uri = os.getenv('MONGO_URI', 'mongodb://admin:admin@127.0.0.1:27017/')
 mongo_client = MongoClient(mongo_uri)
-db = mongo_client['easyTravel']
+db = mongo_client[NAME_APPLICATION]
 
 # openai
 OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
