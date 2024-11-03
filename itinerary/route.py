@@ -12,10 +12,10 @@ from common.response_wrapper import success_response, bad_gateway_response, erro
 from common.role import roles_required, Role
 from itinerary import itinerary
 from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest, \
-    ItinerarySearch, DateNotValidException
+    ItinerarySearch, DateNotValidException, ItineraryStatus
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
-    search_itineraries, get_completed_itineraries, get_shared_itineraries
+    search_itineraries, get_completed_itineraries, get_shared_itineraries, get_by_status
 
 logger = logging.getLogger(__name__)
 
