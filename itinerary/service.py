@@ -254,3 +254,9 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
 
     db["itinerary_requests"].update_one({"_id": request_id}, {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}})
     logger.info("completed itinerary generation!")
+
+def get_by_status(status):
+    stored_itineraries = itineraries.find({"status": status})
+    for it in list(stored_itineraries):
+        logger.info(Itinerary(**it).model_dump())
+
