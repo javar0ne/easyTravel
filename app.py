@@ -75,7 +75,7 @@ def check_if_token_not_valid(jwt_header, jwt_payload):
     user_id = jwt_payload["sub"]
     issued_at = datetime.fromtimestamp(jwt_iat, timezone.utc)
 
-    return is_token_not_valid(user_id, issued_at) or redis_auth.exists(jti)
+    return is_token_not_valid(user_id, issued_at, jti)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

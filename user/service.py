@@ -83,7 +83,7 @@ def blacklist_tokens(access_token: dict, refresh_token: str):
 def generate_tokens_from_refresh_token(refresh_token: str) -> Optional[Token]:
     jwt = decode_token(refresh_token)
 
-    if is_token_not_valid(jwt.get("sub"), jwt.get("issued_at")) or redis_auth.exists(jwt['jti']):
+    if is_token_not_valid(jwt.get("sub"), jwt.get("issued_at"), jwt.get("jti")):
         raise RefreshTokenRevoked()
 
     user = get_user_by_email(jwt['email'])
@@ -150,7 +150,8 @@ def handle_reset_password(reset_password_req: ResetPasswordRequest) -> Token:
 
     return generate_tokens(get_user_by_id(user_id))
 
-def is_token_not_valid(user_id: str, issued_at: datetime) -> bool:
+def is_token_not_valid(user_id: str, issued_at: datetime, jti) -> bool:
     projected_user = users.find_one({"_id": ObjectId(user_id)}, {"last_password_update": 1, "_id": 0})
+    last_password_update = projected_user.get("last_password_update").replace(tzinfo=timezone.utc)
 
-    return issued_at < projected_user.get("last_password_update").replace(tzinfo=timezone.utc)
+    return issued_at < last_password_update or redis_auth.exists(jti)

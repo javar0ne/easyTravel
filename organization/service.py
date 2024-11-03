@@ -6,13 +6,16 @@ from bson import ObjectId
 from common.exceptions import ElementNotFoundException
 from common.extensions import db
 from common.role import Role
-from organization.model import COLLECTION_NAME, OrganizationCreateModel, OrganizationUpdateModel
+from organization.model import COLLECTION_NAME, OrganizationCreateRequest, Organization, OrganizationUpdateRequest
 from user.service import create_user
 
 logger = logging.getLogger(__name__)
 organizations = db[COLLECTION_NAME]
 
-def get_organization_by_id(organization_id: str) -> Optional[dict]:
+def exists_by_id(organization_id: str) -> bool:
+    return organizations.count_documents({"_id": ObjectId(organization_id)}) > 0
+
+def get_organization_by_id(organization_id: str) -> Organization:
     logger.info("retrieving organization with id %s", organization_id)
     organization_document = organizations.find_one({'_id': ObjectId(organization_id)})
 
@@ -20,9 +23,9 @@ def get_organization_by_id(organization_id: str) -> Optional[dict]:
         raise ElementNotFoundException("no organization found with id {organization_id}")
 
     logger.info("found organization with id %s", organization_id)
-    return organization_document
+    return Organization(**organization_document)
 
-def create_organization(organization: OrganizationCreateModel) -> Optional[str]:
+def create_organization(organization: OrganizationCreateRequest) -> str:
     logger.info("storing organization..")
 
     user_id = create_user(organization.email,
@@ -35,7 +38,7 @@ def create_organization(organization: OrganizationCreateModel) -> Optional[str]:
 
     return str(stored_organization.inserted_id)
 
-def update_organization(id: str, updated_organization: OrganizationUpdateModel) -> bool:
+def update_organization(id: str, updated_organization: OrganizationUpdateRequest):
     logger.info("updating organization with id %s..", id)
     if get_organization_by_id(id) is None:
         raise ElementNotFoundException(f"no traveler found with id: {id}")
