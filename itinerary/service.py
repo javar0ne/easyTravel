@@ -15,12 +15,12 @@ from common.model import PaginatedResponse, Paginated
 from itinerary import itinerary
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
-    DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException
+    DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException
 
 logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
 
-def get_itinerary_by_id(itinerary_id):
+def get_itinerary_by_id(itinerary_id) -> Itinerary:
     logger.info("retrieving itinerary with id %s", itinerary_id)
     itinerary_document = itineraries.find_one({'_id': ObjectId(itinerary_id)})
 
@@ -29,19 +29,24 @@ def get_itinerary_by_id(itinerary_id):
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
 
     logger.info("found itinerary with id %s", itinerary_document)
-    return itinerary_document
+    return Itinerary(**itinerary_document)
 
-def get_itineraries_by_status(status):
+def get_itineraries_by_status(status) -> list[Itinerary]:
     logger.info("retrieving itineraries with status %s", status)
+    found_itineraries = []
+
     cursor = itineraries.find({"status": status})
     itinerary_documents = list(cursor)
     if len(itinerary_documents) == 0:
         logger.warning("no itinerary found with status %s", status)
         raise ElementNotFoundException(f"no itinerary found with status {status}")
 
-    return itinerary_documents
+    for it in itinerary_documents:
+        found_itineraries.append(Itinerary(**it))
 
-def create_itinerary(itinerary_request_id: str) -> Optional[str]:
+    return found_itineraries
+
+def create_itinerary(itinerary_request_id: str) -> str:
     logger.info("storing itinerary..")
     stored_itinerary_request = db["itinerary_requests"].find_one({'_id': ObjectId(itinerary_request_id)})
 
@@ -71,7 +76,7 @@ def update_itinerary(itinerary_id: str, updated_itinerary: Itinerary):
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
 
-def search_itineraries(itinerary_search: ItinerarySearch):
+def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
     pipeline = []
     filters = {}
     found_itineraries = []
@@ -103,7 +108,7 @@ def search_itineraries(itinerary_search: ItinerarySearch):
         page_number=itinerary_search.page_number
     )
 
-def get_completed_itineraries(user_id: str):
+def get_completed_itineraries(user_id: str) -> list[Itinerary]:
     found_itineraries = []
 
     cursor = itineraries.aggregate([
@@ -112,11 +117,11 @@ def get_completed_itineraries(user_id: str):
     ])
 
     for it in list(cursor):
-        found_itineraries.append(Itinerary(**it).model_dump())
+        found_itineraries.append(Itinerary(**it))
 
     return found_itineraries
 
-def get_shared_itineraries(user_id: str, paginated: Paginated):
+def get_shared_itineraries(user_id: str, paginated: Paginated) -> PaginatedResponse:
     found_itineraries = []
     shared_with_filter = {"shared_with": user_id}
 
@@ -163,16 +168,14 @@ def completed(itinerary_id: str):
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
 
-def duplicate(duplicate_req: DuplicateRequest):
-    itinerary_document = get_itinerary_by_id(duplicate_req.id)
-    itinerary_document["user_id"] = duplicate_req.user_id
+def duplicate(duplicate_req: DuplicateRequest) -> str:
+    itinerary = get_itinerary_by_id(duplicate_req.id)
+    itinerary.user_id = duplicate_req.user_id
 
-    new_itinerary = Itinerary.from_document(itinerary_document)
-    result = itineraries.insert_one(new_itinerary.model_dump(exclude={'id'}))
-
+    result = itineraries.insert_one(itinerary.model_dump(exclude={'id'}))
     return str(result.inserted_id)
 
-def get_city_description(city: str) -> Optional[CityDescription]:
+def get_city_description(city: str) -> CityDescription:
     city_key = f"{city.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"
     if redis_city_description.exists(city_key):
         city_description = json.loads(redis_city_description.get(city_key))
@@ -185,7 +188,7 @@ def get_city_description(city: str) -> Optional[CityDescription]:
     city_description = ask_assistant(conversation)
 
     if city_description is None:
-        return None
+        raise CityDescriptionNotFoundException("City description not found.")
 
     redis_city_description.set(city_key, json.dumps(city_description.model_dump()), DAILY_EXPIRE)
 
@@ -195,7 +198,7 @@ def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
     itinerary_request = db["itinerary_requests"].find_one({"_id": ObjectId(request_id)})
     return ItineraryRequest(**itinerary_request)
 
-def generate_itinerary_request(itinerary_request: ItineraryRequest):
+def generate_itinerary_request(itinerary_request: ItineraryRequest) -> str:
     if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
         raise DateNotValidException("start date must be greater or equal to today")
 

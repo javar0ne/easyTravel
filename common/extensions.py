@@ -1,5 +1,6 @@
 import os
 
+from flask_apscheduler import APScheduler
 from flask_mailman import Mail
 from openai import OpenAI
 from pymongo import MongoClient
@@ -119,5 +120,7 @@ ITINERARY_SYSTEM_INSTRUCTIONS = {
 }
 
 #job
-JOB_NOTIFICATION_DAILY_TRAVEL_HOUR = 17
-JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES = 18
+scheduler = APScheduler()
+JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER = "cron"
+JOB_NOTIFICATION_DAILY_TRAVEL_HOUR = 5
+JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES = 0
