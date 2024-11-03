@@ -7,7 +7,7 @@ from common.json_encoders import PyObjectId
 
 COLLECTION_NAME = "travelers"
 
-class TravelerModel(BaseModel):
+class Traveler(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     phone_number: str
     currency: str
@@ -15,9 +15,9 @@ class TravelerModel(BaseModel):
     surname: str
     birth_date: datetime
     interested_in: list[int]
-    user_id: Optional[str]
+    user_id: str
 
-class TravelerCreateModel(BaseModel):
+class TravelerCreateRequest(BaseModel):
     email: str
     password: str
     phone_number: str
@@ -26,9 +26,9 @@ class TravelerCreateModel(BaseModel):
     surname: str
     birth_date: datetime
     interested_in: list[int]
-    user_id: Optional[str] = None
+    user_id: str
 
-class TravelerUpdateModel(BaseModel):
+class TravelerUpdateRequest(BaseModel):
     phone_number: str
     currency: str
     name: str

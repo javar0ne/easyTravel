@@ -3,33 +3,29 @@ from typing import Optional
 
 from bson import ObjectId
 
-from common.exception import ElementNotFoundException
+from common.exceptions import ElementNotFoundException
 from common.extensions import db
 from common.role import Role
-from traveler.model import COLLECTION_NAME, TravelerCreateModel, TravelerUpdateModel
+from traveler.model import COLLECTION_NAME, TravelerCreateRequest, TravelerUpdateRequest, Traveler
 from user.service import create_user
 
 logger = logging.getLogger(__name__)
 travelers = db[COLLECTION_NAME]
 
-def traveler_exists_by_id(traveler_id: str) -> bool:
-    if travelers.count_documents({"_id": ObjectId(traveler_id)}) == 0:
-        return False
+def exists_by_id(traveler_id: str) -> bool:
+    return travelers.count_documents({"_id": ObjectId(traveler_id)}) > 0
 
-    return True
-
-def get_traveler_by_id(traveler_id: str) -> Optional[dict]:
+def get_traveler_by_id(traveler_id: str) -> Traveler:
     logger.info("retrieving traveler with id %s", traveler_id)
     traveler_document = travelers.find_one({'_id': ObjectId(traveler_id)})
 
     if traveler_document is None:
-        logger.warning("no traveler found with id %s", traveler_id)
         raise ElementNotFoundException(f"no travler found with id: {traveler_id}")
 
     logger.info("found traveler with id %s", traveler_id)
-    return traveler_document
+    return Traveler(**traveler_document)
 
-def create_traveler(traveler: TravelerCreateModel) -> Optional[str]:
+def create_traveler(traveler: TravelerCreateRequest) -> str:
     logger.info("storing traveler..")
 
     user_id = create_user(traveler.email, traveler.password, [Role.TRAVELER.name])
@@ -40,7 +36,7 @@ def create_traveler(traveler: TravelerCreateModel) -> Optional[str]:
 
     return str(stored_traveler.inserted_id)
 
-def update_traveler(traveler_id: str, updated_traveler: TravelerUpdateModel):
+def update_traveler(traveler_id: str, updated_traveler: TravelerUpdateRequest):
     logger.info("updating traveler with id %s..", traveler_id)
     if get_traveler_by_id(traveler_id) is None:
         raise ElementNotFoundException(f"no traveler found with id: {traveler_id}")

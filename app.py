@@ -1,31 +1,51 @@
 import logging
 import os
+from datetime import timezone, datetime
 
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
 
-from common.extensions import redis_auth
+from common.extensions import mail, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES, \
+    scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
 from itinerary import itinerary
+from itinerary.job import job_daily_travel_schedule
 from organization import organization
 from traveler import traveler
 from user import user
+from user.service import is_token_not_valid
+
 
 app = Flask(__name__)
+
+# mail
+app.config['MAIL_SERVER'] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+app.config['MAIL_PORT'] = os.getenv("MAIL_PORT", 587)
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER", "no-reply@easytravel.com")
+
+mail.init_app(app)
+
+# blueprint
 app.register_blueprint(traveler)
 app.register_blueprint(organization)
 app.register_blueprint(user)
 app.register_blueprint(itinerary)
 
+# logging
 logging.basicConfig(level=os.getenv('LOG_LEVEL', 'DEBUG'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# log requests before processing
+# request/response interceptors
 @app.before_request
 def log_request_info():
-    logger.info(f"Request Info: Method: {request.method}, Path: {request.path}, Body: {request.get_data(as_text=True)}")
+    if request.path in ['/v1/user/login', '/v1/user/reset-password']:
+        logger.info(f"Request Info: Method: {request.method}, Path: {request.path}, Body: ***")
+    else:
+        logger.info(f"Request Info: Method: {request.method}, Path: {request.path}, Body: {request.get_data(as_text=True)}")
 
-# log responses after processing
 @app.after_request
 def log_response_info(response):
     logger.info(f"Response Info: Status: {response.status}, Path: {request.path}")
@@ -46,13 +66,29 @@ def handle_unauthorized(error):
 def handle_internal_server_error(error):
     return error_response()
 
+# jwt
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'default-secret-key')
 jwt = JWTManager(app)
 
 @jwt.token_in_blocklist_loader
-def check_if_token_in_blacklist(jwt_header, jwt_payload):
+def check_if_token_not_valid(jwt_header, jwt_payload):
     jti = jwt_payload["jti"]
-    return redis_auth.exists(jti)
+    jwt_iat = jwt_payload["iat"]
+    user_id = jwt_payload["sub"]
+    issued_at = datetime.fromtimestamp(jwt_iat, timezone.utc)
+
+    return is_token_not_valid(user_id, issued_at, jti)
+
+#initializer scheduler
+app.config["SCHEDULER_API_ENABLED"] = True
+scheduler.init_app(app)
+scheduler.add_job(id= "job_daily_travel_schedule",
+                  func = job_daily_travel_schedule,
+                  trigger = JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER,
+                  hour = JOB_NOTIFICATION_DAILY_TRAVEL_HOUR,
+                  minute = JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES)
+scheduler.start()
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
