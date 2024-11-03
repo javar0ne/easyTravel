@@ -2,6 +2,10 @@ import math
 
 from pydantic import BaseModel, Field, computed_field
 
+class Coordinates(BaseModel):
+    lat: float
+    lng: float
+
 class Paginated(BaseModel):
     page_number: int = 0
     page_size: int = Field(default=10, le=10)

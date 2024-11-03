@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from common.json_encoders import PyObjectId
+from common.model import Coordinates
 
 COLLECTION_NAME = "organizations"
 
@@ -11,7 +12,7 @@ class Organization(BaseModel):
     phone_number: str
     currency: str
     organization_name: str
-    coordinates: list[str]
+    coordinates: Coordinates
     website: str
     status: str
     user_id: str
@@ -22,7 +23,7 @@ class OrganizationCreateRequest(BaseModel):
     phone_number: str
     currency: str
     organization_name: str
-    coordinates: list[str]
+    coordinates: Coordinates
     website: str
     status: str
     user_id: str
@@ -32,7 +33,7 @@ class OrganizationUpdateRequest(BaseModel):
     phone_number: str
     currency: str
     organization_name: str
-    coordinates: list[str]
+    coordinates: Coordinates
     website: str
     status: str
     user_id: str

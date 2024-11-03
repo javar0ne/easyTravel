@@ -1,7 +1,7 @@
 import logging
 
 from flask import request, send_file
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from openai import APIStatusError
 from pydantic import ValidationError
 
@@ -12,7 +12,7 @@ from common.response_wrapper import success_response, bad_gateway_response, erro
 from common.role import roles_required, Role
 from itinerary import itinerary
 from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest, \
-    ItinerarySearch, DateNotValidException, ItineraryStatus
+    ItinerarySearch, DateNotValidException
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary
@@ -23,7 +23,10 @@ logger = logging.getLogger(__name__)
 def get_itinerary(itinerary_id):
     try:
         itinerary = get_itinerary_by_id(itinerary_id)
-        return Itinerary(**itinerary)
+        return success_response(itinerary.model_dump())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
@@ -33,9 +36,9 @@ def create(itinerary_request_id):
     try:
         inserted_id = create_itinerary(itinerary_request_id)
         return success_response({"id": inserted_id})
-    except ValidationError as err:
-        logger.error("validation error while parsing traveler request", err)
-        return bad_request_response(err.errors())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
@@ -158,9 +161,10 @@ def itinerary_completed(itinerary_id):
         return error_response()
 
 @itinerary.post('/duplicate')
+@jwt_required()
 def duplicate_itinerary():
     try:
-        inserted_id = duplicate(DuplicateRequest(**request.json))
+        inserted_id = duplicate(get_jwt_identity(), DuplicateRequest(**request.json))
 
         return success_response({"id": inserted_id})
     except ElementNotFoundException as err:
@@ -204,6 +208,9 @@ def get_itinerary_request(request_id):
     try:
         itinerary_request = get_itinerary_request_by_id(request_id)
         return success_response(itinerary_request.model_dump())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
