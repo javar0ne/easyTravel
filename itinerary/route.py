@@ -76,7 +76,6 @@ def search():
 def completed_itineraries():
     try:
         itineraries = get_completed_itineraries(get_jwt_identity())
-
         return success_response(itineraries)
     except Exception as err:
         logger.error(str(err))

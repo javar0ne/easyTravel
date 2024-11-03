@@ -16,6 +16,11 @@ class DateNotValidException(Exception):
         super().__init__(message)
         self.message = message
 
+class CityDescriptionNotFoundException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
 class ItineraryRequestStatus(Enum):
     PENDING = "pending"
     COMPLETED = "completed"
@@ -23,7 +28,7 @@ class ItineraryRequestStatus(Enum):
 
 class ItineraryStatus(Enum):
     PENDING = "pending"
-    STARTED = "started"
+    READY = "ready"
     COMPLETED = "completed"
 
 class Activity(Enum):
