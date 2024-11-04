@@ -11,6 +11,11 @@ from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
 
+class CannotUpdateItineraryException(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
 class DateNotValidException(Exception):
     def __init__(self, message):
         super().__init__(message)
@@ -131,18 +136,7 @@ class CityDescription(BaseModel):
     lat: float
     lon: float
 
-class ItineraryRequest(BaseModel):
-    city: str
-    start_date: datetime
-    end_date: datetime
-    budget: str
-    travelling_with: str
-    accessibility: bool
-    interested_in: list[str]
-    user_id: PyObjectId
-    status: ItineraryRequestStatus = ItineraryRequestStatus.PENDING.name
-    details: list[AssistantItinerary] = []
-
+class ItineraryBaseModel(BaseModel):
     @model_validator(mode='before')
     def check_enums(self) -> Self:
         if not is_valid_enum_name(Budget, self["budget"]):
@@ -166,13 +160,38 @@ class ItineraryRequest(BaseModel):
         if end_date < start_date:
             raise ValueError('end_date must be greater than or equal to start_date')
 
-        # check that end_date is grater or equal to today
-        if start_date.astimezone(timezone.utc) < datetime.today().astimezone(timezone.utc):
-            raise ValueError('start_date must be greater than or equal to today')
-
         return self
 
-class Itinerary(BaseModel):
+class UpdateItineraryRequest(ItineraryBaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    city: str
+    start_date: datetime
+    end_date: datetime
+    budget: str
+    travelling_with: str
+    accessibility: bool
+    interested_in: list[str]
+    user_id: PyObjectId
+    details: list[AssistantItinerary]
+    shared_with: list[str]
+    status: str
+    docs_notification: bool
+    reminder_notification: bool
+    is_public: bool
+
+class ItineraryRequest(ItineraryBaseModel):
+    city: str
+    start_date: datetime
+    end_date: datetime
+    budget: str
+    travelling_with: str
+    accessibility: bool
+    interested_in: list[str]
+    user_id: PyObjectId
+    status: ItineraryRequestStatus = ItineraryRequestStatus.PENDING.name
+    details: list[AssistantItinerary] = []
+
+class Itinerary(ItineraryBaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     city: str
     start_date: datetime
@@ -188,31 +207,9 @@ class Itinerary(BaseModel):
     docs_notification: bool = False
     reminder_notification: bool = False
     is_public: bool = False
-
-    @model_validator(mode='before')
-    def check_enums(self) -> Self:
-        if not is_valid_enum_name(Budget, self["budget"]):
-            raise ValueError(f'Invalid Budget name: {self["budget"]}')
-
-        if not is_valid_enum_name(TravellingWith, self["travelling_with"]):
-            raise ValueError(f'Invalid TravellingWith name: {self["travelling_with"]}')
-
-        for activity in self["interested_in"]:
-            if not is_valid_enum_name(Activity, activity):
-                raise ValueError(f'Invalid Activity name: {activity}')
-
-        return self
-
-    @model_validator(mode='after')
-    def check_dates(self) -> Self:
-        start_date = self.start_date
-        end_date = self.end_date
-
-        # Check that end_date is greater than or equal to start_date
-        if end_date < start_date:
-            raise ValueError('end_date must be greater than or equal to start_date')
-
-        return self
+    created_at: Optional[datetime] = None
+    update_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] = None
 
     @staticmethod
     def from_document(itinerary: dict):
@@ -228,19 +225,16 @@ class Itinerary(BaseModel):
             user_id=itinerary["user_id"]
         )
 
-    @staticmethod
-    def from_request_document(itinerary_request: dict):
-        return Itinerary(
-            city=itinerary_request["city"],
-            start_date=itinerary_request["start_date"],
-            end_date=itinerary_request["end_date"],
-            budget=itinerary_request["budget"],
-            travelling_with=itinerary_request["travelling_with"],
-            accessibility=itinerary_request["accessibility"],
-            interested_in=itinerary_request["interested_in"],
-            details=itinerary_request["details"],
-            user_id=itinerary_request["user_id"]
-        )
+    def update_by(self, update_itinerary_req: UpdateItineraryRequest):
+        self.city = update_itinerary_req.city
+        self.start_date = update_itinerary_req.start_date
+        self.end_date = update_itinerary_req.end_date
+        self.budget = update_itinerary_req.budget
+        self.travelling_with = update_itinerary_req.travelling_with
+        self.accessibility = update_itinerary_req.accessibility
+        self.interested_in = update_itinerary_req.interested_in
+        self.details = update_itinerary_req.details
+        self.user_id = update_itinerary_req.user_id
 
 class ItineraryMeta(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
