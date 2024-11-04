@@ -82,13 +82,12 @@ def check_if_token_not_valid(jwt_header, jwt_payload):
 #initializer scheduler
 app.config["SCHEDULER_API_ENABLED"] = True
 scheduler.init_app(app)
+scheduler.start()
 scheduler.add_job(id= "job_daily_travel_schedule",
                   func = job_daily_travel_schedule,
                   trigger = JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER,
                   hour = JOB_NOTIFICATION_DAILY_TRAVEL_HOUR,
                   minute = JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES)
-scheduler.start()
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
