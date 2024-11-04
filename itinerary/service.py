@@ -28,7 +28,7 @@ def get_itinerary_by_id(itinerary_id) -> Itinerary:
     if itinerary_document is None:
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
 
-    logger.info("found itinerary with id %s", itinerary_document)
+    logger.info("found itinerary with id %s", itinerary_id)
     return Itinerary(**itinerary_document)
 
 def get_itineraries_ready_to_start() -> list[Itinerary]:
