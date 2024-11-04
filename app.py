@@ -8,6 +8,7 @@ from flask_jwt_extended import JWTManager
 from common.extensions import mail, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES, \
     scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
+from event import event
 from itinerary import itinerary
 from itinerary.job import job_daily_travel_schedule
 from organization import organization
@@ -33,6 +34,7 @@ app.register_blueprint(traveler)
 app.register_blueprint(organization)
 app.register_blueprint(user)
 app.register_blueprint(itinerary)
+app.register_blueprint(event)
 
 # logging
 logging.basicConfig(level=os.getenv('LOG_LEVEL', 'DEBUG'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
