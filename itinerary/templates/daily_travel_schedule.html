@@ -60,7 +60,7 @@
                     {% endif %})</span></p>
                 <p class="description-stage">
                     <span class="description">{{ stage["description"] }}</span></p>
-                Reach the place: {{ stage["coordinates"][0] }} - {{ stage["coordinates"][1] }}</li>
+                Reach the place: {{ stage["coordinates"]["lat"] }} - {{ stage["coordinates"]["lng"] }}</li>
             {% endfor %}
         </ul>
     </div>

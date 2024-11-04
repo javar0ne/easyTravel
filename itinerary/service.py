@@ -1,8 +1,8 @@
 import json
 import logging
 import threading
-from datetime import datetime, timezone, timedelta
 from io import BytesIO
+from datetime import datetime, timezone, timedelta
 
 from bson import ObjectId
 
@@ -31,21 +31,24 @@ def get_itinerary_by_id(itinerary_id) -> Itinerary:
     logger.info("found itinerary with id %s", itinerary_document)
     return Itinerary(**itinerary_document)
 
-def get_itineraries_by_status(status) -> list[Itinerary]:
-    logger.info("retrieving itineraries with status %s", status)
+def get_itineraries_ready_to_start() -> list[Itinerary]:
+    logger.info("retrieving itineraries ready to start")
     found_itineraries = []
 
-    cursor = itineraries.find({"status": status, "deleted_at": None})
+    cursor = itineraries.find({
+        '$and': [
+            {"start_date": {"$lte": datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)}},
+            {"end_date": {"$gte": datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)}},
+            {"deleted_at": None}
+        ]})
     itinerary_documents = list(cursor)
     if len(itinerary_documents) == 0:
-        logger.warning("no itinerary found with status %s", status)
-        raise ElementNotFoundException(f"no itinerary found with status {status}")
+        raise ElementNotFoundException("no itinerary found")
 
     for it in itinerary_documents:
         found_itineraries.append(Itinerary(**it))
 
-    logger.info("found %d itineraries with status %s", len(found_itineraries), status)
-
+    logger.info("found %d itineraries ready to start", len(found_itineraries))
     return found_itineraries
 
 def create_itinerary(itinerary_request_id: str) -> str:
@@ -377,3 +380,23 @@ def download_itinerary(itinerary_id) -> BytesIO:
     doc.save()
     buffer.seek(0)
     return buffer
+
+def update_itinerary_status(itinerary_id: str,
+                            status: ItineraryStatus):
+    itineraries.update_one(
+        {'_id': ObjectId(itinerary_id)},
+        {"status": status.name}
+    )
+    logger.info("updated status of itinerary with id %s", itinerary_id)
+
+def check_itinerary_started(itinerary):
+    delta = datetime.today() - itinerary.start_date
+    if delta.days == timedelta(days=0).days:
+        update_itinerary_status(itinerary_id=itinerary.id,
+                                status=ItineraryStatus.READY)
+
+def check_itinerary_last_day(itinerary):
+    delta = datetime.today() - itinerary.end_date
+    if delta.days == timedelta(days=0).days:
+        update_itinerary_status(itinerary_id=itinerary.id,
+                                status=ItineraryStatus.COMPLETED)
