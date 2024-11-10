@@ -7,7 +7,7 @@ from common.exceptions import ElementAlreadyExistsException, ElementNotFoundExce
 from common.response_wrapper import bad_request_response, conflict_response, success_response, not_found_response, \
     error_response, no_content_response
 from traveler import traveler
-from traveler.model import TravelerCreateRequest, TravelerUpdateRequest
+from traveler.model import TravelerCreateRequest, UpdateTravelerRequest
 from traveler.service import create_traveler, get_traveler_by_id, update_traveler
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ def create():
 def update(traveler_id):
     try:
         logger.debug("parsing request body to traveler..")
-        traveler_data = TravelerUpdateRequest(**request.json)
+        traveler_data = UpdateTravelerRequest(**request.json)
 
         update_traveler(traveler_id, traveler_data)
         return no_content_response()

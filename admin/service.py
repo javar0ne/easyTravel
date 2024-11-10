@@ -3,7 +3,7 @@ import logging
 from admin.model import ItineraryActivationRequest, COLLECTION_NAME, Config
 from common.extensions import db, ADMIN_MAIL, ADMIN_PASSWORD
 from common.role import Role
-from user.service import exists_by_email, create_user, exists_admin
+from user.service import create_user, exists_admin
 
 admin_configs = db[COLLECTION_NAME]
 
@@ -13,9 +13,7 @@ def config_exists():
     return admin_configs.count_documents({}) > 0
 
 def create_admin_user():
-    if exists_admin(
-
-    ):
+    if exists_admin():
         logger.info("admin user already exists!")
         return
 
@@ -41,4 +39,3 @@ def handle_itinerary_activation(itinerary_activation_req: ItineraryActivationReq
     logger.info("updating is_itinerary_active with value %d", itinerary_activation_req.is_itinerary_active)
     admin_configs.update_one({}, {'$set': {"is_itinerary_active": itinerary_activation_req.is_itinerary_active}})
     logger.info("updated is_itinerary_active value!")
-
