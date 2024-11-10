@@ -50,7 +50,7 @@ def update(event_id):
 
         return no_content_response()
     except ValidationError as err:
-        logger.error("validation error while parsing itinerary request", err)
+        logger.error("validation error while parsing event update request", err)
         return bad_request_response(err.errors())
     except ElementNotFoundException as err:
         logger.warning(str(err))

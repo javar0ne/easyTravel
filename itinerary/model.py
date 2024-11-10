@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
 from common.json_encoders import PyObjectId
-from common.model import Paginated, Coordinates
+from common.model import Paginated, Coordinates, Activity
 from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
@@ -45,16 +45,6 @@ class ItineraryStatus(Enum):
     PENDING = "pending"
     READY = "ready"
     COMPLETED = "completed"
-
-class Activity(Enum):
-    BEACH = "beaches"
-    CITY_SIGHTSEEING = "city sightseeing"
-    OUTDOOR_ADVENTURES = "outdoor adventures"
-    FESTIVAL = "festival"
-    FOOD_EXPLORATION = "food exploration"
-    NIGHTLIFE = "nightlife"
-    SHOPPING = "shopping"
-    SPA_WELLNESS = "spa wellness"
 
 class TravellingWith(Enum):
     NONE = "none"
