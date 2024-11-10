@@ -2,8 +2,9 @@ import logging
 from datetime import datetime
 
 from common.exceptions import ElementNotFoundException
-from itinerary.mail import send_travel_schedule
-from itinerary.service import get_itineraries_allow_to_daily_schedule,check_itinerary_last_day, check_itinerary_started
+from itinerary.mail import send_travel_schedule, send_docs_reminder
+from itinerary.service import get_itineraries_allow_to_daily_schedule, check_itinerary_last_day, \
+    check_itinerary_started, get_itineraries_allow_to_docs_reminder
 from traveler.service import get_traveler_by_id
 from user.service import get_user_by_id
 
@@ -29,3 +30,16 @@ def job_daily_travel_schedule():
         logger.error(str(err))
         logger.error("no notifications to send.")
 
+def job_docs_reminder():
+    try:
+        itineraries = get_itineraries_allow_to_docs_reminder()
+        for itinerary in itineraries:
+            traveler = get_traveler_by_id(itinerary.user_id)
+            user = get_user_by_id(traveler.user_id)
+            send_docs_reminder(email = user.email,
+                               traveler = traveler,
+                               city = itinerary.city,
+                               docs = itinerary.docs)
+    except ElementNotFoundException as err:
+        logger.error(str(err))
+        logger.error("no notifications to send.")

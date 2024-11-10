@@ -1,6 +1,7 @@
 import json
 import logging
 import threading
+from calendar import month
 from io import BytesIO
 from datetime import datetime, timezone, timedelta
 
@@ -11,14 +12,19 @@ from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exceptions import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
-    ITINERARY_DAILY_PROMPT, ITINERARY_USER_EVENT_PROMPT
+    ITINERARY_DAILY_PROMPT, ITINERARY_USER_EVENT_PROMPT, JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, ITINERARY_RETRIEVE_DOCS_PROMPT
 from common.model import PaginatedResponse, Paginated
 from common.pdf import PdfItinerary
+from itinerary import itinerary
+from itinerary.mail import send_docs_reminder
 from event.service import get_event_by_id
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
-    UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabled
+    UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabled, AssistantItineraryDocs, \
+    DocsNotFoundException, AssistantItineraryDocsResponse
+from traveler.service import get_traveler_by_id
+from user.service import get_user_by_id
 
 logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
@@ -54,6 +60,32 @@ def get_itineraries_allow_to_daily_schedule() -> list[Itinerary]:
     logger.info("found %d itineraries allow to daily schedule", len(found_itineraries))
     return found_itineraries
 
+def get_itineraries_allow_to_docs_reminder() -> list[Itinerary]:
+    logger.info("retrieving itineraries allow to docs reminder")
+
+    target_date = datetime.today()
+    start_date = target_date - timedelta(days=JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE)
+
+    found_itineraries = []
+    cursor = itineraries.find({
+        '$and': [
+            {"start_date":
+                 {"$gte": start_date.replace(hour=0, minute=0, second=0, microsecond=0),
+                  "$lt": target_date.replace(hour=0, minute=0, second=0, microsecond=0)}},
+            {"necessary_documents": {"$exists": True }},
+            {"docs_notification": True},
+            {"deleted_at": None}
+    ]})
+    itinerary_documents = list(cursor)
+    if len(itinerary_documents) == 0:
+        raise ElementNotFoundException("no itinerary found")
+
+    for it in itinerary_documents:
+        found_itineraries.append(Itinerary(**it))
+
+    logger.info("found %d itineraries allow to docs reminder", len(found_itineraries))
+    return found_itineraries
+
 def create_itinerary(itinerary_request_id: str) -> str:
     logger.info("storing itinerary..")
     stored_itinerary_request = db["itinerary_requests"].find_one({'_id': ObjectId(itinerary_request_id)})
@@ -71,7 +103,45 @@ def create_itinerary(itinerary_request_id: str) -> str:
     db["itinerary_requests"].delete_one({'_id': ObjectId(itinerary_request_id)})
     logger.info("itinerary stored successfully with id %s", result.inserted_id)
 
+    threading.Thread(target=ask_itinerary_docs, args=(itinerary.city, result.inserted_id, itinerary.user_id, itinerary.start_date)).start()
     return str(result.inserted_id)
+
+def ask_itinerary_docs(city: str,
+                       itinerary_id: id,
+                       traveler_id: str,
+                       start_date: datetime):
+    logger.info("starting retrieve docs...")
+
+    conversation = Conversation(AssistantItineraryDocsResponse)
+    conversation.add_message(
+        ConversationRole.USER.value,
+        ITINERARY_RETRIEVE_DOCS_PROMPT.format(
+            city = city,
+            month = start_date.month
+        )
+    )
+
+    logger.info("asking assistant itinerary docs..")
+
+    docs_response = ask_assistant(conversation)
+    if docs_response is None:
+        raise DocsNotFoundException("Docs not found.")
+
+    logger.info("assistant answered with: %s", docs_response.docs[0].model_dump())
+
+    itineraries.update_one(
+        {"_id": itinerary_id},
+        {"$set": {
+            "docs": docs_response.docs[0].model_dump()}}
+    )
+
+    traveler = get_traveler_by_id(traveler_id)
+    user = get_user_by_id(traveler.user_id)
+    send_docs_reminder(email = user.email,
+                       traveler = traveler,
+                       city = city,
+                       docs = docs_response.docs[0])
+
 
 def update_itinerary(itinerary_id: str, updated_itinerary_req: UpdateItineraryRequest):
     logger.info("updating itinerary with id %s", itinerary_id)

@@ -7,12 +7,13 @@ from flask_jwt_extended import JWTManager
 
 from admin.service import create_admin_user, create_initial_config
 from common.extensions import mail, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES, \
-    scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER, ADMIN_MAIL, ADMIN_PASSWORD
+    scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER, ADMIN_MAIL, ADMIN_PASSWORD, JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER, \
+    JOB_NOTIFICATION_DOCS_REMINDER_HOUR, JOB_NOTIFICATION_DOCS_REMINDER_MINUTES
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
 from common.role import Role
 from event import event
 from itinerary import itinerary
-from itinerary.job import job_daily_travel_schedule
+from itinerary.job import job_daily_travel_schedule, job_docs_reminder
 from organization import organization
 from traveler import traveler
 from user import user
@@ -86,11 +87,16 @@ def check_if_token_not_valid(jwt_header, jwt_payload):
 app.config["SCHEDULER_API_ENABLED"] = True
 scheduler.init_app(app)
 scheduler.start()
-scheduler.add_job(id= "job_daily_travel_schedule",
+scheduler.add_job(id = "job_daily_travel_schedule",
                   func = job_daily_travel_schedule,
                   trigger = JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER,
                   hour = JOB_NOTIFICATION_DAILY_TRAVEL_HOUR,
                   minute = JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES)
+scheduler.add_job(id = "job_docs_reminder",
+                  func = job_docs_reminder,
+                  trigger = JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER,
+                  hour = JOB_NOTIFICATION_DOCS_REMINDER_HOUR,
+                  minute = JOB_NOTIFICATION_DOCS_REMINDER_MINUTES)
 
 create_admin_user()
 create_initial_config()

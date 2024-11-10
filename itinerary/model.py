@@ -31,6 +31,11 @@ class CityDescriptionNotFoundException(Exception):
         super().__init__(message)
         self.message = message
 
+class DocsNotFoundException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
 class ItineraryRequestStatus(Enum):
     PENDING = "pending"
     COMPLETED = "completed"
@@ -140,6 +145,18 @@ class CityDescription(BaseModel):
     lat: float
     lon: float
 
+class AssistantItineraryDocsDetail(BaseModel):
+    name: str
+    description: str
+    done: bool
+
+class AssistantItineraryDocs(BaseModel):
+    mandatory: list[AssistantItineraryDocsDetail]
+    recommended: list[AssistantItineraryDocsDetail]
+
+class AssistantItineraryDocsResponse(BaseModel):
+    docs: list[AssistantItineraryDocs]
+
 class ItineraryBaseModel(BaseModel):
     @model_validator(mode='before')
     def check_enums(self) -> Self:
@@ -192,7 +209,7 @@ class ItineraryRequest(ItineraryBaseModel):
     accessibility: bool
     interested_in: list[str]
     user_id: PyObjectId
-    status: ItineraryRequestStatus = ItineraryRequestStatus.PENDING.name
+    status: str = ItineraryRequestStatus.PENDING.name
     details: list[AssistantItinerary] = []
 
 class Itinerary(ItineraryBaseModel):
@@ -208,6 +225,7 @@ class Itinerary(ItineraryBaseModel):
     details: list[AssistantItinerary] = []
     shared_with: list[str] = []
     status: str = ItineraryStatus.PENDING.name
+    docs: Optional[AssistantItineraryDocs] = None
     docs_notification: bool = False
     reminder_notification: bool = False
     is_public: bool = False
