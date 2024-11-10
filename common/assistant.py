@@ -2,6 +2,7 @@ import logging
 import re
 from enum import Enum
 
+from common.exceptions import KeyNotFoundException
 from common.extensions import assistant, OPENAI_MODEL, MAX_COMPLETION_TOKEN
 
 logger = logging.getLogger(__name__)
@@ -23,10 +24,20 @@ class Conversation:
         })
 
     def add_message_from(self, element: dict):
+        if "role" not in element or "content" not in element:
+            raise KeyNotFoundException()
+
         self.messages.append({
             'role': element["role"],
             'content': self.encode(element["content"])
         })
+
+    @staticmethod
+    def create_message(role, content):
+        return {
+            'role': role,
+            'content': Conversation.encode(content)
+        }
 
     @staticmethod
     def encode(content: str):

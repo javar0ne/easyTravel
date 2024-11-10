@@ -5,13 +5,13 @@ from typing_extensions import Self
 from pydantic import BaseModel, Field, model_validator
 
 from common.json_encoders import PyObjectId
+from common.model import Coordinates
 from common.utils import is_valid_enum_name
 from itinerary.model import Activity
 
 COLLECTION_NAME = "events"
 
 class EventBaseModel(BaseModel):
-
     @model_validator(mode='before')
     def check_enums(self) -> Self:
         for activity in self["related_activities"]:
@@ -33,6 +33,7 @@ class EventBaseModel(BaseModel):
 
 class UpdateEventRequest(EventBaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    title: str
     description: str
     cost: str
     avg_duration: int
@@ -40,10 +41,11 @@ class UpdateEventRequest(EventBaseModel):
     related_activities: list[str]
     start_date: datetime
     end_date: datetime
-
+    coordinates: Coordinates
 
 class Event(EventBaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    title: str
     description: str
     cost: str
     avg_duration: int
@@ -51,13 +53,14 @@ class Event(EventBaseModel):
     related_activities: list[str]
     start_date: datetime
     end_date: datetime
-    user_id: str
-    itinerary_id: Optional[str] = None
+    coordinates: Coordinates
+    organization_id: str
     created_at: Optional[datetime] = None
     update_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
 
     def update_by(self, update_event_req: UpdateEventRequest):
+        self.title = update_event_req.title
         self.description = update_event_req.description
         self.cost = update_event_req.cost
         self.avg_duration = update_event_req.avg_duration
@@ -65,3 +68,4 @@ class Event(EventBaseModel):
         self.related_activities = update_event_req.related_activities
         self.start_date = update_event_req.start_date
         self.end_date = update_event_req.end_date
+        self.coordinates = update_event_req.coordinates

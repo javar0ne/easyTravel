@@ -17,7 +17,7 @@ from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, Publi
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary, delete_itinerary, \
-    get_saved_itineraries
+    get_saved_itineraries, handle_itinerary_request, handle_event_itinerary_request
 
 logger = logging.getLogger(__name__)
 
@@ -221,7 +221,27 @@ def generate_itinerary():
     try:
         logger.debug("parsing request body..")
         itinerary_request = ItineraryRequest(**request.json)
-        request_id = generate_itinerary_request(itinerary_request)
+        request_id = handle_itinerary_request(itinerary_request)
+        return success_response({"request_id": str(request_id)})
+    except ValidationError as err:
+        logger.error("validation error while parsing itinerary request", err)
+        return bad_request_response(err.errors(include_context=False))
+    except DateNotValidException as err:
+        logger.error(str(err))
+        return bad_request_response(err.message)
+    except ItineraryGenerationDisabled as err:
+        logger.error(err.message)
+
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.post('/event-itinerary-request/<event_id>')
+def generate_event_itinerary(event_id):
+    try:
+        logger.debug("parsing request body..")
+        itinerary_request = ItineraryRequest(**request.json)
+        request_id = handle_event_itinerary_request(itinerary_request, event_id)
         return success_response({"request_id": str(request_id)})
     except ValidationError as err:
         logger.error("validation error while parsing itinerary request", err)

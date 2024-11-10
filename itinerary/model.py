@@ -122,7 +122,6 @@ class Stage(BaseModel):
     title: str
     description: str
     cost: str
-    distance_from_center: float
     accessible: bool
     coordinates: Coordinates
     avg_duration: int
