@@ -28,10 +28,11 @@ def get(event_id):
         return error_response()
 
 @event.post('/')
+@roles_required([Role.ORGANIZATION.name])
 def create():
     try:
         event = Event(**request.json)
-        inserted_id = create_event(event)
+        inserted_id = create_event(get_jwt_identity(), event)
 
         return success_response({"id": inserted_id})
     except ValidationError as err:

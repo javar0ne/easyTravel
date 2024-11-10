@@ -44,6 +44,26 @@ ITINERARY_USER_PROMPT = """
     I’m interested into: {interested_in}. 
 """
 
+ITINERARY_USER_EVENT_PROMPT = """
+    In {month} I’m visiting {city} {travelling_with}. I’m staying there for {trip_duration} day(s) and 
+    with a range budget per person between {min_budget} and {max_budget} EUR.  
+    I’m interested into: {interested_in}. 
+    
+    Add the following activity to the itinerary:
+    {{
+        "period": "{event_period}",
+        "title": "{event_title}",
+        "description": "{event_description}",
+        "cost": "{event_cost}",
+        "accessible": {event_accessible},
+        "coordinates": {{
+          "lat": "{event_lat}",
+          "lng": "{event_lng}"
+        }},
+        "avg_duration": {event_avg_duration}
+    }}
+"""
+
 ITINERARY_DAILY_PROMPT = "Generate the itinerary for day {day}."
 
 ITINERARY_SYSTEM_INSTRUCTIONS = {
@@ -51,7 +71,7 @@ ITINERARY_SYSTEM_INSTRUCTIONS = {
     "content": """
         Pretend to be a travel agency: you have to create an itinerary for the user based on his/her inputs.
         The user will provide you: the city he/she wants to visit, the trip duration (in days), a range of budget
-        per day and for each person, the activities he/she would like to do, if the itineray should be accessible
+        per day and for each person, the activities he/she would like to do, if the itinerary should be accessible
         for handicapped people and if it is a solo, couple, family or friends trip.
         You have to prepare at least one activity per day.
         Your answer must be similar to the following json:
@@ -67,7 +87,6 @@ ITINERARY_SYSTEM_INSTRUCTIONS = {
                     "title": "Eiffel Tower",
                     "description": "Visit the iconic Eiffel Tower. The tower has elevators providing access to the 2nd floor and the summit for visitors with limited mobility.",
                     "cost": "€11.30-28.30 per person",
-                    "distance_from_center": 4.2,
                     "accessible": true,
                     "coordinates": {
                       "lat": "48.8584",
@@ -80,7 +99,6 @@ ITINERARY_SYSTEM_INSTRUCTIONS = {
                     "title": "Rue Cler",
                     "description": "Enjoy a casual lunch at Rue Cler street market, which is flat and easy to navigate. Many cafes have outdoor seating and accessible entrances.",
                     "cost": "€15-20 for two",
-                    "distance_from_center": 3.5,
                     "accessible": true,
                     "coordinates": {
                       "lat": "48.8561",
@@ -93,7 +111,6 @@ ITINERARY_SYSTEM_INSTRUCTIONS = {
                     "title": "Seine River Cruise",
                     "description": "Take a Seine River Cruise. Many companies offer boats that are wheelchair-accessible, with ramps and adapted seating.",
                     "cost": "€15 per person",
-                    "distance_from_center": 1.0,
                     "accessible": true,
                     "coordinates": {
                       "lat": "48.8566",
@@ -106,7 +123,6 @@ ITINERARY_SYSTEM_INSTRUCTIONS = {
                     "title": "Le Marais District",
                     "description": "Explore Le Marais and dine at a restaurant with wheelchair accessibility. Many bistros and falafel spots in this area have accessible entrances or nearby options.",
                     "cost": "€25-30 for two",
-                    "distance_from_center": 1.5,
                     "accessible": true,
                     "coordinates": {
                       "lat": "48.8584",

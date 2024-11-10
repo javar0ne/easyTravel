@@ -11,9 +11,10 @@ from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exceptions import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
-    ITINERARY_DAILY_PROMPT
+    ITINERARY_DAILY_PROMPT, ITINERARY_USER_EVENT_PROMPT
 from common.model import PaginatedResponse, Paginated
 from common.pdf import PdfItinerary
+from event.service import get_event_by_id
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
@@ -304,7 +305,16 @@ def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
 
     return ItineraryRequest(**itinerary_request)
 
-def generate_itinerary_request(itinerary_request: ItineraryRequest) -> str:
+def handle_itinerary_request(itinerary_request: ItineraryRequest):
+    initial_user_prompt = generate_initial_user_prompt(itinerary_request)
+    return generate_itinerary_request(itinerary_request, initial_user_prompt)
+
+
+def handle_event_itinerary_request(itinerary_request: ItineraryRequest, event_id: str):
+    initial_user_prompt = generate_initial_user_event_prompt(itinerary_request, event_id)
+    return generate_itinerary_request(itinerary_request, initial_user_prompt)
+
+def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user_prompt: dict) -> str:
     logger.info("generating itinerary request..")
 
     if not can_generate_itinerary():
@@ -316,20 +326,25 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest) -> str:
     request_id = db["itinerary_requests"].insert_one(itinerary_request.model_dump()).inserted_id
     conversation = Conversation(AssistantItineraryResponse)
     conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
+    conversation.add_message_from(initial_user_prompt)
 
-    threading.Thread(target=generate_day_by_day, args=(conversation, request_id, itinerary_request)).start()
+    threading.Thread(target=generate_day_by_day,args=(conversation, request_id)).start()
 
     return request_id
 
-def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itinerary_request: ItineraryRequest):
-    logger.info("starting itinerary generation..")
+def generate_itinerary_infos(itinerary_request: ItineraryRequest):
     trip_duration = (itinerary_request.end_date - itinerary_request.start_date).days + 1
     month = itinerary_request.start_date.strftime("%B")
     interested_in = ','.join(Activity[activity].value for activity in itinerary_request.interested_in)
     budget = Budget[itinerary_request.budget]
     travelling_with = TravellingWith[itinerary_request.travelling_with]
 
-    conversation.add_message(
+    return trip_duration, month, interested_in, budget, travelling_with
+
+def generate_initial_user_prompt(itinerary_request: ItineraryRequest) -> dict:
+    trip_duration, month, interested_in, budget, travelling_with = generate_itinerary_infos(itinerary_request)
+
+    return Conversation.create_message(
         ConversationRole.USER.value,
         ITINERARY_USER_PROMPT.format(
             month=month,
@@ -341,6 +356,34 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, itiner
             interested_in=interested_in
         )
     )
+
+def generate_initial_user_event_prompt(itinerary_request: ItineraryRequest, event_id: str):
+    trip_duration, month, interested_in, budget, travelling_with = generate_itinerary_infos(itinerary_request)
+    event = get_event_by_id(event_id)
+
+    return Conversation.create_message(
+        ConversationRole.USER.value,
+        ITINERARY_USER_EVENT_PROMPT.format(
+            month=month,
+            city=itinerary_request.city,
+            travelling_with=travelling_with.value,
+            trip_duration=trip_duration,
+            min_budget=budget.min,
+            max_budget=budget.max,
+            interested_in=interested_in,
+            event_period=event.period,
+            event_title=event.title,
+            event_description=event.description,
+            event_cost=event.cost,
+            event_accessible=event.accessible,
+            event_lat=event.coordinates.latitude,
+            event_lng=event.coordinates.longitude,
+            event_avg_duration=event.avg_duration
+        )
+    )
+
+def generate_day_by_day(conversation: Conversation, request_id: ObjectId, trip_duration: int):
+    logger.info("starting itinerary generation..")
 
     for day in range(1,trip_duration + 1):
         try:

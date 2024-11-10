@@ -7,6 +7,7 @@ from common.exceptions import ElementNotFoundException
 from common.extensions import db
 from common.model import Paginated, PaginatedResponse
 from event.model import Event, COLLECTION_NAME, UpdateEventRequest
+from organization.service import get_organization_by_id
 
 logger = logging.getLogger(__name__)
 events = db[COLLECTION_NAME]
@@ -21,9 +22,12 @@ def get_event_by_id(event_id: str) -> Event:
     logger.info("found event with id %s!", event_id)
     return Event(**event_document)
 
-def create_event(event: Event):
+def create_event(organization_id: str, event: Event):
     logger.info("storing event..")
 
+    organization = get_organization_by_id(organization_id)
+
+    event.coordinates = organization.coordinates
     event.created_at = datetime.now(timezone.utc)
     result = events.insert_one(event.model_dump())
 
