@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 
 from bson import ObjectId
 
+from admin.service import can_generate_itinerary
 from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exceptions import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
@@ -16,7 +17,7 @@ from common.pdf import PdfItinerary
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
-    UpdateItineraryRequest, CannotUpdateItineraryException
+    UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabled
 
 logger = logging.getLogger(__name__)
 itineraries = db[COLLECTION_NAME]
@@ -304,6 +305,9 @@ def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
 
 def generate_itinerary_request(itinerary_request: ItineraryRequest) -> str:
     logger.info("generating itinerary request..")
+
+    if not can_generate_itinerary():
+        raise ItineraryGenerationDisabled()
 
     if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
         raise DateNotValidException("start date must be greater or equal to today")

@@ -63,3 +63,10 @@ def bad_gateway_response(code=502):
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "response": "External service returned with an error. Please try again later."
     }), code
+
+def service_unavailable_response(code=503):
+    return jsonify({
+        "status": "FAILURE",
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "response": "The service is temporarily unavailable. Please try again later."
+    }), code

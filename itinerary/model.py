@@ -11,6 +11,11 @@ from common.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
 
+class ItineraryGenerationDisabled(Exception):
+    def __init__(self):
+        super().__init__("Itinerary generation disabled!")
+        self.message = "Itinerary generation disabled!"
+
 class CannotUpdateItineraryException(Exception):
     def __init__(self, message: str):
         super().__init__(message)

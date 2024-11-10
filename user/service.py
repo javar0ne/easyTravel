@@ -10,11 +10,15 @@ from common.exceptions import ElementAlreadyExistsException, ElementNotFoundExce
 from common.extensions import db, redis_auth, APP_HOST
 # from common.mails import send_forgot_password_mail
 from common.password_utils import hash_password, check_password
+from common.role import Role
 from user.model import COLLECTION_NAME, User, Token, ForgotPasswordRequest, ResetPasswordRequest, LoginRequest, \
     WrongPasswordException, LogoutRequest, RefreshTokenRequest, RefreshTokenRevoked
 
 logger = logging.getLogger(__name__)
 users = db[COLLECTION_NAME]
+
+def exists_admin():
+    return users.count_documents({"roles": Role.ADMIN.name}) > 0
 
 def exists_by_email(email: str):
     return users.count_documents({"email": email}) > 0

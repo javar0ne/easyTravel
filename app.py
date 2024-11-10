@@ -5,17 +5,18 @@ from datetime import timezone, datetime
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
 
+from admin.service import create_admin_user, create_initial_config
 from common.extensions import mail, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES, \
-    scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER
+    scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER, ADMIN_MAIL, ADMIN_PASSWORD
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
+from common.role import Role
 from event import event
 from itinerary import itinerary
 from itinerary.job import job_daily_travel_schedule
 from organization import organization
 from traveler import traveler
 from user import user
-from user.service import is_token_not_valid
-
+from user.service import is_token_not_valid, create_user
 
 app = Flask(__name__)
 
@@ -90,6 +91,9 @@ scheduler.add_job(id= "job_daily_travel_schedule",
                   trigger = JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER,
                   hour = JOB_NOTIFICATION_DAILY_TRAVEL_HOUR,
                   minute = JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES)
+
+create_admin_user()
+create_initial_config()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
