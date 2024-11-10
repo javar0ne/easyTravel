@@ -31,14 +31,15 @@ def get_itinerary_by_id(itinerary_id) -> Itinerary:
     logger.info("found itinerary with id %s", itinerary_id)
     return Itinerary(**itinerary_document)
 
-def get_itineraries_ready_to_start() -> list[Itinerary]:
-    logger.info("retrieving itineraries ready to start")
+def get_itineraries_allow_to_daily_schedule() -> list[Itinerary]:
+    logger.info("retrieving itineraries allow to daily schedule")
     found_itineraries = []
 
     cursor = itineraries.find({
         '$and': [
             {"start_date": {"$lte": datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)}},
             {"end_date": {"$gte": datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)}},
+            {"reminder_notification": True},
             {"deleted_at": None}
         ]})
     itinerary_documents = list(cursor)
@@ -48,7 +49,7 @@ def get_itineraries_ready_to_start() -> list[Itinerary]:
     for it in itinerary_documents:
         found_itineraries.append(Itinerary(**it))
 
-    logger.info("found %d itineraries ready to start", len(found_itineraries))
+    logger.info("found %d itineraries allow to daily schedule", len(found_itineraries))
     return found_itineraries
 
 def create_itinerary(itinerary_request_id: str) -> str:
