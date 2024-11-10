@@ -65,7 +65,7 @@ def update(itinerary_id):
         logger.error(str(err))
         return error_response()
 
-@itinerary.delete('<itinerary_id>')
+@itinerary.delete('/<itinerary_id>')
 def delete(itinerary_id):
     try:
         delete_itinerary(itinerary_id)
