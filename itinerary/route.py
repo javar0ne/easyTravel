@@ -12,7 +12,8 @@ from common.response_wrapper import success_response, bad_gateway_response, erro
 from common.role import roles_required, Role
 from itinerary import itinerary
 from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest, \
-    ItinerarySearch, DateNotValidException, UpdateItineraryRequest, CannotUpdateItineraryException
+    ItinerarySearch, DateNotValidException, UpdateItineraryRequest, CannotUpdateItineraryException, \
+    ItineraryGenerationDisabled
 from itinerary.service import get_city_description, generate_itinerary_request, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary, delete_itinerary, \
@@ -228,6 +229,9 @@ def generate_itinerary():
     except DateNotValidException as err:
         logger.error(str(err))
         return bad_request_response(err.message)
+    except ItineraryGenerationDisabled as err:
+        logger.error(err.message)
+
     except Exception as err:
         logger.error(str(err))
         return error_response()
