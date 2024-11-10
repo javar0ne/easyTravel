@@ -1,10 +1,21 @@
 import math
+from enum import Enum
 
 from pydantic import BaseModel, Field, computed_field
 
 class Coordinates(BaseModel):
     lat: float
     lng: float
+
+class Activity(Enum):
+    BEACH = "beaches"
+    CITY_SIGHTSEEING = "city sightseeing"
+    OUTDOOR_ADVENTURES = "outdoor adventures"
+    FESTIVAL = "festival"
+    FOOD_EXPLORATION = "food exploration"
+    NIGHTLIFE = "nightlife"
+    SHOPPING = "shopping"
+    SPA_WELLNESS = "spa wellness"
 
 class Paginated(BaseModel):
     page_number: int = 0

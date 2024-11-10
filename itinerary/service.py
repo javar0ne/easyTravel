@@ -1,9 +1,8 @@
 import json
 import logging
 import threading
-from calendar import month
-from io import BytesIO
 from datetime import datetime, timezone, timedelta
+from io import BytesIO
 
 from bson import ObjectId
 
@@ -12,17 +11,17 @@ from common.assistant import ask_assistant, Conversation, ConversationRole
 from common.exceptions import ElementNotFoundException
 from common.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
     redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
-    ITINERARY_DAILY_PROMPT, ITINERARY_USER_EVENT_PROMPT, JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, ITINERARY_RETRIEVE_DOCS_PROMPT
+    ITINERARY_DAILY_PROMPT, ITINERARY_USER_EVENT_PROMPT, JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, \
+    ITINERARY_RETRIEVE_DOCS_PROMPT
 from common.model import PaginatedResponse, Paginated
 from common.pdf import PdfItinerary
-from itinerary import itinerary
-from itinerary.mail import send_docs_reminder
 from event.service import get_event_by_id
+from itinerary.mail import send_docs_reminder
 from itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
     Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
-    UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabled, AssistantItineraryDocs, \
-    DocsNotFoundException, AssistantItineraryDocsResponse
+    UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabled, DocsNotFoundException, \
+    AssistantItineraryDocsResponse
 from traveler.service import get_traveler_by_id
 from user.service import get_user_by_id
 

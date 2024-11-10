@@ -7,7 +7,6 @@ from pydantic import BaseModel, Field, model_validator
 from common.json_encoders import PyObjectId
 from common.model import Coordinates
 from common.utils import is_valid_enum_name
-from itinerary.model import Activity
 
 COLLECTION_NAME = "events"
 
