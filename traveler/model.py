@@ -36,6 +36,7 @@ class Traveler(BaseModel):
     surname: str
     birth_date: datetime
     interested_in: list[int]
+    user_id: str
     created_at: Optional[datetime] = None
     update_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None

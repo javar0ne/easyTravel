@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <title>Documents needed for your next trip to {{ city }}</title>
+    <style>
+        body {
+            font-family: "Outfit", serif;
+            color: #333333;
+        }
+        .logo {
+            background-color: #FFFFFF;
+            color: #333333;
+            padding: 10px;
+        }
+        .content { padding: 20px; }
+        .header {
+            margin-bottom: 0;
+        }
+        .list {
+            list-style: circle outside;
+            padding-left: 20px;
+        }
+        .title{
+            font-weight: bold;
+            color: #EE7674;
+        }
+        .footer { text-align: center; font-size: 12px; color: #777777; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="logo"><h1>easyTravel</h1></div>
+    <div class="content">
+        <p class="header">Hello {{ recipient_name }}, below is the list of documents necessary for departure.</p>
+            <h1>Mandatory</h1>
+            <ul class="list">
+                {% for mandatory in docs.mandatory %}
+                    <li><span class="title">{{ mandatory.name }}</span><span class="description">: {{ mandatory.description }}</span></li>
+                {% endfor %}
+            </ul>
+            <h1>Recommended</h1>
+            <ul class="list">
+                {% for recommended in docs.recommended %}
+                    <li><span class="title">{{ recommended.name }}</span><span class="description">: {{ recommended.description }}</span></li>
+                {% endfor %}
+            </ul>
+    </div>
+    <div class="footer">&copy; {{ year }} easyTravel. All rights reserved.</div>
+</body>
+</html>

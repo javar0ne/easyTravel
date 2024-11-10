@@ -41,7 +41,7 @@ CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS = {
 ITINERARY_USER_PROMPT = """
     In {month} I’m visiting {city} {travelling_with}. I’m staying there for {trip_duration} day(s) and 
     with a range budget per person between {min_budget} and {max_budget} EUR.  
-    I’m interested into: {interested_in}. 
+    I’m interested into: {interested_in}.
 """
 
 ITINERARY_USER_EVENT_PROMPT = """
@@ -65,6 +65,54 @@ ITINERARY_USER_EVENT_PROMPT = """
 """
 
 ITINERARY_DAILY_PROMPT = "Generate the itinerary for day {day}."
+
+ITINERARY_RETRIEVE_DOCS_PROMPT = """
+In {month} I'm going to {city}. what should I prepare for the trip? documents, visa, vaccinations
+Format your answer in json like the following example:
+
+{{
+    "mandatory": [
+        {{
+            "name": "Passport",
+            "description": "Must be valid for at least 6 months beyond the entry date into China and have at least two blank pages for stamps."
+        }},
+        {{
+            "name": "Visa",
+            "description": "Italian citizens need a tourist visa to enter China. The standard visa is a Type L, typically allowing stays of about 30 days, although duration may vary. Apply through the Chinese embassy, consulate, or an authorized agency, with passport, passport photo, completed application form, and travel itinerary (flight and hotel details)."
+        }},
+        {{
+            "name": "Vaccinations",
+            "description": "No mandatory vaccinations for Italian travelers, but certain ones are recommended."
+        }}
+    ],
+    "recommended": [
+        {{
+            "name": "Recommended Vaccinations",
+            "description": "Hepatitis A and B, typhoid (especially if traveling to less touristy areas or eating street food), and up-to-date routine vaccines (MMR, tetanus, diphtheria)."
+        }},
+        {{
+            "name": "COVID-19 Requirements",
+            "description": "Carry proof of COVID-19 vaccination or Green Pass if required. Verify any specific entry requirements for COVID-19 testing or proof of vaccination."
+        }},
+        {{
+            "name": "Health Insurance",
+            "description": "Medical insurance is highly recommended as medical costs in China can be high for foreigners. Ensure coverage includes medical emergencies, hospitalization, and medical repatriation."
+        }},
+        {{
+            "name": "Language Preparation",
+            "description": "Familiarize yourself with basic Chinese phrases or download a translation app, as English may not be widely understood."
+        }},
+        {{
+            "name": "Payment Methods",
+            "description": "China commonly uses electronic payment apps like WeChat Pay and Alipay, though these usually require a local bank account. Bring an international credit card and some cash for small purchases."
+        }},
+        {{
+            "name": "Clothing",
+            "description": "February in Shanghai is cold, with temperatures around or below 10Â°C. Pack winter clothing if planning to spend time outdoors."
+        }}
+    ]
+}}
+"""
 
 ITINERARY_SYSTEM_INSTRUCTIONS = {
     "role": "system",
@@ -142,6 +190,11 @@ scheduler = APScheduler()
 JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER = "cron"
 JOB_NOTIFICATION_DAILY_TRAVEL_HOUR = 1
 JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES = 34
+
+JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER = "cron"
+JOB_NOTIFICATION_DOCS_REMINDER_HOUR = 1
+JOB_NOTIFICATION_DOCS_REMINDER_MINUTES = 34
+JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE = 15
 
 # admin user
 ADMIN_MAIL = os.getenv('ADMIN_MAIL')
