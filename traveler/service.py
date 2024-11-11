@@ -20,9 +20,19 @@ def get_traveler_by_id(traveler_id: str) -> Traveler:
     traveler_document = travelers.find_one({'_id': ObjectId(traveler_id), "deleted_at": None})
 
     if traveler_document is None:
-        raise ElementNotFoundException(f"no travler found with id: {traveler_id}")
+        raise ElementNotFoundException(f"no traveler found with id: {traveler_id}")
 
     logger.info("found traveler with id %s", traveler_id)
+    return Traveler(**traveler_document)
+
+def get_traveler_by_user_id(user_id: str) -> Traveler:
+    logger.info("retrieving traveler with user id %s", user_id)
+    traveler_document = travelers.find_one({'user_id': user_id, "deleted_at": None})
+
+    if traveler_document is None:
+        raise ElementNotFoundException(f"no traveler found with user id: {user_id}")
+
+    logger.info("found traveler with user id %s", user_id)
     return Traveler(**traveler_document)
 
 def create_traveler(request: TravelerCreateRequest) -> str:

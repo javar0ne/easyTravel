@@ -63,7 +63,7 @@ def update(organization_id):
         logger.error(str(e))
         return error_response()
 
-@organization.post('pending')
+@organization.post('/pending')
 @roles_required([Role.ADMIN.name])
 def pending_organizations():
     try:

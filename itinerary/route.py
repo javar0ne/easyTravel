@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from common.exceptions import ElementNotFoundException
 from common.model import Paginated
 from common.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
-    no_content_response, not_found_response
+    no_content_response, not_found_response, service_unavailable_response
 from common.role import roles_required, Role
 from itinerary import itinerary
 from itinerary.model import ItineraryRequest, Itinerary, ShareWithRequest, PublishReqeust, DuplicateRequest, \
@@ -109,7 +109,7 @@ def search():
         return error_response()
 
 @itinerary.get('/completed')
-@roles_required([Role.TRAVELER.name, Role.ORGANIZATION.name])
+@roles_required([Role.TRAVELER.name])
 def completed_itineraries():
     try:
         itineraries = get_completed_itineraries(get_jwt_identity())
@@ -217,11 +217,12 @@ def city_description(city_name):
         return error_response()
 
 @itinerary.post('/itinerary-request')
+@roles_required([Role.TRAVELER.name])
 def generate_itinerary():
     try:
         logger.debug("parsing request body..")
         itinerary_request = ItineraryRequest(**request.json)
-        request_id = handle_itinerary_request(itinerary_request)
+        request_id = handle_itinerary_request(get_jwt_identity(), itinerary_request)
         return success_response({"request_id": str(request_id)})
     except ValidationError as err:
         logger.error("validation error while parsing itinerary request", err)
@@ -231,17 +232,18 @@ def generate_itinerary():
         return bad_request_response(err.message)
     except ItineraryGenerationDisabled as err:
         logger.error(err.message)
-
+        return service_unavailable_response()
     except Exception as err:
         logger.error(str(err))
         return error_response()
 
 @itinerary.post('/event-itinerary-request/<event_id>')
+@roles_required([Role.TRAVELER.name])
 def generate_event_itinerary(event_id):
     try:
         logger.debug("parsing request body..")
         itinerary_request = ItineraryRequest(**request.json)
-        request_id = handle_event_itinerary_request(itinerary_request, event_id)
+        request_id = handle_event_itinerary_request(get_jwt_identity(), itinerary_request, event_id)
         return success_response({"request_id": str(request_id)})
     except ValidationError as err:
         logger.error("validation error while parsing itinerary request", err)

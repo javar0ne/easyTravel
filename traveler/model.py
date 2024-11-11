@@ -17,7 +17,7 @@ class TravelerCreateRequest(BaseModel):
     surname: str
     birth_date: datetime
     interested_in: list[int]
-    user_id: str
+    user_id: Optional[str] = None
 
 class UpdateTravelerRequest(BaseModel):
     phone_number: str

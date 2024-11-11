@@ -198,7 +198,7 @@ class ItineraryRequest(ItineraryBaseModel):
     travelling_with: str
     accessibility: bool
     interested_in: list[str]
-    user_id: PyObjectId
+    user_id: Optional[PyObjectId] = None
     status: str = ItineraryRequestStatus.PENDING.name
     details: list[AssistantItinerary] = []
 

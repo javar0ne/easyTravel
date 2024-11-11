@@ -8,9 +8,9 @@ from flask_jwt_extended import decode_token, create_access_token, create_refresh
 
 from common.exceptions import ElementAlreadyExistsException, ElementNotFoundException
 from common.extensions import db, redis_auth, APP_HOST
-# from common.mails import send_forgot_password_mail
 from common.password_utils import hash_password, check_password
 from common.role import Role
+from user.mail import send_forgot_password_mail
 from user.model import COLLECTION_NAME, User, Token, ForgotPasswordRequest, ResetPasswordRequest, LoginRequest, \
     WrongPasswordException, LogoutRequest, RefreshTokenRequest, RefreshTokenRevoked
 
@@ -126,7 +126,7 @@ def handle_forgot_password(forgot_password_req: ForgotPasswordRequest):
     )
     reset_url = generate_reset_url(token)
 
-    # send_forgot_password_mail(forgot_password_req.email, reset_url)
+    send_forgot_password_mail(forgot_password_req.email, reset_url)
 
 def handle_reset_password(reset_password_req: ResetPasswordRequest) -> Token:
     reset_token = db["reset_tokens"].find_one({"token": reset_password_req.token})
