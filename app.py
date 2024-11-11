@@ -5,19 +5,19 @@ from datetime import timezone, datetime
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
 
+from admin import admin
 from admin.service import create_admin_user, create_initial_config
 from common.extensions import mail, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES, \
-    scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER, ADMIN_MAIL, ADMIN_PASSWORD, JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER, \
+    scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER, JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER, \
     JOB_NOTIFICATION_DOCS_REMINDER_HOUR, JOB_NOTIFICATION_DOCS_REMINDER_MINUTES
 from common.response_wrapper import not_found_response, unauthorized_response, error_response
-from common.role import Role
 from event import event
 from itinerary import itinerary
 from itinerary.job import job_daily_travel_schedule, job_docs_reminder
 from organization import organization
 from traveler import traveler
 from user import user
-from user.service import is_token_not_valid, create_user
+from user.service import is_token_not_valid
 
 app = Flask(__name__)
 
@@ -37,6 +37,7 @@ app.register_blueprint(organization)
 app.register_blueprint(user)
 app.register_blueprint(itinerary)
 app.register_blueprint(event)
+app.register_blueprint(admin)
 
 # logging
 logging.basicConfig(level=os.getenv('LOG_LEVEL', 'DEBUG'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

@@ -22,7 +22,7 @@ from itinerary.model import CityDescription, AssistantItineraryResponse, Itinera
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabled, DocsNotFoundException, \
     AssistantItineraryDocsResponse
-from traveler.service import get_traveler_by_id
+from traveler.service import get_traveler_by_user_id
 from user.service import get_user_by_id
 
 logger = logging.getLogger(__name__)
@@ -107,7 +107,7 @@ def create_itinerary(itinerary_request_id: str) -> str:
 
 def ask_itinerary_docs(city: str,
                        itinerary_id: id,
-                       traveler_id: str,
+                       user_id: str,
                        start_date: datetime):
     logger.info("starting retrieve docs...")
 
@@ -134,8 +134,8 @@ def ask_itinerary_docs(city: str,
             "docs": docs_response.docs[0].model_dump()}}
     )
 
-    traveler = get_traveler_by_id(traveler_id)
-    user = get_user_by_id(traveler.user_id)
+    traveler = get_traveler_by_user_id(user_id)
+    user = get_user_by_id(user_id)
     send_docs_reminder(email = user.email,
                        traveler = traveler,
                        city = city,
@@ -214,7 +214,20 @@ def get_completed_itineraries(user_id: str) -> list[Itinerary]:
     logger.info("searching for completed itineraries..")
 
     cursor = itineraries.aggregate([
-        {"$match": {"user_id": user_id, "shared_with": user_id, "status": ItineraryStatus.COMPLETED.name, "deleted_at": None}},
+        {"$match":
+            {
+                "$and": [
+                    {
+                        "$or": [
+                            {"user_id": user_id},
+                            {"shared_with": user_id}
+                        ]
+
+                    },
+                    {"status": ItineraryStatus.COMPLETED.name}
+                ]
+            }
+        },
         {"$sort": {"created_at": -1}},
         {"$project": {"details": 0}}
     ])
@@ -374,46 +387,11 @@ def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
 
     return ItineraryRequest(**itinerary_request)
 
-def handle_itinerary_request(itinerary_request: ItineraryRequest):
-    initial_user_prompt = generate_initial_user_prompt(itinerary_request)
-    return generate_itinerary_request(itinerary_request, initial_user_prompt)
+def handle_itinerary_request(user_id: str, itinerary_request: ItineraryRequest):
+    itinerary_request.user_id = user_id
 
-
-def handle_event_itinerary_request(itinerary_request: ItineraryRequest, event_id: str):
-    initial_user_prompt = generate_initial_user_event_prompt(itinerary_request, event_id)
-    return generate_itinerary_request(itinerary_request, initial_user_prompt)
-
-def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user_prompt: dict) -> str:
-    logger.info("generating itinerary request..")
-
-    if not can_generate_itinerary():
-        raise ItineraryGenerationDisabled()
-
-    if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
-        raise DateNotValidException("start date must be greater or equal to today")
-
-    request_id = db["itinerary_requests"].insert_one(itinerary_request.model_dump()).inserted_id
-    conversation = Conversation(AssistantItineraryResponse)
-    conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
-    conversation.add_message_from(initial_user_prompt)
-
-    threading.Thread(target=generate_day_by_day,args=(conversation, request_id)).start()
-
-    return request_id
-
-def generate_itinerary_infos(itinerary_request: ItineraryRequest):
-    trip_duration = (itinerary_request.end_date - itinerary_request.start_date).days + 1
-    month = itinerary_request.start_date.strftime("%B")
-    interested_in = ','.join(Activity[activity].value for activity in itinerary_request.interested_in)
-    budget = Budget[itinerary_request.budget]
-    travelling_with = TravellingWith[itinerary_request.travelling_with]
-
-    return trip_duration, month, interested_in, budget, travelling_with
-
-def generate_initial_user_prompt(itinerary_request: ItineraryRequest) -> dict:
     trip_duration, month, interested_in, budget, travelling_with = generate_itinerary_infos(itinerary_request)
-
-    return Conversation.create_message(
+    initial_user_prompt = Conversation.create_message(
         ConversationRole.USER.value,
         ITINERARY_USER_PROMPT.format(
             month=month,
@@ -426,11 +404,15 @@ def generate_initial_user_prompt(itinerary_request: ItineraryRequest) -> dict:
         )
     )
 
-def generate_initial_user_event_prompt(itinerary_request: ItineraryRequest, event_id: str):
-    trip_duration, month, interested_in, budget, travelling_with = generate_itinerary_infos(itinerary_request)
+    return generate_itinerary_request(itinerary_request, initial_user_prompt, trip_duration)
+
+
+def handle_event_itinerary_request(traveler_id: str, itinerary_request: ItineraryRequest, event_id: str):
+    itinerary_request.user_id = traveler_id
     event = get_event_by_id(event_id)
 
-    return Conversation.create_message(
+    trip_duration, month, interested_in, budget, travelling_with = generate_itinerary_infos(itinerary_request)
+    initial_user_prompt = Conversation.create_message(
         ConversationRole.USER.value,
         ITINERARY_USER_EVENT_PROMPT.format(
             month=month,
@@ -450,6 +432,35 @@ def generate_initial_user_event_prompt(itinerary_request: ItineraryRequest, even
             event_avg_duration=event.avg_duration
         )
     )
+
+    return generate_itinerary_request(itinerary_request, initial_user_prompt, trip_duration)
+
+def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user_prompt: dict, trip_duration: int) -> str:
+    logger.info("generating itinerary request..")
+
+    if not can_generate_itinerary():
+        raise ItineraryGenerationDisabled()
+
+    if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
+        raise DateNotValidException("start date must be greater or equal to today")
+
+    request_id = db["itinerary_requests"].insert_one(itinerary_request.model_dump()).inserted_id
+    conversation = Conversation(AssistantItineraryResponse)
+    conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
+    conversation.add_message_from(initial_user_prompt)
+
+    threading.Thread(target=generate_day_by_day,args=(conversation, request_id, trip_duration)).start()
+
+    return request_id
+
+def generate_itinerary_infos(itinerary_request: ItineraryRequest):
+    trip_duration = (itinerary_request.end_date - itinerary_request.start_date).days + 1
+    month = itinerary_request.start_date.strftime("%B")
+    interested_in = ','.join(Activity[activity].value for activity in itinerary_request.interested_in)
+    budget = Budget[itinerary_request.budget]
+    travelling_with = TravellingWith[itinerary_request.travelling_with]
+
+    return trip_duration, month, interested_in, budget, travelling_with
 
 def generate_day_by_day(conversation: Conversation, request_id: ObjectId, trip_duration: int):
     logger.info("starting itinerary generation..")

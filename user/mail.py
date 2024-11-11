@@ -2,7 +2,6 @@ import logging
 
 from flask_mailman import EmailMessage
 
-
 logger = logging.getLogger(__name__)
 
 def send_forgot_password_mail(email: str, reset_url: str):
@@ -12,5 +11,3 @@ def send_forgot_password_mail(email: str, reset_url: str):
         to=[email]
     )
     message.send()
-
-
