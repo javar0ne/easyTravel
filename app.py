@@ -1,6 +1,7 @@
 import logging
 import os
 from datetime import timezone, datetime
+from logging.config import dictConfig
 
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
@@ -40,7 +41,66 @@ app.register_blueprint(event)
 app.register_blueprint(admin)
 
 # logging
-logging.basicConfig(level=os.getenv('LOG_LEVEL', 'DEBUG'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# handler = logging.FileHandler('./logs/easyTravel.log')
+# handler.setLevel(10)
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# handler.setFormatter(formatter)
+# app.logger.addHandler(handler)
+# logging.basicConfig(level=os.getenv('LOG_LEVEL', 'DEBUG'), format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# logger = logging.getLogger(__name__)
+
+dictConfig({
+'version': 1,
+    'loggers': {
+        'traveler': {
+            'level': 'INFO',
+            'handlers': ['console_handler', 'file_handler'],
+        },
+        'itinerary': {
+            'level': 'INFO',
+            'handlers': ['console_handler', 'file_handler'],
+        },
+        'user': {
+            'level': 'INFO',
+            'handlers': ['console_handler', 'file_handler'],
+        },
+        'organization': {
+            'level': 'INFO',
+            'handlers': ['console_handler', 'file_handler'],
+        },
+        'event': {
+            'level': 'INFO',
+            'handlers': ['console_handler', 'file_handler'],
+        },
+        'admin': {
+            'level': 'INFO',
+            'handlers': ['console_handler', 'file_handler'],
+        }
+    },
+    'handlers': {
+        'console_handler': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stdout',
+            'formatter': 'simple'
+        },
+        'file_handler': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': './logs/easyTravel.log',
+            'maxBytes': 0,
+            #'maxBytes': 1024,
+            #'backupCount': 3,
+            'formatter': 'simple',
+        }
+    },
+    'formatters': {
+        'simple': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        },
+    }
+})
+
 logger = logging.getLogger(__name__)
 
 # request/response interceptors
