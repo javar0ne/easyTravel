@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Optional
-from typing_extensions import Self
 
 from pydantic import BaseModel, Field, model_validator
+from typing_extensions import Self
 
-from app.json_encoders import PyObjectId
-from app.model import Coordinates
+from app.encoders import PyObjectId
+from app.models import Coordinates, Activity
 from app.utils import is_valid_enum_name
 
 COLLECTION_NAME = "events"
@@ -31,7 +31,8 @@ class EventBaseModel(BaseModel):
         return self
 
 class UpdateEventRequest(EventBaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    period: str
+    city: str
     title: str
     description: str
     cost: str
@@ -40,10 +41,23 @@ class UpdateEventRequest(EventBaseModel):
     related_activities: list[str]
     start_date: datetime
     end_date: datetime
-    coordinates: Coordinates
+
+class CreateEventRequest(EventBaseModel):
+    period: str
+    city: str
+    title: str
+    description: str
+    cost: str
+    avg_duration: int
+    accessible: bool
+    related_activities: list[str]
+    start_date: datetime
+    end_date: datetime
 
 class Event(EventBaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    period: str
+    city: str
     title: str
     description: str
     cost: str
@@ -53,12 +67,29 @@ class Event(EventBaseModel):
     start_date: datetime
     end_date: datetime
     coordinates: Coordinates
-    organization_id: str
+    user_id: str
     created_at: Optional[datetime] = None
-    update_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
 
+    @staticmethod
+    def from_create_req(request: CreateEventRequest, user_id: str, coordinates: Coordinates):
+        return Event(
+            city=request.city,
+            title=request.title,
+            description=request.description,
+            cost=request.cost,
+            avg_duration=request.avg_duration,
+            accessible=request.accessible,
+            related_activities=request.related_activities,
+            start_date=request.start_date,
+            end_date=request.end_date,
+            coordinates=coordinates,
+            user_id=user_id,
+        )
+
     def update_by(self, update_event_req: UpdateEventRequest):
+        self.city = update_event_req.city
         self.title = update_event_req.title
         self.description = update_event_req.description
         self.cost = update_event_req.cost
@@ -67,4 +98,3 @@ class Event(EventBaseModel):
         self.related_activities = update_event_req.related_activities
         self.start_date = update_event_req.start_date
         self.end_date = update_event_req.end_date
-        self.coordinates = update_event_req.coordinates

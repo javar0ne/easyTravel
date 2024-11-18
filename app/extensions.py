@@ -1,36 +1,23 @@
-import os
-
 from flask_apscheduler import APScheduler
 from flask_mailman import Mail
-from openai import OpenAI
-from pymongo import MongoClient
-from redis import Redis
 
-# general
-APP_HOST = os.getenv("APP_HOST", "http://127.0.0.1:5000")
+from app.assistant import Assistant
+from app.wrappers import RedisWrapper, MongoWrapper
 
 # mail
 mail = Mail()
 
-NAME_APPLICATION = "easyTravel"
-
-# redis_auth
-DAILY_EXPIRE = 60*60*24
-redis_auth = Redis(host=os.getenv('REDIS_HOST', '127.0.0.1'), port=6379, password=os.getenv('REDIS_PASSWORD', 'admin'), db=0)
-redis_city_description = Redis(host=os.getenv('REDIS_HOST', '127.0.0.1'), port=6379, password=os.getenv('REDIS_PASSWORD', 'admin'), db=1)
-
+# redis
+redis_auth = RedisWrapper(db=0)
+redis_city_description = RedisWrapper(db=1)
+DAILY_EXPIRE = 60 * 60 * 24
 CITY_KEY_SUFFIX = "itinerary-description"
 
 # mongodb
-mongo_uri = os.getenv('MONGO_URI', 'mongodb://admin:admin@127.0.0.1:27017/')
-mongo_client = MongoClient(mongo_uri)
-db = mongo_client[NAME_APPLICATION]
+mongo = MongoWrapper()
 
 # openai
-OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
-assistant = OpenAI()
-
-MAX_COMPLETION_TOKEN=16383
+assistant = Assistant()
 
 CITY_DESCRIPTION_USER_PROMPT = "Provide a short description of {city} city."
 CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS = {
@@ -48,7 +35,7 @@ ITINERARY_USER_EVENT_PROMPT = """
     In {month} I’m visiting {city} {travelling_with}. I’m staying there for {trip_duration} day(s) and 
     with a range budget per person between {min_budget} and {max_budget} EUR.  
     I’m interested into: {interested_in}. 
-    
+
     Add the following activity to the itinerary:
     {{
         "period": "{event_period}",
@@ -123,7 +110,7 @@ ITINERARY_SYSTEM_INSTRUCTIONS = {
         for handicapped people and if it is a solo, couple, family or friends trip.
         You have to prepare at least one activity per day.
         Your answer must be similar to the following json:
-        
+
         {
             "itinerary": [
               {
@@ -195,7 +182,3 @@ JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER = "cron"
 JOB_NOTIFICATION_DOCS_REMINDER_HOUR = 1
 JOB_NOTIFICATION_DOCS_REMINDER_MINUTES = 34
 JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE = 15
-
-# admin user
-ADMIN_MAIL = os.getenv('ADMIN_MAIL')
-ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')

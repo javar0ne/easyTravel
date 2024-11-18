@@ -3,15 +3,15 @@ import logging
 from flask import request
 from pydantic import ValidationError
 
+from app.blueprints.organization import organization
+from app.blueprints.organization.model import CreateOrganizationRequest, UpdateOrganizationRequest
+from app.blueprints.organization.service import create_organization, get_organization_by_id, update_organization, \
+    get_pending_organizations, handle_active_organization
 from app.exceptions import ElementAlreadyExistsException, ElementNotFoundException
-from app.model import Paginated
+from app.models import Paginated
 from app.response_wrapper import bad_request_response, success_response, conflict_response, not_found_response, \
     error_response, no_content_response
 from app.role import roles_required, Role
-from app.blueprints.organization import organization
-from app.blueprints.organization.model import OrganizationCreateRequest, UpdateOrganizationRequest
-from app.blueprints.organization.service import create_organization, get_organization_by_id, update_organization, \
-    get_pending_organizations, handle_active_organization
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def get(organization_id):
     try:
         organization = get_organization_by_id(organization_id)
-        return success_response(organization)
+        return success_response(organization.model_dump())
     except ElementNotFoundException as err:
         logger.warning(str(err))
         return not_found_response(err.message)
@@ -27,11 +27,11 @@ def get(organization_id):
         logger.error(str(e))
         return bad_request_response(str(e))
 
-@organization.post('/')
+@organization.post('')
 def create():
     try:
         logger.debug("parsing request body to organization..")
-        organization_create_req = OrganizationCreateRequest(**request.json)
+        organization_create_req = CreateOrganizationRequest(**request.json)
 
         inserted_id = create_organization(organization_create_req)
         return success_response({"id": inserted_id})

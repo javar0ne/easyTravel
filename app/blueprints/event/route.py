@@ -1,57 +1,65 @@
 import logging
+
 from flask import request
 from flask_jwt_extended import get_jwt_identity
-
 from pydantic import ValidationError
 
-from app.exceptions import ElementNotFoundException
-from app.model import Paginated
-from app.response_wrapper import bad_request_response, error_response, success_response, no_content_response, \
-    not_found_response
-from app.role import roles_required, Role
 from app.blueprints.event import event
-from app.blueprints.event.model import Event, UpdateEventRequest
-from app.blueprints.event.service import create_event, update_event, get_event_by_id, delete_event
+from app.blueprints.event.model import UpdateEventRequest, CreateEventRequest
+from app.blueprints.event.service import create_event, update_event, delete_event, search_events
+from app.exceptions import ElementNotFoundException, OrganizationNotActiveException
+from app.models import Paginated
+from app.response_wrapper import bad_request_response, error_response, success_response, no_content_response, \
+    not_found_response, forbidden_response
+from app.role import roles_required, Role
 
 logger = logging.getLogger(__name__)
 
 @event.get('/<event_id>')
+@roles_required([Role.ORGANIZATION.name])
 def get(event_id):
     try:
-        event = get_event_by_id(event_id)
+        event = get_event_by_id_and_user(get_jwt_identity(), event_id)
         return success_response(event.model_dump())
     except ElementNotFoundException as err:
         logger.warning(str(err))
         return not_found_response(err.message)
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
 
-@event.post('/')
+@event.post('')
 @roles_required([Role.ORGANIZATION.name])
 def create():
     try:
-        event = Event(**request.json)
+        event = CreateEventRequest(**request.json)
         inserted_id = create_event(get_jwt_identity(), event)
 
         return success_response({"id": inserted_id})
     except ValidationError as err:
         logger.error("validation error while parsing event request", err)
         return bad_request_response(err.errors())
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
 
 @event.put('/<event_id>')
+@roles_required([Role.ORGANIZATION.name])
 def update(event_id):
     try:
         update_event_req = UpdateEventRequest(**request.json)
-        update_event(event_id, update_event_req)
+        update_event(get_jwt_identity(), event_id, update_event_req)
 
         return no_content_response()
     except ValidationError as err:
         logger.error("validation error while parsing event update request", err)
         return bad_request_response(err.errors())
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
     except ElementNotFoundException as err:
         logger.warning(str(err))
         return not_found_response(err.message)
@@ -60,19 +68,22 @@ def update(event_id):
         return error_response()
 
 @event.delete('/<event_id>')
+@roles_required([Role.ORGANIZATION.name])
 def delete(event_id):
     try:
-        delete_event(event_id)
+        delete_event(get_jwt_identity(), event_id)
 
         return no_content_response()
     except ElementNotFoundException as err:
         logger.warning(str(err))
         return not_found_response(err.message)
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()
 
-@event.get('')
+@event.post('/search')
 @roles_required([Role.ORGANIZATION.name])
 def search():
     try:
@@ -83,6 +94,8 @@ def search():
     except ValidationError as err:
         logger.error("validation error while parsing search events request", err)
         return bad_request_response(err.errors())
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
     except Exception as err:
         logger.error(str(err))
         return error_response()

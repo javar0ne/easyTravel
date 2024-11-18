@@ -1,8 +1,10 @@
 from enum import Enum
 from functools import wraps
+
 from flask_jwt_extended import jwt_required, get_jwt
 
 from app.response_wrapper import forbidden_response
+
 
 class Role(Enum):
     TRAVELER = "traveler"

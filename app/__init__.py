@@ -1,6 +1,4 @@
 import logging
-import os
-from datetime import datetime, timezone
 
 from flask import Flask, request
 from flask_jwt_extended import JWTManager
@@ -17,7 +15,7 @@ from app.blueprints.user.service import is_token_not_valid
 from app.config import Config
 from app.extensions import mail, scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, \
     JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES, JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER, JOB_NOTIFICATION_DOCS_REMINDER_HOUR, \
-    JOB_NOTIFICATION_DOCS_REMINDER_MINUTES
+    JOB_NOTIFICATION_DOCS_REMINDER_MINUTES, redis_auth, redis_city_description, mongo, assistant
 from app.response_wrapper import not_found_response, unauthorized_response, error_response
 
 
@@ -25,20 +23,23 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    init_logging()
+    init_logging(app)
     init_blueprints(app)
+    init_mongo(app)
+    init_redis(app)
+    init_assistant(app)
     init_mail(app)
     init_jwt_manager(app)
     init_scheduler(app)
     init_http_interceptors(app)
-    init_app()
+    init_app(app)
 
     return app
 
 
-def init_logging():
+def init_logging(app):
     logging.basicConfig(
-        level=os.getenv('LOG_LEVEL', 'DEBUG'),
+        level=app.config["LOG_LEVEL"],
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
@@ -50,6 +51,16 @@ def init_blueprints(app):
     app.register_blueprint(event)
     app.register_blueprint(admin)
 
+def init_mongo(app):
+    mongo.init_app(app)
+
+def init_redis(app):
+    redis_auth.init_app(app)
+    redis_city_description.init_app(app)
+
+def init_assistant(app):
+    assistant.init_app(app)
+
 def init_mail(app):
     mail.init_app(app)
 
@@ -59,32 +70,29 @@ def init_jwt_manager(app):
     @jwt.token_in_blocklist_loader
     def check_if_token_not_valid(jwt_header, jwt_payload):
         jti = jwt_payload["jti"]
-        jwt_iat = jwt_payload["iat"]
+        iat = jwt_payload["iat"]
         user_id = jwt_payload["sub"]
-        issued_at = datetime.fromtimestamp(jwt_iat, timezone.utc)
 
-        return is_token_not_valid(user_id, issued_at, jti)
+        return is_token_not_valid(user_id, iat, jti)
 
 
 def init_scheduler(app):
     scheduler.init_app(app)
     scheduler.start()
-    scheduler.add_job(id="job_daily_travel_schedule",
-                      func=job_daily_travel_schedule,
-                      trigger=JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER,
-                      hour=JOB_NOTIFICATION_DAILY_TRAVEL_HOUR,
-                      minute=JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES)
-    scheduler.add_job(id="job_docs_reminder",
-                      func=job_docs_reminder,
-                      trigger=JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER,
-                      hour=JOB_NOTIFICATION_DOCS_REMINDER_HOUR,
-                      minute=JOB_NOTIFICATION_DOCS_REMINDER_MINUTES)
-
-
-def init_app():
-    create_admin_user()
-    create_initial_config()
-
+    scheduler.add_job(
+        id="job_daily_travel_schedule",
+        func=job_daily_travel_schedule,
+        trigger=JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER,
+        hour=JOB_NOTIFICATION_DAILY_TRAVEL_HOUR,
+        minute=JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES
+    )
+    scheduler.add_job(
+        id="job_docs_reminder",
+        func=job_docs_reminder,
+        trigger=JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER,
+        hour=JOB_NOTIFICATION_DOCS_REMINDER_HOUR,
+        minute=JOB_NOTIFICATION_DOCS_REMINDER_MINUTES
+    )
 
 def init_http_interceptors(app):
     @app.before_request
@@ -114,3 +122,7 @@ def init_http_interceptors(app):
     @app.errorhandler(500)
     def handle_internal_server_error(error):
         return error_response()
+
+def init_app(app):
+    create_admin_user(app.config["ADMIN_MAIL"], app.config["ADMIN_PASSWORD"])
+    create_initial_config()

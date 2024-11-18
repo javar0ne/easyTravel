@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from app.json_encoders import PyObjectId
+from app.encoders import PyObjectId
 
 COLLECTION_NAME = "users"
 

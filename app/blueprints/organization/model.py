@@ -4,8 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from app.json_encoders import PyObjectId
-from app.model import Coordinates
+from app.encoders import PyObjectId
+from app.models import Coordinates
 
 COLLECTION_NAME = "organizations"
 
@@ -13,11 +13,10 @@ class OrganizationStatus(Enum):
     PENDING = "pending"
     ACTIVE = "active"
 
-class OrganizationCreateRequest(BaseModel):
+class CreateOrganizationRequest(BaseModel):
     email: str
     password: str
     phone_number: str
-    currency: str
     organization_name: str
     coordinates: Coordinates
     website: str
@@ -26,7 +25,6 @@ class OrganizationCreateRequest(BaseModel):
 
 class UpdateOrganizationRequest(BaseModel):
     phone_number: str
-    currency: str
     organization_name: str
     coordinates: Coordinates
     website: str
@@ -34,7 +32,6 @@ class UpdateOrganizationRequest(BaseModel):
 class Organization(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     phone_number: str
-    currency: str
     organization_name: str
     coordinates: Coordinates
     website: str
@@ -46,16 +43,14 @@ class Organization(BaseModel):
 
     def update_by(self, update_organization_req: UpdateOrganizationRequest):
         self.phone_number = update_organization_req.phone_number
-        self.currency = update_organization_req.currency
         self.organization_name = update_organization_req.organization_name
         self.coordinates = update_organization_req.coordinates
         self.website = update_organization_req.website
 
     @staticmethod
-    def from_create_req(organization: OrganizationCreateRequest):
+    def from_create_req(organization: CreateOrganizationRequest):
         return Organization(
             phone_number=organization.phone_number,
-            currency=organization.currency,
             organization_name=organization.organization_name,
             coordinates=organization.coordinates,
             website=organization.website,

@@ -4,14 +4,15 @@ from flask import request
 from flask_jwt_extended import jwt_required, get_jwt
 from pydantic import ValidationError
 
-from app.exceptions import ElementNotFoundException
-from app.response_wrapper import success_response, bad_request_response, error_response, no_content_response, \
-    not_found_response, unauthorized_response
 from app.blueprints.user import user
-from app.blueprints.user.model import ForgotPasswordRequest, ResetPasswordRequest, LoginRequest, WrongPasswordException, LogoutRequest, \
+from app.blueprints.user.model import ForgotPasswordRequest, ResetPasswordRequest, LoginRequest, WrongPasswordException, \
+    LogoutRequest, \
     RefreshTokenRequest, RefreshTokenRevoked
 from app.blueprints.user.service import handle_login, handle_logout, \
     handle_refresh_token, handle_forgot_password, handle_reset_password
+from app.exceptions import ElementNotFoundException
+from app.response_wrapper import success_response, bad_request_response, error_response, no_content_response, \
+    not_found_response, unauthorized_response
 
 logger = logging.getLogger(__name__)
 

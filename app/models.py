@@ -3,6 +3,18 @@ from enum import Enum
 
 from pydantic import BaseModel, Field, computed_field
 
+
+class Collections(Enum):
+    ADMIN_CONFIGS = "admin_configs"
+    EVENTS = "events"
+    ITINERARIES = "itineraries"
+    ITINERARY_METAS = "itinerary_metas"
+    ITINERARY_REQUESTS = "itinerary_requests"
+    ORGANIZATIONS = "organizations"
+    RESET_TOKENS = "reset_tokens"
+    TRAVELERS = "travelers"
+    USERS = "users"
+
 class Coordinates(BaseModel):
     lat: float
     lng: float

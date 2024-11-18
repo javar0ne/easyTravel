@@ -2,8 +2,10 @@ import logging
 import re
 from enum import Enum
 
+from flask import Flask
+from openai import OpenAI
+
 from app.exceptions import KeyNotFoundException
-from app.extensions import assistant, OPENAI_MODEL, MAX_COMPLETION_TOKEN
 
 logger = logging.getLogger(__name__)
 
@@ -43,21 +45,23 @@ class Conversation:
     def encode(content: str):
         return re.sub(r'\s+', ' ', content).strip()
 
-def ask_assistant(conversation: Conversation):
-    completion = assistant.beta.chat.completions.parse(
-        model=OPENAI_MODEL,
-        messages=conversation.messages,
-        response_format=conversation.response_format,
-    )
+class Assistant:
+    def __init__(self):
+        self.client = OpenAI()
+        self.openai_model = None
 
-    return completion.choices[0].message.parsed
+    def init_app(self, app: Flask):
+        self.openai_model = app.config["OPENAI_MODEL"]
 
-def ask_assistant_long_response(conversation: Conversation, response_format: type):
-    completion = assistant.beta.chat.completions.parse(
-        model=OPENAI_MODEL,
-        messages=conversation.messages,
-        response_format=response_format,
-        max_completion_tokens=MAX_COMPLETION_TOKEN
-    )
+    def ask(self, conversation: Conversation):
+        completion = self.client.beta.chat.completions.parse(
+            model=self.openai_model,
+            messages=conversation.messages,
+            response_format=conversation.response_format,
+        )
 
-    return completion.choices[0].message.parsed
+        parsed_response = completion.choices[0].message.parsed
+
+        logger.info("assistant answered with: %s", parsed_response)
+
+        return parsed_response

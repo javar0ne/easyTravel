@@ -6,31 +6,31 @@ from io import BytesIO
 
 from bson import ObjectId
 
+from app.assistant import Conversation, ConversationRole
 from app.blueprints.admin.service import can_generate_itinerary
-from app.assistant import ask_assistant, Conversation, ConversationRole
-from app.exceptions import ElementNotFoundException
-from app.extensions import CITY_KEY_SUFFIX, CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, DAILY_EXPIRE, \
-    redis_city_description, ITINERARY_SYSTEM_INSTRUCTIONS, db, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
-    ITINERARY_DAILY_PROMPT, ITINERARY_USER_EVENT_PROMPT, JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, \
-    ITINERARY_RETRIEVE_DOCS_PROMPT
-from app.model import PaginatedResponse, Paginated
-from app.pdf import PdfItinerary
 from app.blueprints.event.service import get_event_by_id
 from app.blueprints.itinerary.mail import send_docs_reminder
-from app.blueprints.itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, ItineraryRequest, \
-    Activity, Budget, TravellingWith, COLLECTION_NAME, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
+from app.blueprints.itinerary.model import CityDescription, AssistantItineraryResponse, ItineraryRequestStatus, \
+    ItineraryRequest, \
+    Activity, Budget, TravellingWith, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
-    UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabled, DocsNotFoundException, \
-    AssistantItineraryDocsResponse
+    UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
+    AssistantItineraryDocsResponse, CityDescriptionRequest
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
+from app.exceptions import ElementNotFoundException
+from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, CITY_KEY_SUFFIX, redis_city_description, \
+    CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, CITY_DESCRIPTION_USER_PROMPT, DAILY_EXPIRE, ITINERARY_USER_PROMPT, \
+    ITINERARY_USER_EVENT_PROMPT, ITINERARY_SYSTEM_INSTRUCTIONS, ITINERARY_DAILY_PROMPT, \
+    JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE
+from app.models import PaginatedResponse, Paginated, Collections
+from app.pdf import PdfItinerary
 
 logger = logging.getLogger(__name__)
-itineraries = db[COLLECTION_NAME]
 
 def get_itinerary_by_id(itinerary_id) -> Itinerary:
     logger.info("retrieving itinerary with id %s", itinerary_id)
-    itinerary_document = itineraries.find_one({'_id': ObjectId(itinerary_id), "deleted_at": None})
+    itinerary_document = mongo.find_one(Collections.ITINERARIES, {'_id': ObjectId(itinerary_id)})
 
     if itinerary_document is None:
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
@@ -42,13 +42,16 @@ def get_itineraries_allow_to_daily_schedule() -> list[Itinerary]:
     logger.info("retrieving itineraries allow to daily schedule")
     found_itineraries = []
 
-    cursor = itineraries.find({
-        '$and': [
-            {"start_date": {"$lte": datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)}},
-            {"end_date": {"$gte": datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)}},
-            {"reminder_notification": True},
-            {"deleted_at": None}
-        ]})
+    cursor = mongo.find(
+        Collections.ITINERARIES,
+        {
+            '$and': [
+                {"start_date": {"$lte": datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)}},
+                {"end_date": {"$gte": datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)}},
+                {"reminder_notification": True}
+            ]
+        }
+    )
     itinerary_documents = list(cursor)
     if len(itinerary_documents) == 0:
         raise ElementNotFoundException("no itinerary found")
@@ -62,19 +65,19 @@ def get_itineraries_allow_to_daily_schedule() -> list[Itinerary]:
 def get_itineraries_allow_to_docs_reminder() -> list[Itinerary]:
     logger.info("retrieving itineraries allow to docs reminder")
 
-    target_date = datetime.today()
-    start_date = target_date - timedelta(days=JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE)
+    target_date = datetime.today() + timedelta(days=JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE)
 
     found_itineraries = []
-    cursor = itineraries.find({
-        '$and': [
-            {"start_date":
-                 {"$gte": start_date.replace(hour=0, minute=0, second=0, microsecond=0),
-                  "$lt": target_date.replace(hour=0, minute=0, second=0, microsecond=0)}},
-            {"necessary_documents": {"$exists": True }},
-            {"docs_notification": True},
-            {"deleted_at": None}
-    ]})
+    cursor = mongo.find(
+        Collections.ITINERARIES,
+        {
+            '$and': [
+                {"start_date": target_date.replace(hour=0, minute=0, second=0, microsecond=0)},
+                {"necessary_documents": {"$exists": True}},
+                {"docs_notification": True},
+            ]
+        }
+    )
     itinerary_documents = list(cursor)
     if len(itinerary_documents) == 0:
         raise ElementNotFoundException("no itinerary found")
@@ -87,19 +90,19 @@ def get_itineraries_allow_to_docs_reminder() -> list[Itinerary]:
 
 def create_itinerary(itinerary_request_id: str) -> str:
     logger.info("storing itinerary..")
-    stored_itinerary_request = db["itinerary_requests"].find_one({'_id': ObjectId(itinerary_request_id)})
+    stored_itinerary_request = mongo.find_one(Collections.ITINERARY_REQUESTS, {'_id': ObjectId(itinerary_request_id)})
 
     if stored_itinerary_request is None:
         raise ElementNotFoundException(f"no itinerary request found with id {itinerary_request_id}")
 
     itinerary = Itinerary.from_document(stored_itinerary_request)
     itinerary.created_at = datetime.now(timezone.utc)
-    result = itineraries.insert_one(itinerary.model_dump(exclude={'id'}))
+    result = mongo.insert_one(Collections.ITINERARIES, itinerary.model_dump(exclude={'id'}))
 
     itinerary_meta = ItineraryMeta(itinerary_id=result.inserted_id)
-    db["itinerary_metas"].insert_one(itinerary_meta.model_dump(exclude={'id'}))
+    mongo.insert_one(Collections.ITINERARY_METAS, itinerary_meta.model_dump(exclude={'id'}))
 
-    db["itinerary_requests"].delete_one({'_id': ObjectId(itinerary_request_id)})
+    mongo.delete_one(Collections.ITINERARY_REQUESTS, {'_id': ObjectId(itinerary_request_id)})
     logger.info("itinerary stored successfully with id %s", result.inserted_id)
 
     threading.Thread(target=ask_itinerary_docs, args=(itinerary.city, result.inserted_id, itinerary.user_id, itinerary.start_date)).start()
@@ -122,16 +125,14 @@ def ask_itinerary_docs(city: str,
 
     logger.info("asking assistant itinerary docs..")
 
-    docs_response = ask_assistant(conversation)
+    docs_response = assistant.ask(conversation)
     if docs_response is None:
         raise DocsNotFoundException("Docs not found.")
 
-    logger.info("assistant answered with: %s", docs_response.docs[0].model_dump())
-
-    itineraries.update_one(
+    mongo.update_one(
+        Collections.ITINERARIES,
         {"_id": itinerary_id},
-        {"$set": {
-            "docs": docs_response.docs[0].model_dump()}}
+        {"$set": {"docs": docs_response.docs[0].model_dump()}}
     )
 
     traveler = get_traveler_by_user_id(user_id)
@@ -154,7 +155,8 @@ def update_itinerary(itinerary_id: str, updated_itinerary_req: UpdateItineraryRe
 
     stored_itinerary.update_by(updated_itinerary_req)
     stored_itinerary.update_at = datetime.now(timezone.utc)
-    itineraries.update_one(
+    mongo.update_one(
+        Collections.ITINERARIES,
         {'_id': ObjectId(itinerary_id)},
         {"$set": updated_itinerary_req.model_dump(exclude={'id'})}
     )
@@ -164,7 +166,11 @@ def update_itinerary(itinerary_id: str, updated_itinerary_req: UpdateItineraryRe
 def delete_itinerary(itinerary_id: str):
     logger.info("deleting itinerary with id %s", itinerary_id)
 
-    result = itineraries.update_one({"_id": ObjectId(itinerary_id)}, {"$set": {"deleted_at": datetime.now(timezone.utc)}})
+    result = mongo.update_one(
+        Collections.ITINERARIES,
+        {"_id": ObjectId(itinerary_id)},
+        {"$set": {"deleted_at": datetime.now(timezone.utc)}}
+    )
 
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}!")
@@ -172,8 +178,8 @@ def delete_itinerary(itinerary_id: str):
     logger.info("deleted itinerary with id %s!", itinerary_id)
 
 def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
-    pipeline = []
-    filters = {"deleted_at": None}
+    aggregations = []
+    filters = {}
     found_itineraries = []
 
     logger.info("searching for itineraries..")
@@ -187,14 +193,13 @@ def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
     if itinerary_search.interested_in:
         filters["interested_in"] = {"$in": {"$each": itinerary_search.interested_in}}
 
-    pipeline.append({"$match": filters})
-    pipeline.append({"$project": {"details": 0}})
-    pipeline.append({"$sort": {"created_at": -1}})
-    pipeline.append({"$skip": itinerary_search.elements_to_skip})
-    pipeline.append({"$limit": itinerary_search.page_size})
+    aggregations.append({"$project": {"details": 0, "docs": 0}})
+    aggregations.append({"$sort": {"created_at": -1}})
+    aggregations.append({"$skip": itinerary_search.elements_to_skip})
+    aggregations.append({"$limit": itinerary_search.page_size})
 
-    cursor = itineraries.aggregate(pipeline)
-    total_itineraries = itineraries.count_documents(filters)
+    cursor = mongo.aggregate(Collections.ITINERARIES, filters, aggregations)
+    total_itineraries = mongo.count_documents(Collections.ITINERARIES, filters)
 
     for it in list(cursor):
         found_itineraries.append(Itinerary(**it).model_dump())
@@ -208,32 +213,31 @@ def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
         page_number=itinerary_search.page_number
     )
 
-def get_completed_itineraries(user_id: str) -> list[Itinerary]:
+def get_completed_itineraries(user_id: str) -> list:
     found_itineraries = []
 
     logger.info("searching for completed itineraries..")
 
-    cursor = itineraries.aggregate([
-        {"$match":
-            {
-                "$and": [
-                    {
-                        "$or": [
-                            {"user_id": user_id},
-                            {"shared_with": user_id}
-                        ]
+    cursor = mongo.aggregate(
+        Collections.ITINERARIES,
+        {
+            "$and": [
+                {
+                    "$or": [
+                        {"user_id": user_id},
+                        {"shared_with": user_id}
+                    ]
 
-                    },
-                    {"status": ItineraryStatus.COMPLETED.name}
-                ]
-            }
+                },
+                {"status": ItineraryStatus.COMPLETED.name}
+            ]
         },
-        {"$sort": {"created_at": -1}},
-        {"$project": {"details": 0}}
-    ])
+        [{"$sort": {"created_at": -1}},
+        {"$project": {"details": 0, "docs": 0}}]
+    )
 
     for it in list(cursor):
-        found_itineraries.append(Itinerary(**it))
+        found_itineraries.append(Itinerary(**it).model_dump())
 
     logger.info("found %d itineraries completed!", len(found_itineraries))
 
@@ -244,18 +248,19 @@ def get_saved_itineraries(user_id: str, paginated: Paginated) -> PaginatedRespon
 
     logger.info("searching for saved itineraries by user with id %s..", user_id)
 
-    cursor = db["itinerary_metas"].find({"saved_by": user_id}, {"itinerary_id": 1})
+    cursor = mongo.find(Collections.ITINERARY_METAS, {"saved_by": user_id}, {"itinerary_id": 1})
     saved_itineraries = [ObjectId(it["itinerary_id"]) for it in list(cursor)]
 
-    filters = {"_id": {"$in": saved_itineraries}, "deleted_at": None}
-    cursor = itineraries.aggregate([
-        {"$match": filters},
-        {"$sort": {"created_at": -1}},
-        {"$project": {"details": 0}},
+    filters = {"_id": {"$in": saved_itineraries}}
+    cursor = mongo.aggregate(
+        Collections.ITINERARIES,
+        filters,
+        [{"$sort": {"created_at": -1}},
+        {"$project": {"details": 0, "docs": 0}},
         {"$skip": paginated.elements_to_skip},
-        {"$limit": paginated.page_size}
-    ])
-    total_itineraries = itineraries.count_documents(filters)
+        {"$limit": paginated.page_size}]
+    )
+    total_itineraries = mongo.count_documents(Collections.ITINERARIES, filters)
 
     for it in list(cursor):
         found_itineraries.append(Itinerary(**it).model_dump())
@@ -271,19 +276,19 @@ def get_saved_itineraries(user_id: str, paginated: Paginated) -> PaginatedRespon
 
 def get_shared_itineraries(user_id: str, paginated: Paginated) -> PaginatedResponse:
     found_itineraries = []
-    shared_with_filter = {"shared_with": user_id, "deleted_at": None}
+    shared_with_filter = {"shared_with": user_id}
 
     logger.info("searching for shared itineraries for user id %s..", user_id)
 
-    cursor = itineraries.aggregate([
-        {"$match": shared_with_filter},
-        {"$project": {"details": 0}},
+    cursor = mongo.aggregate(
+        Collections.ITINERARIES,
+        shared_with_filter,
+        [{"$project": {"details": 0, "docs": 0}},
         {"$sort": {"created_at": -1}},
         {"$skip": paginated.elements_to_skip},
-        {"$limit": paginated.page_size}
-
-    ])
-    total_itineraries = itineraries.count_documents(shared_with_filter)
+        {"$limit": paginated.page_size}]
+    )
+    total_itineraries = mongo.count_documents(Collections.ITINERARIES, shared_with_filter)
 
     for it in list(cursor):
         found_itineraries.append(Itinerary(**it).model_dump())
@@ -300,8 +305,9 @@ def get_shared_itineraries(user_id: str, paginated: Paginated) -> PaginatedRespo
 def share_with(share_with_req: ShareWithRequest):
     logger.info("sharing itinerary %s with users %s", share_with_req.id, ','.join(share_with_req.users))
 
-    result = itineraries.update_one(
-        {"_id": ObjectId(share_with_req.id), "deleted_at": None},
+    result = mongo.update_one(
+        Collections.ITINERARIES,
+        {"_id": ObjectId(share_with_req.id)},
         {"$push": {"shared_with": {"$each": share_with_req.users}}}
     )
 
@@ -313,8 +319,9 @@ def share_with(share_with_req: ShareWithRequest):
 def publish(publish_req: PublishReqeust):
     logger.info("setting itinerary %s is_public field to %s..", publish_req.id, publish_req.is_public)
 
-    result = itineraries.update_one(
-        {"_id": ObjectId(publish_req.id), "deleted_at": None},
+    result = mongo.update_one(
+        Collections.ITINERARIES,
+        {"_id": ObjectId(publish_req.id)},
         {"$set": {"is_public": publish_req.is_public}}
     )
 
@@ -326,8 +333,9 @@ def publish(publish_req: PublishReqeust):
 def completed(itinerary_id: str):
     logger.info("marking itinerary %s as completed..", itinerary_id)
 
-    result = itineraries.update_one(
-        {"_id": ObjectId(itinerary_id), "deleted_at": None},
+    result = mongo.update_one(
+        Collections.ITINERARIES,
+        {"_id": ObjectId(itinerary_id)},
         {"$set": {"status": ItineraryStatus.COMPLETED.name}}
     )
 
@@ -353,35 +361,35 @@ def duplicate(user_id: str, duplicate_req: DuplicateRequest) -> str:
     itinerary.update_at = None
     itinerary.deleted_at = None
 
-    result = itineraries.insert_one(itinerary.model_dump(exclude={'id'}))
+    result = mongo.insert_one(Collections.ITINERARIES, itinerary.model_dump(exclude={'id'}))
 
     logger.info("duplicated itinerary %s for user with id!", duplicate_req.id, user_id)
 
     return str(result.inserted_id)
 
-def get_city_description(city: str) -> CityDescription:
-    city_key = f"{city.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"
-    if redis_city_description.exists(city_key):
-        city_description = json.loads(redis_city_description.get(city_key))
+def get_city_description(request: CityDescriptionRequest) -> CityDescription:
+    city_key = f"{request.name.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"
+    if redis_city_description.get_client().exists(city_key):
+        city_description = json.loads(redis_city_description.get_client().get(city_key))
         return CityDescription(**city_description)
 
     conversation = Conversation(CityDescription)
     conversation.add_message_from(CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS)
-    conversation.add_message(ConversationRole.USER.value, CITY_DESCRIPTION_USER_PROMPT.format(city=city))
+    conversation.add_message(ConversationRole.USER.value, CITY_DESCRIPTION_USER_PROMPT.format(city=request.name))
 
-    city_description = ask_assistant(conversation)
+    city_description = assistant.ask(conversation)
 
     if city_description is None:
         raise CityDescriptionNotFoundException("City description not found.")
 
-    redis_city_description.set(city_key, json.dumps(city_description.model_dump()), DAILY_EXPIRE)
+    redis_city_description.get_client().set(city_key, json.dumps(city_description.model_dump()), DAILY_EXPIRE)
 
     return city_description
 
 def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
     logger.info("retrieving itinerary request with id %s", request_id)
 
-    itinerary_request = db["itinerary_requests"].find_one({"_id": ObjectId(request_id)})
+    itinerary_request = mongo.find_one(Collections.ITINERARY_REQUESTS, {"_id": ObjectId(request_id)})
     if not itinerary_request:
         raise ElementNotFoundException(f"no itinerary request found with id {request_id}")
 
@@ -427,8 +435,8 @@ def handle_event_itinerary_request(traveler_id: str, itinerary_request: Itinerar
             event_description=event.description,
             event_cost=event.cost,
             event_accessible=event.accessible,
-            event_lat=event.coordinates.latitude,
-            event_lng=event.coordinates.longitude,
+            event_lat=event.coordinates.lat,
+            event_lng=event.coordinates.lng,
             event_avg_duration=event.avg_duration
         )
     )
@@ -439,12 +447,12 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
     logger.info("generating itinerary request..")
 
     if not can_generate_itinerary():
-        raise ItineraryGenerationDisabled()
+        raise ItineraryGenerationDisabledException()
 
     if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
         raise DateNotValidException("start date must be greater or equal to today")
 
-    request_id = db["itinerary_requests"].insert_one(itinerary_request.model_dump()).inserted_id
+    request_id = mongo.insert_one(Collections.ITINERARY_REQUESTS, itinerary_request.model_dump()).inserted_id
     conversation = Conversation(AssistantItineraryResponse)
     conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
     conversation.add_message_from(initial_user_prompt)
@@ -475,11 +483,10 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, trip_d
 
             logger.info("asking assistant..")
 
-            itinerary_response = ask_assistant(conversation)
+            itinerary_response = assistant.ask(conversation)
 
-            logger.info("assistant answered with: %s", itinerary_response.itinerary[0].model_dump())
-
-            db["itinerary_requests"].update_one(
+            mongo.update_one(
+                Collections.ITINERARY_REQUESTS,
                 {"_id": request_id},
                 {"$push": {"details": itinerary_response.itinerary[0].model_dump()}}
             )
@@ -488,12 +495,22 @@ def generate_day_by_day(conversation: Conversation, request_id: ObjectId, trip_d
             logger.info("completed day %d", day)
         except Exception as err:
             logger.error(str(err))
-            db["itinerary_requests"].update_one({"_id": request_id},{"$set": {"status": ItineraryRequestStatus.ERROR.name}})
+
+            mongo.update_one(
+                Collections.ITINERARY_REQUESTS,
+                {"_id": request_id},
+                {"$set": {"status": ItineraryRequestStatus.ERROR.name}}
+            )
+
             logger.info("error on day %d", day)
             logger.info("stopped itinerary generation!")
             return
 
-    db["itinerary_requests"].update_one({"_id": request_id}, {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}})
+    mongo.update_one(
+        Collections.ITINERARY_REQUESTS,
+        {"_id": request_id},
+        {"$set": {"status": ItineraryRequestStatus.COMPLETED.name}}
+    )
     logger.info("completed itinerary generation!")
 
 def download_itinerary(itinerary_id) -> BytesIO:
@@ -511,7 +528,8 @@ def download_itinerary(itinerary_id) -> BytesIO:
 
 def update_itinerary_status(itinerary_id: str,
                             status: ItineraryStatus):
-    itineraries.update_one(
+    mongo.update_one(
+        Collections.ITINERARIES,
         {'_id': ObjectId(itinerary_id)},
         {"status": status.name}
     )

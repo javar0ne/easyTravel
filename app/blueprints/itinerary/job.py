@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
 
-from app.exceptions import ElementNotFoundException
 from app.blueprints.itinerary.mail import send_travel_schedule, send_docs_reminder
 from app.blueprints.itinerary.service import get_itineraries_allow_to_daily_schedule, check_itinerary_last_day, \
     check_itinerary_started, get_itineraries_allow_to_docs_reminder
 from app.blueprints.traveler.service import get_traveler_by_id
 from app.blueprints.user.service import get_user_by_id
+from app.exceptions import ElementNotFoundException
 
 logger = logging.getLogger(__name__)
 

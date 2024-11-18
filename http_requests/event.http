@@ -1,0 +1,49 @@
+### Get event
+GET http://127.0.0.1:5000/v1/event/{{event.id}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTczMTg2ODg3OCwianRpIjoiMzU2YWZkODUtODNhNy00MGRhLTk0N2UtMTMyMWUwY2VkZWJjIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjY3M2EyZTUzZjY0ODI1ZTkxNTY2ZTc4MyIsIm5iZiI6MTczMTg2ODg3OCwiY3NyZiI6ImQ0ZmNmYTcxLTc1YTMtNGIzZC05MmJlLWJlYmU3ZjU0ZWUwMSIsImV4cCI6MTczMTg2OTc3OCwicm9sZXMiOlsiT1JHQU5JWkFUSU9OIl0sImVtYWlsIjoiYWJjMUBnbWFpbC5jb20ifQ._atfcKKnsoD9Nu937B1a_NYQStkeaSBcICbWhp6X50Q
+
+### Create Event
+POST http://127.0.0.1:5000/v1/event
+Authorization: Bearer {{bearer_token}}
+Content-Type: application/json
+
+{
+  "title":  "{{event.title}}",
+  "description": "{{event.description}}",
+  "cost": "{{event.cost}}",
+  "avg_duration": "{{event.avg_duration}}",
+  "accessible": "{{event.accessible}}",
+  "related_activities": ["{{event.related_activities}}"],
+  "start_date": "{{event.start_date}}",
+  "end_date": "{{event.end_date}}"
+}
+
+### Update Event
+PUT http://127.0.0.1:5000/v1/event/{{event.id}}
+Content-Type: application/json
+Authorization: Bearer {{bearer_token}}
+
+{
+  "title":  "{{event.title}}",
+  "description": "{{event.description}}",
+  "cost": "{{event.cost}}",
+  "avg_duration": "{{event.avg_duration}}",
+  "accessible": "{{event.accessible}}",
+  "related_activities": ["{{event.related_activities}}"],
+  "start_date": "{{event.start_date}}",
+  "end_date": "{{event.end_date}}"
+}
+
+### Delete event
+DELETE http://127.0.0.1:5000/v1/event/{{event.id}}
+Authorization: Bearer {{bearer_token}}
+
+### Search events
+POST http://127.0.0.1:5000/v1/event/search
+Authorization: Bearer {{bearer_token}}
+Content-Type: application/json
+
+{
+  "page_size": 10,
+  "page_number": 0
+}

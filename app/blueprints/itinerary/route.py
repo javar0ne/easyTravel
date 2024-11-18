@@ -5,19 +5,19 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from openai import APIStatusError
 from pydantic import ValidationError
 
-from app.exceptions import ElementNotFoundException
-from app.model import Paginated
-from app.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
-    no_content_response, not_found_response, service_unavailable_response
-from app.role import roles_required, Role
 from app.blueprints.itinerary import itinerary
 from app.blueprints.itinerary.model import ItineraryRequest, ShareWithRequest, PublishReqeust, DuplicateRequest, \
     ItinerarySearch, DateNotValidException, UpdateItineraryRequest, CannotUpdateItineraryException, \
-    ItineraryGenerationDisabled
+    ItineraryGenerationDisabledException, CityDescriptionRequest
 from app.blueprints.itinerary.service import get_city_description, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary, delete_itinerary, \
     get_saved_itineraries, handle_itinerary_request, handle_event_itinerary_request
+from app.exceptions import ElementNotFoundException
+from app.models import Paginated
+from app.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
+    no_content_response, not_found_response, service_unavailable_response
+from app.role import roles_required, Role
 
 logger = logging.getLogger(__name__)
 
@@ -102,8 +102,8 @@ def search():
 
         return success_response(itineraries.model_dump())
     except ValidationError as err:
-        logger.error("validation error while parsing itinerary request", err)
-        return bad_request_response(err.errors())
+        logger.error("validation error while parsing share itinerary with request", err)
+        return bad_request_response(err.errors(include_context=False))
     except Exception as err:
         logger.error(str(err))
         return error_response()
@@ -204,10 +204,11 @@ def duplicate_itinerary():
         logger.error(str(err))
         return error_response()
 
-@itinerary.get('/city-description/<city_name>')
-def city_description(city_name):
+@itinerary.get('/city-description')
+def city_description():
     try:
-        cd = get_city_description(city_name)
+        city_description_req = CityDescriptionRequest(**request.json)
+        cd = get_city_description(city_description_req)
         return success_response(cd.model_dump())
     except APIStatusError as err:
         logger.error(str(err))
@@ -230,7 +231,7 @@ def generate_itinerary():
     except DateNotValidException as err:
         logger.error(str(err))
         return bad_request_response(err.message)
-    except ItineraryGenerationDisabled as err:
+    except ItineraryGenerationDisabledException as err:
         logger.error(err.message)
         return service_unavailable_response()
     except Exception as err:
@@ -251,7 +252,7 @@ def generate_event_itinerary(event_id):
     except DateNotValidException as err:
         logger.error(str(err))
         return bad_request_response(err.message)
-    except ItineraryGenerationDisabled as err:
+    except ItineraryGenerationDisabledException as err:
         logger.error(err.message)
 
     except Exception as err:

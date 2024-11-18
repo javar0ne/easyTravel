@@ -1,0 +1,24 @@
+### Get traveler
+GET http://localhost:5000/v1/traveler/{{traveler.id}}
+
+### Create traveler
+POST http://localhost:5000/v1/traveler
+Content-Type: application/json
+
+{
+  "email": "{{traveler.email}}",
+  "password": "{{traveler.password}}"
+}
+
+### Update traveler
+PUT http://localhost:5000/v1/traveler/{{traveler.id}}
+Content-Type: application/json
+
+{
+  "phone_number": "{{traveler.phone_number}}",
+  "currency": "{{traveler.currency}}",
+  "name": "{{traveler.name}}",
+  "surname": "{{traveler.surname}}",
+  "birth_date": "{{traveler.birth_date}}",
+  "interested_in": ["NIGHTLIFE"]
+}

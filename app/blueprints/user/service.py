@@ -4,27 +4,29 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 from bson import ObjectId
+from flask import current_app
 from flask_jwt_extended import decode_token, create_access_token, create_refresh_token
+from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.exceptions import ElementAlreadyExistsException, ElementNotFoundException
-from app.extensions import db, redis_auth, APP_HOST
-from app.password_utils import hash_password, check_password
-from app.role import Role
 from app.blueprints.user.mail import send_forgot_password_mail
-from app.blueprints.user.model import COLLECTION_NAME, User, Token, ForgotPasswordRequest, ResetPasswordRequest, LoginRequest, \
+from app.blueprints.user.model import User, Token, ForgotPasswordRequest, ResetPasswordRequest, \
+    LoginRequest, \
     WrongPasswordException, LogoutRequest, RefreshTokenRequest, RefreshTokenRevoked
+from app.exceptions import ElementAlreadyExistsException, ElementNotFoundException
+from app.extensions import mongo, redis_auth
+from app.models import Collections
+from app.role import Role
 
 logger = logging.getLogger(__name__)
-users = db[COLLECTION_NAME]
 
 def exists_admin():
-    return users.count_documents({"roles": Role.ADMIN.name}) > 0
+    return mongo.count_documents(Collections.USERS, {"roles": Role.ADMIN.name}) > 0
 
 def exists_by_email(email: str):
-    return users.count_documents({"email": email}) > 0
+    return mongo.count_documents(Collections.USERS, {"email": email}) > 0
 
 def get_user_by_email(email: str) -> Optional[User]:
-    stored_user = users.find_one({'email': email})
+    stored_user = mongo.find_one(Collections.USERS, {'email': email})
 
     if not stored_user:
         return None
@@ -32,7 +34,7 @@ def get_user_by_email(email: str) -> Optional[User]:
     return User(**stored_user)
 
 def get_user_by_id(user_id: str) -> Optional[User]:
-    stored_user = users.find_one({'_id': ObjectId(user_id)})
+    stored_user = mongo.find_one(Collections.USERS, {'_id': ObjectId(user_id)})
 
     if not stored_user:
         return None
@@ -44,7 +46,7 @@ def handle_login(login_req: LoginRequest) -> Token:
     if not user:
         raise ElementNotFoundException(f"no user found with email {login_req.email}")
 
-    if not check_password(user.password, login_req.password):
+    if not check_password_hash(user.password, login_req.password):
         raise WrongPasswordException(user.email)
 
     return generate_tokens(user)
@@ -61,11 +63,11 @@ def create_user(email: str, password: str, roles: list[str]) -> Optional[ObjectI
     if exists_by_email(email):
         raise ElementAlreadyExistsException(f"user already exists with email: {email}")
 
-    password = hash_password(password)
+    password = generate_password_hash(password)
 
     user = User(email=email, password=password, roles=roles, last_password_update=datetime.now(timezone.utc))
 
-    return users.insert_one(user.model_dump(exclude={"id"})).inserted_id
+    return mongo.insert_one(Collections.USERS, user.model_dump(exclude={"id"})).inserted_id
 
 def blacklist_token(jwt: dict):
     jti = jwt["jti"]
@@ -74,7 +76,7 @@ def blacklist_token(jwt: dict):
     current_timestamp = datetime.now()
     expire = expire_timestamp - current_timestamp
 
-    redis_auth.set(jti, "", expire)
+    redis_auth.get_client().set(jti, "", expire)
 
 def blacklist_refresh_token(token: str):
     jwt = decode_token(token)
@@ -87,7 +89,7 @@ def blacklist_tokens(access_token: dict, refresh_token: str):
 def generate_tokens_from_refresh_token(refresh_token: str) -> Optional[Token]:
     jwt = decode_token(refresh_token)
 
-    if is_token_not_valid(jwt.get("sub"), jwt.get("issued_at"), jwt.get("jti")):
+    if is_token_not_valid(jwt.get("sub"), jwt.get("iat"), jwt.get("jti")):
         raise RefreshTokenRevoked()
 
     user = get_user_by_email(jwt['email'])
@@ -109,7 +111,7 @@ def generate_tokens(user: User) -> Token:
 
 
 def generate_reset_url(token: str):
-    return APP_HOST + "/reset-password/" + token
+    return current_app.config["APP_HOST"] + "/reset-password/" + token
 
 def handle_forgot_password(forgot_password_req: ForgotPasswordRequest):
     user = get_user_by_email(forgot_password_req.email)
@@ -117,7 +119,8 @@ def handle_forgot_password(forgot_password_req: ForgotPasswordRequest):
         raise ElementNotFoundException(f"no user registered with email {forgot_password_req.email}")
 
     token = secrets.token_urlsafe(16)
-    db["reset_tokens"].insert_one(
+    mongo.insert_one(
+        Collections.RESET_TOKENS,
         {
             "user_id": user.id,
             "token": token,
@@ -129,7 +132,7 @@ def handle_forgot_password(forgot_password_req: ForgotPasswordRequest):
     send_forgot_password_mail(forgot_password_req.email, reset_url)
 
 def handle_reset_password(reset_password_req: ResetPasswordRequest) -> Token:
-    reset_token = db["reset_tokens"].find_one({"token": reset_password_req.token})
+    reset_token = mongo.find_one(Collections.RESET_TOKENS, {"token": reset_password_req.token})
 
     if not reset_token:
         raise ElementNotFoundException(f"no reset token found with value {reset_password_req.token}")
@@ -138,24 +141,26 @@ def handle_reset_password(reset_password_req: ResetPasswordRequest) -> Token:
 
     logger.info("resetting user %s password..", user_id)
 
-    users.update_one(
+    mongo.update_one(
+        Collections.USERS,
         {"_id": ObjectId(user_id)},
         {"$set":
             {
-                "password": hash_password(reset_password_req.password),
+                "password": generate_password_hash(reset_password_req.password),
                 "last_password_update": datetime.now(timezone.utc) - timedelta(seconds=1)
             }
         }
     )
 
-    db["reset_tokens"].delete_one({"_id": reset_token.get("_id")})
+    mongo.delete_one(Collections.USERS, {"_id": reset_token.get("_id")})
 
     logger.info("user %s password reset!", user_id)
 
     return generate_tokens(get_user_by_id(user_id))
 
-def is_token_not_valid(user_id: str, issued_at: datetime, jti) -> bool:
-    projected_user = users.find_one({"_id": ObjectId(user_id)}, {"last_password_update": 1, "_id": 0})
+def is_token_not_valid(user_id: str, iat: int, jti) -> bool:
+    projected_user = mongo.find_one(Collections.USERS, {"_id": ObjectId(user_id)}, {"last_password_update": 1, "_id": 0})
     last_password_update = projected_user.get("last_password_update").replace(tzinfo=timezone.utc)
+    issued_at = datetime.fromtimestamp(iat, timezone.utc)
 
-    return issued_at < last_password_update or redis_auth.exists(jti)
+    return issued_at < last_password_update or redis_auth.get_client().exists(jti)

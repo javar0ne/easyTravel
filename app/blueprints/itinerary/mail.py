@@ -3,9 +3,9 @@ from datetime import date
 from flask import render_template
 from flask_mailman import EmailMessage
 
-from app.extensions import scheduler
 from app.blueprints.itinerary.model import Itinerary, AssistantItinerary, AssistantItineraryDocs
 from app.blueprints.traveler.model import Traveler
+from app.extensions import scheduler
 
 
 def send_travel_schedule(email: str,
@@ -14,7 +14,7 @@ def send_travel_schedule(email: str,
                          day_detail: AssistantItinerary):
     with scheduler.app.app_context():
         html_content = render_template(
-            "templates/daily_travel_schedule.html",
+            "daily_travel_schedule.html",
             city = itinerary.city,
             recipient_name = traveler.name+" "+traveler.surname,
             day = day_detail.day,
@@ -37,7 +37,7 @@ def send_docs_reminder(email: str,
                        docs: AssistantItineraryDocs):
     with scheduler.app.app_context():
         html_content = render_template(
-            "templates/docs_reminder.html",
+            "docs_reminder.html",
             city = city,
             recipient_name=traveler.name + " " + traveler.surname,
             docs = docs,

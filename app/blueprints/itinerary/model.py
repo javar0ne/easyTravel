@@ -5,13 +5,13 @@ from typing import Optional
 from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
-from app.json_encoders import PyObjectId
-from app.model import Paginated, Coordinates, Activity
+from app.encoders import PyObjectId
+from app.models import Paginated, Coordinates, Activity
 from app.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
 
-class ItineraryGenerationDisabled(Exception):
+class ItineraryGenerationDisabledException(Exception):
     def __init__(self):
         super().__init__("Itinerary generation disabled!")
         self.message = "Itinerary generation disabled!"
@@ -128,6 +128,9 @@ class AssistantItinerary(BaseModel):
 
 class AssistantItineraryResponse(BaseModel):
     itinerary: list[AssistantItinerary]
+
+class CityDescriptionRequest(BaseModel):
+    name: str
 
 class CityDescription(BaseModel):
     name: str

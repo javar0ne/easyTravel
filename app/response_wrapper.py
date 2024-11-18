@@ -1,7 +1,7 @@
 from datetime import datetime
 
-
 from flask import jsonify
+
 
 def success_response(response, code=200):
     return jsonify({

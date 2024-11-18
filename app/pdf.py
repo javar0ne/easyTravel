@@ -9,15 +9,15 @@ from reportlab.platypus import Table, TableStyle, Paragraph
 
 
 def register_font_style():
-    pdfmetrics.registerFont(TTFont("Outfit-Thin", "assets/font/Outfit-Thin.ttf"))
-    pdfmetrics.registerFont(TTFont("Outfit-ExtraLight", "assets/font/Outfit-ExtraLight.ttf"))
-    pdfmetrics.registerFont(TTFont("Outfit-Light", "assets/font/Outfit-Light.ttf"))
-    pdfmetrics.registerFont(TTFont("Outfit-Regular", "assets/font/Outfit-Regular.ttf"))
-    pdfmetrics.registerFont(TTFont("Outfit-Medium", "assets/font/Outfit-Medium.ttf"))
-    pdfmetrics.registerFont(TTFont("Outfit-SemiBold", "assets/font/Outfit-SemiBold.ttf"))
-    pdfmetrics.registerFont(TTFont("Outfit-Bold", "assets/font/Outfit-Bold.ttf"))
-    pdfmetrics.registerFont(TTFont("Outfit-ExtraBold", "assets/font/Outfit-ExtraBold.ttf"))
-    pdfmetrics.registerFont(TTFont("Outfit-Black", "assets/font/Outfit-Black.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-Thin", "app/static/font/Outfit-Thin.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-ExtraLight", "app/static/font/Outfit-ExtraLight.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-Light", "app/static/font/Outfit-Light.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-Regular", "app/static/font/Outfit-Regular.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-Medium", "app/static/font/Outfit-Medium.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-SemiBold", "app/static/font/Outfit-SemiBold.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-Bold", "app/static/font/Outfit-Bold.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-ExtraBold", "app/static/font/Outfit-ExtraBold.ttf"))
+    pdfmetrics.registerFont(TTFont("Outfit-Black", "app/static/font/Outfit-Black.ttf"))
 
 
 class PdfItinerary(Canvas):

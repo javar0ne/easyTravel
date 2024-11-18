@@ -1,13 +1,24 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+from typing_extensions import Self
 
-from app.json_encoders import PyObjectId
+from app.encoders import PyObjectId
+from app.models import Activity
+from app.utils import is_valid_enum_name
 
-COLLECTION_NAME = "travelers"
 
-class TravelerCreateRequest(BaseModel):
+class TravelerBaseModel(BaseModel):
+    @model_validator(mode='before')
+    def check_enums(self) -> Self:
+        for activity in self["interested_in"]:
+            if not is_valid_enum_name(Activity, activity):
+                raise ValueError(f'Invalid Activity name: {activity}')
+
+        return self
+
+class CreateTravelerRequest(TravelerBaseModel):
     email: str
     password: str
     phone_number: str
@@ -15,33 +26,32 @@ class TravelerCreateRequest(BaseModel):
     name: str
     surname: str
     birth_date: datetime
-    interested_in: list[int]
+    interested_in: list[str]
     user_id: Optional[str] = None
 
-class UpdateTravelerRequest(BaseModel):
+class UpdateTravelerRequest(TravelerBaseModel):
     phone_number: str
     currency: str
     name: str
     surname: str
     birth_date: datetime
-    interested_in: list[int]
-    user_id: str
+    interested_in: list[str]
 
-class Traveler(BaseModel):
+class Traveler(TravelerBaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     phone_number: str
     currency: str
     name: str
     surname: str
     birth_date: datetime
-    interested_in: list[int]
+    interested_in: list[str]
     user_id: str
     created_at: Optional[datetime] = None
     update_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
 
     @staticmethod
-    def from_create_req(traveler: TravelerCreateRequest):
+    def from_create_req(traveler: CreateTravelerRequest):
         return Traveler(
             phone_number=traveler.phone_number,
             currency=traveler.currency,
