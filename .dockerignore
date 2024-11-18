@@ -10,7 +10,6 @@ __pycache__/
 *.env
 *.env.*
 instance/
-app/config.py
 
 # Ignoring logs
 logs
