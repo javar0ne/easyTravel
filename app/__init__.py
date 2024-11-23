@@ -1,7 +1,8 @@
 import logging
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_jwt_extended import JWTManager
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.blueprints.admin import admin
 from app.blueprints.admin.service import create_admin_user, create_initial_config
@@ -23,6 +24,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    init_proxy(app)
     init_logging(app)
     init_blueprints(app)
     init_mongo(app)
@@ -36,6 +38,8 @@ def create_app():
 
     return app
 
+def init_proxy(app):
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 def init_logging(app):
     logging.basicConfig(

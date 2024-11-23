@@ -37,3 +37,5 @@ class Config:
     # admin user
     ADMIN_MAIL = os.getenv('ADMIN_MAIL')
     ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
+
+    TEMPLATES_AUTO_RELOAD = True
