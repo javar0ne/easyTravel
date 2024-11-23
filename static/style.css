@@ -1,0 +1,79 @@
+body{
+    font-family: "Outfit", serif;
+}
+
+input {
+  box-shadow: none !important;
+}
+
+/* overwrite color */
+.bg-primary{
+    background-color: #EE7674;
+}
+.bg-secondary{
+    background-color: #A7CAB1;
+}
+.bg-black{
+    background-color: #000009;
+}
+.text-primary{
+    color: #EE7674 !important;
+}
+.text-secondary{
+    color: #A7CAB1 !important;
+}
+.text-black{
+    color: #000009 !important;
+}
+.text-muted{
+    color: #AEAEAE !important;
+}
+.border-primary{
+    border-color: #EE7674 !important;
+}
+.border-secondary{
+    border-color: #A7CAB1 !important;
+}
+.border-black{
+    border-color: #000009 !important;
+}
+.btn-primary{
+    background-color: #EE7674;
+    color: #000009;
+    border-color: #EE7674;
+}
+.btn-secondary{
+    background-color: #A7CAB1;
+    color: #000009;
+    border-color: #A7CAB1;
+}
+
+/* Spacing */
+.mt-12{
+    margin-top:4rem;
+}
+.mt-18{
+    margin-top:6rem;
+}
+.mt-30{
+    margin-top:10rem;
+}
+
+/* Typography */
+.fs-14{
+    font-size: 18px;
+}
+.fs-18{
+    font-size: 18px;
+}
+.fs-24{
+    font-size: 24px;
+}
+.fs-32{
+    font-size: 32px;
+}
+
+/* Shadows */
+.shadow-inner {
+  box-shadow: inset 0 0 10px #000009;
+}
