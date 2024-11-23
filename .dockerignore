@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.so
+
+# Flask environment variables and config files
+*.env
+*.env.*
+instance/
+
+# Ignoring logs
+logs
+*.log
+
+# Ignore virtual environments
+venv/
+docker/.env/
+.venv/
+.pyenv/
+
+# Ignore coverage files
+htmlcov/
+.coverage
+.coverage.*
+.cache
+
+# Ignore pyproject files
+*.toml
+*.lock
+
+# Ignore tests and related files
+tests/
+*.test
+*.pytest_cache/
+
+# Ignore package manager files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+
+# Docker-related files
+Dockerfile.*
+.dockerignore
+
+# Ignore other unwanted files (OS-specific)
+.DS_Store
+Thumbs.db
+
+# Ignore http requests folder
+http_requests

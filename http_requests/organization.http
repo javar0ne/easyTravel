@@ -1,0 +1,41 @@
+### Get organization
+GET http://localhost:5000/v1/organization/{{organization.id}}
+
+### Create organization
+POST http://localhost:5000/v1/organization
+Content-Type: application/json
+
+{
+    "email": "{{organization.email}}",
+    "password": "{{organization.password}}",
+    "phone_number": "{{organization.phone_number}}",
+    "organization_name": "{{organization.organization_name}}",
+    "coordinates": {{organization.coordinates}},
+    "website": "{{organization.website}}"
+}
+
+### Update organization
+PUT http://localhost:5000/v1/organization/{{organization.id}}
+Content-Type: application/json
+
+{
+  "phone_number": "09402934234",
+  "organization_name": "Louvre",
+  "coordinates": {"lat":  "203940239402.09", "lng": "234948234.03"},
+  "website": "LouvreMuseum.com"
+}
+
+### Organization waiting to approve
+POST http://localhost:5000/v1/organization/pending
+Content-Type: application/json
+Authorization: Bearer {{bearer_token}}
+
+{
+  "page_size": 10,
+  "page_number": 0
+}
+
+### Approve organizzation
+PATCH http://localhost:5000/v1/organization/active/673a2e53f64825e91566e784
+Content-Type: application/json
+Authorization: Bearer {{bearer_token}}

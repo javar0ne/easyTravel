@@ -1,0 +1,259 @@
+### Get itinerary
+GET http://localhost:5000/v1/itinerary/{{itinerary.id}}
+
+### Create itinerary
+POST http://localhost:5000/v1/itinerary/create/{{itinerary.request_id}}
+Content-Type: application/json
+
+### Update itinerary
+PUT http://localhost:5000/v1/itinerary/{{itinerary.id}}
+Content-Type: application/json
+
+{
+        "city": "Paris",
+        "start_date": "2024-11-12T00:00Z",
+        "end_date": "2024-11-12T00:00Z",
+        "budget": "LOW",
+        "travelling_with": "COUPLE",
+        "accessibility": false,
+        "interested_in": ["NIGHTLIFE", "OUTDOOR_ADVENTURES"],
+        "user_id": "67255fda46635a82ff232158",
+        "details": [
+            {
+                "day": 1,
+                "title": "Paris Nightlife & Outdoor Adventures",
+                "stages": [
+                    {
+                        "period": "Morning",
+                        "title": "Tuileries Garden",
+                        "description": "Start your day with a stroll in the beautiful Tuileries Garden. This serene public garden offers pathways that are accessible and is a great place to relax in the outdoors.",
+                        "cost": "Free",
+                        "accessible": true,
+                        "coordinates": {
+                            "lat": 48.8643,
+                            "lng": 2.3294
+                        },
+                        "avg_duration": 120
+                    },
+                    {
+                        "period": "Lunch",
+                        "title": "Le Relais de l'Entrecôte",
+                        "description": "Enjoy a classic French meal at Le Relais de l'Entrecôte, which is known for its delicious steak-frites and accessible dining area.",
+                        "cost": "€30-40 for two",
+                        "accessible": true,
+                        "coordinates": {
+                            "lat": 48.8744,
+                            "lng": 2.3322
+                        },
+                        "avg_duration": 90
+                    },
+                    {
+                        "period": "Afternoon",
+                        "title": "Seine River Evening Cruise",
+                        "description": "Take a scenic Seine River Cruise, which is accessible for all. Enjoy the stunning views of Parisian landmarks as the sun begins to set.",
+                        "cost": "€18 per person",
+                        "accessible": true,
+                        "coordinates": {
+                            "lat": 48.8557,
+                            "lng": 2.3422
+                        },
+                        "avg_duration": 90
+                    },
+                    {
+                        "period": "Dinner",
+                        "title": "Montmartre District",
+                        "description": "Explore the charming Montmartre district, where you can dine at various restaurants featuring outdoor seating and accessible options. Enjoy vibrant nightlife and live music.",
+                        "cost": "€60-80 for two",
+                        "accessible": true,
+                        "coordinates": {
+                            "lat": 48.8894,
+                            "lng": 2.3427
+                        },
+                        "avg_duration": 120
+                    },
+                    {
+                        "period": "Evening",
+                        "title": "Moulin Rouge Show",
+                        "description": "Fuck you",
+                        "cost": "€100-200 for two",
+                        "accessible": true,
+                        "coordinates": {
+                            "lat": 48.8841,
+                            "lng": 2.332
+                        },
+                        "avg_duration": 150
+                    }
+                ]
+            }
+        ],
+        "shared_with": [],
+        "status": "PENDING",
+        "docs": {
+            "mandatory": [
+                {
+                    "name": "Passport",
+                    "description": "Must be valid for at least 6 months beyond the entry date into France and have at least two blank pages for stamps.",
+                    "done": false
+                },
+                {
+                    "name": "Visa",
+                    "description": "EU citizens do not need a visa for stays up to 90 days; other nationalities may require a short-stay visa (Schengen visa). Check the French consulate website for specific requirements.",
+                    "done": false
+                },
+                {
+                    "name": "Vaccinations",
+                    "description": "Currently, there are no mandatory vaccinations required for entry into France.",
+                    "done": false
+                }
+            ],
+            "recommended": [
+                {
+                    "name": "Recommended Vaccinations",
+                    "description": "Consider vaccinations for Hepatitis A and B, as well as up-to-date routine vaccines (MMR, tetanus, diphtheria).",
+                    "done": false
+                },
+                {
+                    "name": "COVID-19 Requirements",
+                    "description": "Carry proof of COVID-19 vaccination if required. Check for any specific entry requirements related to COVID-19 testing.",
+                    "done": false
+                },
+                {
+                    "name": "Health Insurance",
+                    "description": "Travel health insurance is highly recommended as it covers medical expenses in France, including emergencies.",
+                    "done": false
+                },
+                {
+                    "name": "Language Preparation",
+                    "description": "Familiarize yourself with basic French phrases or download a translation app, as English may not be widely spoken outside tourist areas.",
+                    "done": false
+                },
+                {
+                    "name": "Payment Methods",
+                    "description": "Credit cards are widely accepted in Paris, but it's good to carry some cash in euros for small purchases.",
+                    "done": false
+                },
+                {
+                    "name": "Clothing",
+                    "description": "November in Paris can be chilly and rainy. Pack layered clothing and an umbrella for unpredictable weather.",
+                    "done": false
+                }
+            ]
+        },
+        "docs_notification": false,
+        "reminder_notification": false,
+        "is_public": false,
+        "created_at": "2024-11-12T00:00Z",
+        "update_at": null,
+        "deleted_at": null
+    }
+
+### Delete itinerary
+DELETE http://localhost:5000/v1/itinerary/{{itinerary.id}}
+
+### Download itinerary
+GET http://localhost:5000/v1/itinerary/download/{{itinerary.id}}
+
+### Search itinerary
+POST http://localhost:5000/v1/itinerary/search
+Content-Type: application/json
+
+{
+  "city": "London"
+}
+
+### Get completed itineraries
+GET http://localhost:5000/v1/itinerary/completed
+Authorization: Bearer {{bearer_token}}
+
+
+### Saved itinerary
+GET http://localhost:5000/v1/itinerary/saved
+Authorization: Bearer {{bearer_token}}
+Content-Type: application/json
+
+{
+  "page_size": 10,
+  "page_number": 0
+}
+
+### Retrive shared itinerary
+POST http://localhost:5000/v1/itinerary/shared
+Authorization: Bearer {{bearer_token}}
+Content-Type: application/json
+
+{
+  "page_number": "0",
+  "page_size": "10"
+}
+
+### Share itinerary with travel-friend
+POST http://localhost:5000/v1/itinerary/share-with
+Content-Type: application/json
+
+{
+  "id": "{{itinerary.id}}",
+  "users": ["671ed730cbdb9e97e0107faf"]
+}
+
+### Publish itinerary with comunity
+POST http://localhost:5000/v1/itinerary/publish
+Content-Type: application/json
+
+{
+  "id": "{{itinerary.id}}",
+  "is_public": true
+}
+
+### Set itinerary completed
+POST http://localhost:5000/v1/itinerary/completed/{{itinerary.id}}
+Content-Type: application/json
+
+### Duplicate itinerary
+POST http://localhost:5000/v1/itinerary/duplicate
+Authorization: Bearer {{bearer_token}}
+Content-Type: application/json
+
+{
+  "id": "{{itinerary.id}}"
+}
+
+### Get city description
+GET http://localhost:5000/v1/itinerary/city-description
+Content-Type: application/json
+
+{
+  "name": "{{itinerary.city_name}}"
+}
+
+### Generate itinerary request
+POST http://localhost:5000/v1/itinerary/itinerary-request
+Authorization: Bearer {{bearer_token}}
+Content-Type: application/json
+
+{
+    "city": "{{itinerary.city_name}}",
+    "start_date": "{{itinerary.start_date}}",
+    "end_date": "{{itinerary.end_date}}",
+    "budget": "{{itinerary.budget}}",
+    "travelling_with": "{{itinerary.travelling_with}}",
+    "accessibility": {{itinerary.accessibility}},
+    "interested_in": ["{{itinerary.interested_in}}"]
+}
+
+### Generate itinerary from event of organizations
+POST http://localhost:5000/v1/itinerary/event-itinerary-request/{{itinerary.event_id}}
+Authorization: Bearer {{bearer_token}}
+Content-Type: application/json
+
+{
+    "city": "{{itinerary.city_name}}",
+    "start_date": "{{itinerary.start_date}}",
+    "end_date": "{{itinerary.end_date}}",
+    "budget": "{{itinerary.budget}}",
+    "travelling_with": "{{itinerary.travelling_with}}",
+    "accessibility": {{itinerary.accessibility}},
+    "interested_in": ["{{itinerary.interested_in}}"]
+}
+
+### Get itinerary request
+GET http://localhost:5000/v1/itinerary/itinerary-request/{{itinerary.request_id}}

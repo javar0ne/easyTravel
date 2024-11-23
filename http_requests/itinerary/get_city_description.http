@@ -1,6 +1,0 @@
-###
-GET http://localhost:5000/v1/itinerary/London
-
-<> 2024-10-20T181724.200.json
-<> 2024-10-20T181555.200.json
-<> 2024-10-20T181548.200.json

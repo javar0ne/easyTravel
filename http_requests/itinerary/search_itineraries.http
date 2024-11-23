@@ -1,7 +1,0 @@
-###
-POST http://localhost:5000/v1/itinerary/search
-Content-Type: application/json
-
-{
-  "city": "Rome"
-}

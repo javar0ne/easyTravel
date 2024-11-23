@@ -1,0 +1,42 @@
+### Login
+POST http://localhost:5000/v1/user/login
+Content-Type: application/json
+
+{
+  "email": "{{ email }}",
+  "password": "{{ password }}"
+}
+
+### Logout
+POST http://localhost:5000/v1/user/logout
+Content-Type: application/json
+Authorization: Bearer {{bearer_token}}
+
+{
+  "refresh_token": "{{refresh_token}}"
+}
+
+### Refresh token
+POST http://localhost:5000/v1/user/refresh-token
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}"
+}
+
+### Forgot password
+POST http://localhost:5000/v1/user/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{ email }}"
+}
+
+### Reset password
+POST http://localhost:5000/v1/user/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{ token }}",
+  "password": "{{ password }}"
+}
