@@ -1,9 +1,13 @@
 import logging
+import secrets
 from datetime import datetime, timezone
 
 from bson import ObjectId
+from flask import current_app
 
-from app.blueprints.traveler.model import CreateTravelerRequest, UpdateTravelerRequest, Traveler
+from app.blueprints.traveler.mail import send_traveler_signup_mail
+from app.blueprints.traveler.model import CreateTravelerRequest, UpdateTravelerRequest, Traveler, \
+    ConfirmTravelerSignupRequest, TravelerSignupConfirmationNotFoundException
 from app.blueprints.user.service import create_user
 from app.exceptions import ElementNotFoundException
 from app.extensions import mongo
@@ -35,6 +39,22 @@ def get_traveler_by_user_id(user_id: str) -> Traveler:
     logger.info("found traveler with user id %s", user_id)
     return Traveler(**traveler_document)
 
+def generate_traveler_signup_url(token: str):
+    return current_app.config["APP_HOST"] + "/traveler/signup-confirmation/" + token
+
+def save_traveler_signup(traveler_id: str, email: str):
+    logger.info("saving traveler signup for traveler with id %s", traveler_id)
+    token = secrets.token_urlsafe(16)
+    mongo.insert_one(
+        Collections.TRAVELER_SIGNUPS,
+        {
+            "traveler_id": traveler_id,
+            "token": token
+        }
+    )
+    send_traveler_signup_mail(generate_traveler_signup_url(token), email)
+    logger.info("saved traveler signup for traveler with id %s", traveler_id)
+
 def create_traveler(request: CreateTravelerRequest) -> str:
     logger.info("storing traveler..")
     user_id = create_user(request.email, request.password, [Role.TRAVELER.name])
@@ -43,6 +63,9 @@ def create_traveler(request: CreateTravelerRequest) -> str:
     traveler = Traveler.from_create_req(request)
     traveler.created_at = datetime.now(timezone.utc)
     stored_traveler = mongo.insert_one(Collections.TRAVELERS, traveler.model_dump(exclude={"id"}))
+
+    save_traveler_signup(str(stored_traveler.inserted_id), request.email)
+
     logger.info("traveler stored successfully with id %s", stored_traveler.inserted_id)
 
     return str(stored_traveler.inserted_id)
@@ -54,10 +77,27 @@ def update_traveler(traveler_id: str, updated_traveler: UpdateTravelerRequest):
         raise ElementNotFoundException(f"no traveler found with id: {traveler_id}")
 
     stored_traveler.update_by(updated_traveler)
-    stored_traveler.update_at = datetime.now(timezone.utc)
+    stored_traveler.updated_at = datetime.now(timezone.utc)
     mongo.update_one(
         Collections.TRAVELERS,
         {'_id': ObjectId(traveler_id)},
         {'$set': stored_traveler.model_dump(exclude={"id"})}
     )
     logger.info("traveler with id %s updated successfully", traveler_id)
+
+def handle_signup_confirmation(request: ConfirmTravelerSignupRequest):
+    logger.info("confirming traveler signup..")
+    traveler_signup = mongo.find_one(Collections.TRAVELER_SIGNUPS, {'token': request.token})
+
+
+    if not traveler_signup:
+        raise TravelerSignupConfirmationNotFoundException()
+
+    mongo.update_one(
+        Collections.TRAVELERS,
+        {"_id": ObjectId(traveler_signup.get("traveler_id"))},
+        {"$set": {"interested_in": request.interested_in, "updated_at": datetime.now(timezone.utc)}}
+    )
+
+    mongo.delete_one(Collections.TRAVELER_SIGNUPS, {"token": request.token})
+    logger.info("traveler signup confirmed for traveler with id %s!", traveler_signup.get("traveler_id"))
