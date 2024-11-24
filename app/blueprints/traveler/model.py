@@ -9,16 +9,22 @@ from app.models import Activity
 from app.utils import is_valid_enum_name
 
 
+class TravelerSignupConfirmationNotFoundException(Exception):
+    def __init__(self):
+        super().__init__('Signup confirmation not found!')
+        self.message = 'Signup confirmation not found!'
+
 class TravelerBaseModel(BaseModel):
     @model_validator(mode='before')
     def check_enums(self) -> Self:
-        for activity in self["interested_in"]:
-            if not is_valid_enum_name(Activity, activity):
-                raise ValueError(f'Invalid Activity name: {activity}')
+        if "interested_in" in self:
+            for activity in self["interested_in"]:
+                if not is_valid_enum_name(Activity, activity):
+                    raise ValueError(f'Invalid Activity name: {activity}')
 
         return self
 
-class CreateTravelerRequest(TravelerBaseModel):
+class CreateTravelerRequest(BaseModel):
     email: str
     password: str
     phone_number: str
@@ -26,8 +32,11 @@ class CreateTravelerRequest(TravelerBaseModel):
     name: str
     surname: str
     birth_date: datetime
-    interested_in: list[str]
     user_id: Optional[str] = None
+
+class ConfirmTravelerSignupRequest(TravelerBaseModel):
+    interested_in: list[str]
+    token: str
 
 class UpdateTravelerRequest(TravelerBaseModel):
     phone_number: str
@@ -44,10 +53,10 @@ class Traveler(TravelerBaseModel):
     name: str
     surname: str
     birth_date: datetime
-    interested_in: list[str]
     user_id: str
+    interested_in: Optional[list[str]] = []
     created_at: Optional[datetime] = None
-    update_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
 
     @staticmethod
@@ -58,7 +67,6 @@ class Traveler(TravelerBaseModel):
             name=traveler.name,
             surname=traveler.surname,
             birth_date=traveler.birth_date,
-            interested_in=traveler.interested_in,
             user_id=traveler.user_id,
         )
 

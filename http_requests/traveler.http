@@ -7,7 +7,12 @@ Content-Type: application/json
 
 {
   "email": "{{traveler.email}}",
-  "password": "{{traveler.password}}"
+  "password": "{{traveler.password}}",
+  "phone_number": "{{traveler.phone_number}}",
+  "currency": "{{traveler.currency}}",
+  "name": "{{traveler.name}}",
+  "surname": "{{traveler.surname}}",
+  "birth_date": "{{traveler.birth_date}}"
 }
 
 ### Update traveler
@@ -21,4 +26,13 @@ Content-Type: application/json
   "surname": "{{traveler.surname}}",
   "birth_date": "{{traveler.birth_date}}",
   "interested_in": ["NIGHTLIFE"]
+}
+
+### Confirm signup
+POST http://127.0.0.1:5000/v1/traveler/confirm-signup
+Content-Type: application/json
+
+{
+  "interested_in": ["NIGHTLIFE"],
+  "token": "9Wkd7XfbDIum7VKIlQnXbg"
 }

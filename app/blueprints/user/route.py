@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, render_template
+from flask import request
 from flask_jwt_extended import jwt_required, get_jwt
 from pydantic import ValidationError
 
