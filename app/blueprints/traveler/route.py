@@ -59,5 +59,3 @@ def update(traveler_id):
     except Exception as err:
         logger.error(str(err))
         return error_response()
-
-

@@ -99,15 +99,3 @@ def reset_password():
     except Exception as err:
         logger.error(str(err))
         return error_response()
-
-@user.get('/login')
-def render_login():
-    return render_template("login.html")
-
-@user.get('/signup')
-def render_signup():
-    return render_template("signup.html")
-
-@user.get('/confirmed_account')
-def render_confirmed_account():
-    return render_template("confirmed_account.html")
