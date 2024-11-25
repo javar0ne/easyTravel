@@ -15,3 +15,8 @@ def traveler_signup():
 @template.get('/traveler/signup-confirmation')
 def traveler_signup_confirmation():
     return render_template('traveler-signup-confirmation.html')
+
+# itinerary
+@template.get("/itinerary/generate")
+def itinerary_generate():
+    return render_template("generate-itinerary.html")

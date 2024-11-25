@@ -1,0 +1,164 @@
+{% extends "components/template.html" %}
+{% block title %}Generate itinerary{% endblock %}
+{% block navbar %}
+    {% include "components/navbar.html" %}
+{% endblock %}
+{% block content %}
+    <div class="container d-block">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="fw-bold">What's your destination?</h1>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <input type="text" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-2 border-black" placeholder="Destination" aria-label="destination" aria-describedby="destination">
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h1 class="fw-bold">When are you planning to travel?</h1>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <input  type="text" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-2 border-black" placeholder="Start date" aria-label="start_date" aria-describedby="start_date">
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h1 class="fw-bold">What's your budget? (per person)</h1>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="border-black border p-1">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <img src="../../static/svg/low-budget.svg" alt="low-budget">
+                        </div>
+                        <div class="col-md-11">
+                            <h6 class="m-auto">Low Budget 0 - 500 EUR</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="border-black border p-1">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <img src="../../static/svg/medium-budget.svg" alt="medium-budget">
+                        </div>
+                        <div class="col-md-11">
+                            <h6 class="m-auto">Medium Budget 500 - 1000 EUR</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="border-black border p-1">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <img src="../../static/svg/high-budget.svg" alt="high-budget">
+                        </div>
+                        <div class="col-md-11">
+                            <h6 class="m-auto">High Budget 1000+ EUR</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h1 class="fw-bold">Who are you travelling with?</h1>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="border-black border p-1">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <img src="../../static/svg/solo.svg" alt="solo">
+                        </div>
+                        <div class="col-md-11">
+                            <h6 class="m-auto">Solo</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="border-black border p-1">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <img src="../../static/svg/couple.svg" alt="couple">
+                        </div>
+                        <div class="col-md-11">
+                            <h6 class="m-auto">Couple</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="border-black border p-1">
+                    <div class="row">
+                        <div class="col-md-1">
+                    <img src="../../static/svg/family.svg" alt="family">
+                        </div>
+                        <div class="col-md-11">
+                            <h6 class="m-auto">Family</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="border-black border p-1">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <img src="../../static/svg/friends.svg" alt="friends">
+                        </div>
+                        <div class="col-md-11">
+                            <h6 class="m-auto">Friends</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h1 class="fw-bold">What activities are you interested in?</h1>
+            </div>
+        </div>
+    </div>
+        {{ activities.activities() }}
+    <div class="container d-block">
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h1 class="fw-bold">Would you like to have one of the following options?</h1>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="border-black border p-1">
+                    <div class="row">
+                        <div class="col-md-1">
+                            <img src="../../static/svg/accessible.svg" alt="accessible">
+                        </div>
+                        <div class="col-md-11">
+                            <h6 class="m-auto">Wheelchair accessible</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-25">Generate</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}
+{% block script %}
+{% endblock %}
