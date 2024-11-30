@@ -24,13 +24,13 @@
                  </div>
                  <div class="row">
                      <div class="d-none d-md-block col-md-12">
-                        <form class="w-50 mx-auto">
+                        {#<form class="w-50 mx-auto">#}
                             <div class="form-group mb-3">
                                 <div class="input-group input-group-lg mb-3">
                                   <div class="input-group-prepend">
                                     <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
                                   </div>
-                                  <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email">
+                                  <input type="text" class="form-control rounded-0 border-left-0 border-black" id="email" placeholder="Email" aria-label="email" aria-describedby="email">
                                 </div>
                             </div>
                             <div class="form-group mb-3">
@@ -38,18 +38,18 @@
                                   <div class="input-group-prepend">
                                     <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                   </div>
-                                  <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password" aria-label="password" aria-describedby="password">
+                                  <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" id="password" placeholder="Password" aria-label="password" aria-describedby="password">
                                   <div class="input-group-append password-eye" style="cursor: pointer">
                                     <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                   </div>
                                 </div>
                                 <small id="passwordHelp" class="form-text text-black text-right">Forgot password?</small>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign in</button>
-                        </form>
+                            <button type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
+                        {#</form>#}
                      </div>
                      <div class="d-block d-md-none col-md-12">
-                        <form class="w-75 mx-auto">
+                        {#<form class="w-75 mx-auto">#}
                             <div class="form-group mb-3">
                                 <div class="input-group mb-3">
                                   <div class="input-group-prepend">
@@ -71,7 +71,7 @@
                                 <small id="passwordHelp" class="form-text text-black text-right">Forgot password?</small>
                             </div>
                             <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign in</button>
-                        </form>
+                        {#</form>#}
                      </div>
                  </div>
                  <div class="row mt-2">
@@ -94,6 +94,10 @@
         passwordField.attr('type', type);
         const icon = type === 'password' ? '../../static/svg/eye.svg' : '../../static/svg/eye-hide.svg';
         $(".toggle-password").attr("src",icon);
+    });
+
+    $( document ).ready(function() {
+        check_token_existence();
     });
     </script>
 {% endblock %}
