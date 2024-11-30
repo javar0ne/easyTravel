@@ -1,0 +1,18 @@
+{% extends "components/template.html" %}
+{% block title %}Traveler Dashboard{% endblock %}
+{% block navbar %}
+    {% include "components/navbar.html" %}
+{% endblock %}
+{% block content %}
+TRAVELER DASHBOARD
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}
+{% block script %}
+    <script>
+    $( document ).ready(function() {
+        check_token_existence_with_redirect();
+    });
+    </script>
+{% endblock %}
