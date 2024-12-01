@@ -15,8 +15,8 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     # uncomment only for development purpose
-    #volumes:
-    #  - ../.:/app:ro
+    volumes:
+      - ../.:/app:ro
     depends_on:
       - mongodb
       - redis

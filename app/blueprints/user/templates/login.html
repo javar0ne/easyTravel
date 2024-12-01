@@ -1,7 +1,7 @@
 {% extends "components/template.html" %}
 {% block title %}Login{% endblock %}
 {% block navbar %}
-    {% include "components/navbar.html" %}
+    {% include "components/navbar-min.html" %}
 {% endblock %}
 {% block content %}
      <div class="container mx-auto">
@@ -28,7 +28,7 @@
                             <div class="form-group mb-3">
                                 <div class="input-group input-group-lg mb-3">
                                   <div class="input-group-prepend">
-                                    <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
+                                    <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
                                   </div>
                                   <input type="text" class="form-control rounded-0 border-left-0 border-black" id="email" placeholder="Email" aria-label="email" aria-describedby="email">
                                 </div>
@@ -36,14 +36,14 @@
                             <div class="form-group mb-3">
                                 <div class="input-group input-group-lg mb-3">
                                   <div class="input-group-prepend">
-                                    <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                    <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                   </div>
                                   <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" id="password" placeholder="Password" aria-label="password" aria-describedby="password">
                                   <div class="input-group-append password-eye" style="cursor: pointer">
-                                    <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                    <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                   </div>
                                 </div>
-                                <small id="passwordHelp" class="form-text text-black text-right">Forgot password?</small>
+                                <small id="passwordHelp" class="form-text text-right">Forgot password?</small>
                             </div>
                             <button type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
                         {#</form>#}
@@ -53,7 +53,7 @@
                             <div class="form-group mb-3">
                                 <div class="input-group mb-3">
                                   <div class="input-group-prepend">
-                                    <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="19" src="../../../static/svg/email.svg" alt="email"/></span>
+                                    <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="19" src="../../../static/svg/email.svg" alt="email"/></span>
                                   </div>
                                   <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email">
                                 </div>
@@ -61,14 +61,14 @@
                             <div class="form-group mb-3">
                                 <div class="input-group mb-3">
                                   <div class="input-group-prepend">
-                                    <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                    <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                   </div>
                                   <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password" aria-label="password" aria-describedby="password">
                                   <div class="input-group-append password-eye" style="cursor: pointer">
-                                    <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                    <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                   </div>
                                 </div>
-                                <small id="passwordHelp" class="form-text text-black text-right">Forgot password?</small>
+                                <small id="passwordHelp" class="form-text text-right">Forgot password?</small>
                             </div>
                             <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign in</button>
                         {#</form>#}
@@ -76,7 +76,7 @@
                  </div>
                  <div class="row mt-2">
                      <div class="col-md-12">
-                         <small class="form-text text-muted text-center">Are you new? <span class="text-black">Create your account</span></small>
+                         <small class="form-text text-muted text-center">Are you new? <span>Create your account</span></small>
                      </div>
                  </div>
              </div>

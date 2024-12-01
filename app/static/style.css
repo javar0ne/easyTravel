@@ -6,6 +6,16 @@ input {
   box-shadow: none !important;
 }
 
+/* custom breakpoint */
+@media (min-width: 1600px) {
+    .d-2xl-block {
+        display: block !important;
+    }
+    .d-2xl-none {
+        display: none !important;
+    }
+}
+
 /* overwrite color */
 .bg-primary{
     background-color: #EE7674;
@@ -49,8 +59,23 @@ input {
 }
 
 /* Spacing */
+.ms-9{
+    margin-left:3rem;
+}
+.mt-11{
+    margin-top:3.5rem;
+}
+.ms-12{
+    margin-left:4rem;
+}
 .mt-12{
     margin-top:4rem;
+}
+.ms-14{
+    margin-left:4.5rem;
+}
+.mt-17{
+    margin-top:5.25rem;
 }
 .mt-18{
     margin-top:6rem;
@@ -60,6 +85,9 @@ input {
 }
 
 /* Typography */
+.fs-12{
+    font-size: 12px;
+}
 .fs-14{
     font-size: 14px;
 }
@@ -77,11 +105,37 @@ input {
 .fs-24{
     font-size: 24px;
 }
+.fs-26{
+    font-size: 26px;
+}
 .fs-32{
     font-size: 32px;
+}
+.fs-40{
+    font-size: 40px;
+}
+.fs-42{
+    font-size: 42px;
+}
+.fs-60{
+    font-size: 60px;
+}
+.fs-80{
+    font-size: 80px;
+}
+.fs-100{
+    font-size: 100px;
+}
+.fs-130{
+    font-size: 130px;
 }
 
 /* Shadows */
 .shadow-inner {
   box-shadow: inset 0 0 10px #00000961;
+}
+
+/* Sizing */
+.w-fit-content{
+    width: fit-content;
 }
