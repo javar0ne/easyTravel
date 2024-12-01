@@ -1,7 +1,7 @@
 {% extends "components/template.html" %}
 {% block title %}Login{% endblock %}
 {% block navbar %}
-    {% include "components/navbar.html" %}
+    {% include "components/navbar-min.html" %}
 {% endblock %}
 {% block content %}
      <div class="container mx-auto">
@@ -20,7 +20,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email">
                                         </div>
@@ -32,7 +32,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="firstname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="firstname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Firstname" aria-label="firstname" aria-describedby="firstname">
                                         </div>
@@ -42,7 +42,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="lastname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="lastname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Lastname" aria-label="lastname" aria-describedby="lastname">
                                         </div>
@@ -54,7 +54,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="birthdate-prepend"><img width="24" src="../../../static/svg/cake.svg" alt="cake"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="birthdate-prepend"><img width="24" src="../../../static/svg/cake.svg" alt="cake"/></span>
                                           </div>
                                           <input  type="text" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Birth date" aria-label="birthdate" aria-describedby="birthdate">
                                         </div>
@@ -64,7 +64,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="telephone-prepend"><img width="24" src="../../../static/svg/currency.svg" alt="currency"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="telephone-prepend"><img width="24" src="../../../static/svg/currency.svg" alt="currency"/></span>
                                           </div>
                                           <input  type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Currency" aria-label="currency" aria-describedby="currency">
                                         </div>
@@ -76,7 +76,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="telephone-prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="telephone"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="telephone-prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="telephone"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Telephone" aria-label="telephone" aria-describedby="telephone">
                                         </div>
@@ -88,11 +88,11 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                           </div>
                                           <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password" aria-label="password" aria-describedby="password">
                                           <div class="input-group-append password-eye" style="cursor: pointer">
-                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                           </div>
                                         </div>
                                     </div>
@@ -103,11 +103,11 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                           </div>
                                           <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password" aria-label="password" aria-describedby="confirm-password">
                                           <div class="input-group-append confirm-password-eye" style="cursor: pointer">
-                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                           </div>
                                         </div>
                                     </div>
@@ -123,7 +123,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email">
                                         </div>
@@ -135,7 +135,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="firstname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="firstname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Firstname" aria-label="firstname" aria-describedby="firstname">
                                         </div>
@@ -145,7 +145,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="lastname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="lastname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Lastname" aria-label="lastname" aria-describedby="lastname">
                                         </div>
@@ -157,7 +157,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="birthdate-prepend"><img width="24" src="../../../static/svg/cake.svg" alt="cake"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="birthdate-prepend"><img width="24" src="../../../static/svg/cake.svg" alt="cake"/></span>
                                           </div>
                                           <input type="text" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Birth date" aria-label="birthdate" aria-describedby="birthdate">
                                         </div>
@@ -167,7 +167,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="telephone-prepend"><img width="24" src="../../../static/svg/currency.svg" alt="currency"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="telephone-prepend"><img width="24" src="../../../static/svg/currency.svg" alt="currency"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Currency" aria-label="currency" aria-describedby="currency">
                                         </div>
@@ -179,7 +179,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="telephone-prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="telephone"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="telephone-prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="telephone"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Telephone" aria-label="telephone" aria-describedby="telephone">
                                         </div>
@@ -191,11 +191,11 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                           </div>
                                           <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password" aria-label="password" aria-describedby="password">
                                           <div class="input-group-append password-eye" style="cursor: pointer">
-                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                           </div>
                                         </div>
                                     </div>
@@ -206,11 +206,11 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                           <div class="input-group-prepend">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                           </div>
                                           <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password" aria-label="password" aria-describedby="confirm-password">
                                           <div class="input-group-append confirm-password-eye" style="cursor: pointer">
-                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-confirm-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-confirm-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                           </div>
                                         </div>
                                     </div>
@@ -226,7 +226,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="19" src="../../../static/svg/email.svg" alt="mail"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="19" src="../../../static/svg/email.svg" alt="mail"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email">
                                         </div>
@@ -238,7 +238,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="firstname-prepend"><img width="19" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="firstname-prepend"><img width="19" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Firstname" aria-label="firstname" aria-describedby="firstname">
                                         </div>
@@ -248,7 +248,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="lastname-prepend"><img width="19" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="lastname-prepend"><img width="19" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Lastname" aria-label="lastname" aria-describedby="lastname">
                                         </div>
@@ -260,7 +260,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="birthdate-prepend"><img width="19" src="../../../static/svg/cake.svg" alt="cake"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="birthdate-prepend"><img width="19" src="../../../static/svg/cake.svg" alt="cake"/></span>
                                           </div>
                                           <input  type="text" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Birth date" aria-label="birthdate" aria-describedby="birthdate">
                                         </div>
@@ -270,7 +270,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="telephone-prepend"><img width="19" src="../../../static/svg/currency.svg" alt="currency"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="telephone-prepend"><img width="19" src="../../../static/svg/currency.svg" alt="currency"/></span>
                                           </div>
                                           <input  type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Currency" aria-label="currency" aria-describedby="currency">
                                         </div>
@@ -282,7 +282,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                           <div class="input-group-prepend">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="telephone-prepend"><img width="19" src="../../../static/svg/telephone.svg" alt="telephone"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="telephone-prepend"><img width="19" src="../../../static/svg/telephone.svg" alt="telephone"/></span>
                                           </div>
                                           <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Telephone" aria-label="telephone" aria-describedby="telephone">
                                         </div>
@@ -294,11 +294,11 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                           <div class="input-group-prepend">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                           </div>
                                           <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password" aria-label="password" aria-describedby="password">
                                           <div class="input-group-append password-eye" style="cursor: pointer">
-                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                           </div>
                                         </div>
                                     </div>
@@ -309,11 +309,11 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                           <div class="input-group-prepend">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                           </div>
                                           <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password" aria-label="password" aria-describedby="confirm-password">
                                           <div class="input-group-append confirm-password-eye" style="cursor: pointer">
-                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
                                           </div>
                                         </div>
                                     </div>

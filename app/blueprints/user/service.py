@@ -111,7 +111,7 @@ def generate_tokens(user: User) -> Token:
 
 
 def generate_reset_url(token: str):
-    return current_app.config["APP_HOST"] + "/reset-password/" + token
+    return current_app.config["APP_HOST"] + "/user/reset-password/" + token
 
 def handle_forgot_password(forgot_password_req: ForgotPasswordRequest):
     user = get_user_by_email(forgot_password_req.email)

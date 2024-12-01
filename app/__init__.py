@@ -1,6 +1,6 @@
 import logging
 
-from flask import Flask, request, render_template
+from flask import Flask, request
 from flask_jwt_extended import JWTManager
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -10,6 +10,7 @@ from app.blueprints.event import event
 from app.blueprints.itinerary import itinerary
 from app.blueprints.itinerary.job import job_daily_travel_schedule, job_docs_reminder
 from app.blueprints.organization import organization
+from app.blueprints.template import template
 from app.blueprints.traveler import traveler
 from app.blueprints.user import user
 from app.blueprints.user.service import is_token_not_valid
@@ -48,6 +49,7 @@ def init_logging(app):
     )
 
 def init_blueprints(app):
+    app.register_blueprint(template)
     app.register_blueprint(traveler)
     app.register_blueprint(organization)
     app.register_blueprint(user)

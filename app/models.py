@@ -12,6 +12,7 @@ class Collections(Enum):
     ITINERARY_REQUESTS = "itinerary_requests"
     ORGANIZATIONS = "organizations"
     RESET_TOKENS = "reset_tokens"
+    TRAVELER_SIGNUPS = "traveler_signups"
     TRAVELERS = "travelers"
     USERS = "users"
 

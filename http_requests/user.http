@@ -40,3 +40,7 @@ Content-Type: application/json
   "token": "{{ token }}",
   "password": "{{ password }}"
 }
+
+### Dashboard
+GET http://localhost:5000/v1/user/dashboard
+Authorization: Bearer {{bearer_token}}

@@ -1,7 +1,9 @@
 import logging
+from calendar import error
+from fileinput import filename
 
-from flask import request, render_template
-from flask_jwt_extended import jwt_required, get_jwt
+from flask import request, url_for, redirect
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from pydantic import ValidationError
 
 from app.blueprints.user import user
@@ -13,6 +15,7 @@ from app.blueprints.user.service import handle_login, handle_logout, \
 from app.exceptions import ElementNotFoundException
 from app.response_wrapper import success_response, bad_request_response, error_response, no_content_response, \
     not_found_response, unauthorized_response
+from app.role import Role
 
 logger = logging.getLogger(__name__)
 
@@ -100,14 +103,18 @@ def reset_password():
         logger.error(str(err))
         return error_response()
 
-@user.get('/login')
-def render_login():
-    return render_template("login.html")
 
-@user.get('/signup')
-def render_signup():
-    return render_template("signup.html")
+@user.get('/dashboard')
+@jwt_required()
+def dashboard():
+    roles = get_jwt()["roles"]
 
-@user.get('/confirmed_account')
-def render_confirmed_account():
-    return render_template("confirmed_account.html")
+    if Role.ADMIN.name in roles:
+        return success_response("/admin/dashboard")
+    elif Role.ORGANIZATION.name in roles:
+        return success_response("/organization/dashboard")
+    elif Role.TRAVELER.name in roles:
+        return success_response("/traveler/dashboard")
+    else:
+        logger.warning(f"no dashboard url found for user {get_jwt_identity()}")
+        return not_found_response(f"no dashboard url found for user {get_jwt_identity()}")

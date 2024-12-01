@@ -4,8 +4,10 @@ from flask import request
 from pydantic import ValidationError
 
 from app.blueprints.traveler import traveler
-from app.blueprints.traveler.model import CreateTravelerRequest, UpdateTravelerRequest
-from app.blueprints.traveler.service import create_traveler, get_traveler_by_id, update_traveler
+from app.blueprints.traveler.model import CreateTravelerRequest, UpdateTravelerRequest, ConfirmTravelerSignupRequest, \
+    TravelerSignupConfirmationNotFoundException
+from app.blueprints.traveler.service import create_traveler, get_traveler_by_id, update_traveler, \
+    handle_signup_confirmation
 from app.exceptions import ElementAlreadyExistsException, ElementNotFoundException
 from app.response_wrapper import bad_request_response, conflict_response, success_response, not_found_response, \
     error_response, no_content_response
@@ -60,4 +62,19 @@ def update(traveler_id):
         logger.error(str(err))
         return error_response()
 
+@traveler.post("/confirm-signup")
+def confirm_signup():
+    try:
+        confirm_signup_request = ConfirmTravelerSignupRequest(**request.json)
+        handle_signup_confirmation(confirm_signup_request)
 
+        return no_content_response()
+    except ValidationError as err:
+        logger.error("validation error while parsing traveler request", err)
+        return bad_request_response(err.errors())
+    except TravelerSignupConfirmationNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
