@@ -5,350 +5,366 @@
 {% endblock %}
 {% block content %}
     <div class="container d-block d-md-none">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="mt-12">What are your favorite activities while traveling?</h1>
-                <h5 class="text-muted">Indicate at least 3</h5>
+        <form action="/traveler/signup-confirmation" method="POST" onsubmit="return validate_traveler_signup_confirmation()">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="mt-12">What are your favorite activities while traveling?</h1>
+                    <h5 class="text-muted">Indicate at least 3</h5>
+                </div>
             </div>
-        </div>
-        <div class="row mt-5">
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/beach.svg" class="card-img-top h-75" alt="beach">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Beach</h5>
+            <div class="row mt-5">
+                <div class="col-md-3">
+                    <div id="BEACH" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/beach.svg" class="card-img-top h-75" alt="beach">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Beach</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="OUTDOOR_ADVENTURES" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/adventure.svg" class="card-img-top h-75"
+                             alt="outdoor-adventure">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Outdoor Adventure</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="CITY_SIGHTSEEING" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/city-sightseeing.svg" class="card-img-top h-75"
+                             alt="city-sightseeing">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">City Sightseeing</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="FESTIVAL" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/festival.svg" class="card-img-top h-75" alt="festival">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Festival</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/adventure.svg" class="card-img-top h-75"
-                         alt="outdoor-adventure">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Outdoor Adventure</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <div id="FOOD_EXPLORATION" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/food-exploration.svg" class="card-img-top h-75"
+                             alt="food-exploration">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Food Exploration</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="NIGHTLIFE" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/nightlife.svg" class="card-img-top h-75" alt="nightlife">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Nightlife</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="SHOPPING" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/shopping.svg" class="card-img-top h-75" alt="shopping">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Shopping</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="SPA_WELLNESS" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/spa_wellness.svg" class="card-img-top h-75"
+                             alt="spa-wellness">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Spa & Wellness</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/city-sightseeing.svg" class="card-img-top h-75"
-                         alt="city-sightseeing">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">City Sightseeing</h5>
-                    </div>
+            <input type="hidden" id="token" name="token" value="{{ token }}"/>
+            <div id="interested_in_container"></div>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button type="button" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-50">Confirm</button>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/festival.svg" class="card-img-top h-75" alt="festival">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Festival</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/food-exploration.svg" class="card-img-top h-75"
-                         alt="food-exploration">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Food Exploration</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/nightlife.svg" class="card-img-top h-75" alt="nightlife">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Nightlife</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/shopping.svg" class="card-img-top h-75" alt="shopping">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Shopping</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/spa_wellness.svg" class="card-img-top h-75"
-                         alt="spa-wellness">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Spa & Wellness</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <button type="button" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-50">Confirm</button>
-            </div>
-        </div>
+        </form>
     </div>
     <div class="container d-none d-lg-none d-md-block">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="mt-12">What are your favorite activities while traveling?</h1>
-                <h5 class="text-muted">Indicate at least 3</h5>
+        <form action="/traveler/signup-confirmation" method="POST" onsubmit="return validate_traveler_signup_confirmation()">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="mt-12">What are your favorite activities while traveling?</h1>
+                    <h5 class="text-muted">Indicate at least 3</h5>
+                </div>
             </div>
-        </div>
-        <div class="row mt-5">
-            <div class="col-md-6">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/beach.svg" class="card-img-top h-75" alt="beach">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Beach</h5>
+            <div class="row mt-5">
+                <div class="col-md-6">
+                    <div id="BEACH" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/beach.svg" class="card-img-top h-75" alt="beach">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Beach</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="OUTDOOR_ADVENTURES" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/adventure.svg" class="card-img-top h-75"
+                             alt="outdoor-adventure">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Outdoor Adventure</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/adventure.svg" class="card-img-top h-75"
-                         alt="outdoor-adventure">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Outdoor Adventure</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="CITY_SIGHTSEEING" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/city-sightseeing.svg" class="card-img-top h-75"
+                             alt="city-sightseeing">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">City Sightseeing</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="FESTIVAL" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/festival.svg" class="card-img-top h-75" alt="festival">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Festival</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/city-sightseeing.svg" class="card-img-top h-75"
-                         alt="city-sightseeing">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">City Sightseeing</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="FOOD_EXPLORATION" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/food-exploration.svg" class="card-img-top h-75"
+                             alt="food-exploration">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Food Exploration</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="NIGHTLIFE" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/nightlife.svg" class="card-img-top h-75" alt="nightlife">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Nightlife</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/festival.svg" class="card-img-top h-75" alt="festival">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Festival</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="SHOPPING" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/shopping.svg" class="card-img-top h-75" alt="shopping">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Shopping</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="SPA_WELLNESS" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/spa_wellness.svg" class="card-img-top h-75"
+                             alt="spa-wellness">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Spa & Wellness</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/food-exploration.svg" class="card-img-top h-75"
-                         alt="food-exploration">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Food Exploration</h5>
-                    </div>
+            <input type="hidden" id="token" name="token" value="{{ token }}"/>
+            <div id="interested_in_container"></div>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button type="button" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-50">Confirm</button>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/nightlife.svg" class="card-img-top h-75" alt="nightlife">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Nightlife</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/shopping.svg" class="card-img-top h-75" alt="shopping">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Shopping</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/spa_wellness.svg" class="card-img-top h-75"
-                         alt="spa-wellness">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Spa & Wellness</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <button type="button" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-50">Confirm</button>
-            </div>
-        </div>
+        </form>
     </div>
     <div class="container d-none d-lg-block d-xl-none">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="mt-12">What are your favorite activities while traveling?</h1>
-                <h5 class="text-muted">Indicate at least 3</h5>
+        <form action="/traveler/signup-confirmation" method="POST" onsubmit="return validate_traveler_signup_confirmation()">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="mt-12">What are your favorite activities while traveling?</h1>
+                    <h5 class="text-muted">Indicate at least 3</h5>
+                </div>
             </div>
-        </div>
-        <div class="row mt-5">
-            <div class="col-md-4">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/beach.svg" class="card-img-top h-75" alt="beach">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Beach</h5>
+            <div class="row mt-5">
+                <div class="col-md-4">
+                    <div id="BEACH" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/beach.svg" class="card-img-top h-75" alt="beach">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Beach</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div id="OUTDOOR_ADVENTURES" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/adventure.svg" class="card-img-top h-75"
+                             alt="outdoor-adventure">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Outdoor Adventure</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div id="CITY_SIGHTSEEING" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/city-sightseeing.svg" class="card-img-top h-75"
+                             alt="city-sightseeing">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">City Sightseeing</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/adventure.svg" class="card-img-top h-75"
-                         alt="outdoor-adventure">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Outdoor Adventure</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div id="FESTIVAL" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/festival.svg" class="card-img-top h-75" alt="festival">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Festival</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div id="FOOD_EXPLORATION" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/food-exploration.svg" class="card-img-top h-75"
+                             alt="food-exploration">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Food Exploration</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div id="NIGHTLIFE" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/nightlife.svg" class="card-img-top h-75" alt="nightlife">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Nightlife</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/city-sightseeing.svg" class="card-img-top h-75"
-                         alt="city-sightseeing">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">City Sightseeing</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div id="SHOPPING" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/shopping.svg" class="card-img-top h-75" alt="shopping">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Shopping</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div id="SPA_WELLNESS" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/spa_wellness.svg" class="card-img-top h-75"
+                             alt="spa-wellness">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Spa & Wellness</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/festival.svg" class="card-img-top h-75" alt="festival">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Festival</h5>
-                    </div>
+            <input type="hidden" id="token" name="token" value="{{ token }}"/>
+            <div id="interested_in_container"></div>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button type="button" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-50">Confirm</button>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/food-exploration.svg" class="card-img-top h-75"
-                         alt="food-exploration">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Food Exploration</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/nightlife.svg" class="card-img-top h-75" alt="nightlife">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Nightlife</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/shopping.svg" class="card-img-top h-75" alt="shopping">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Shopping</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/spa_wellness.svg" class="card-img-top h-75"
-                         alt="spa-wellness">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Spa & Wellness</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <button type="button" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-50">Confirm</button>
-            </div>
-        </div>
+        </form>
     </div>
     <div class="container d-none d-xl-block">
-        <div class="row">
-            <div class="col-md-12">
-                <h1 class="mt-12">What are your favorite activities while traveling?</h1>
-                <h5 class="text-muted">Indicate at least 3</h5>
+        <form action="/traveler/signup-confirmation" method="POST" onsubmit="return validate_traveler_signup_confirmation()">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1 class="mt-12">What are your favorite activities while traveling?</h1>
+                    <h5 class="text-muted">Indicate at least 3</h5>
+                </div>
             </div>
-        </div>
-        <div class="row mt-5">
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/beach.svg" class="card-img-top h-75" alt="beach">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Beach</h5>
+            <div class="row mt-5">
+                <div class="col-md-3">
+                    <div id="BEACH" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/beach.svg" class="card-img-top h-75" alt="beach">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Beach</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="OUTDOOR_ADVENTURES" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/adventure.svg" class="card-img-top h-75"
+                             alt="outdoor-adventure">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Outdoor Adventure</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="CITY_SIGHTSEEING" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/city-sightseeing.svg" class="card-img-top h-75"
+                             alt="city-sightseeing">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">City Sightseeing</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="FESTIVAL" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/festival.svg" class="card-img-top h-75" alt="festival">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Festival</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/adventure.svg" class="card-img-top h-75"
-                         alt="outdoor-adventure">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Outdoor Adventure</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <div id="FOOD_EXPLORATION" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/food-exploration.svg" class="card-img-top h-75"
+                             alt="food-exploration">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Food Exploration</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="NIGHTLIFE" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/nightlife.svg" class="card-img-top h-75" alt="nightlife">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Nightlife</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="SHOPPING" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/shopping.svg" class="card-img-top h-75" alt="shopping">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Shopping</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div id="SPA_WELLNESS" class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
+                        <img src="../../static/svg/spa_wellness.svg" class="card-img-top h-75"
+                             alt="spa-wellness">
+                        <div class="card-body text-center">
+                            <h5 class="card-title fs-16">Spa & Wellness</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/city-sightseeing.svg" class="card-img-top h-75"
-                         alt="city-sightseeing">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">City Sightseeing</h5>
-                    </div>
+            <input type="hidden" id="token" name="token" value="{{ token }}"/>
+            <div id="interested_in_container"></div>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-50">Confirm</button>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/festival.svg" class="card-img-top h-75" alt="festival">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Festival</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/food-exploration.svg" class="card-img-top h-75"
-                         alt="food-exploration">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Food Exploration</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/nightlife.svg" class="card-img-top h-75" alt="nightlife">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Nightlife</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/shopping.svg" class="card-img-top h-75" alt="shopping">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Shopping</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-2 rounded p-1 w-75 h-75 m-auto" style="cursor: pointer">
-                    <img src="../../static/svg/spa_wellness.svg" class="card-img-top h-75"
-                         alt="spa-wellness">
-                    <div class="card-body text-center">
-                        <h5 class="card-title fs-16">Spa & Wellness</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 text-center">
-                <button type="button" class="btn btn-primary btn-block fw-medium fs-20 p-1 w-50">Confirm</button>
-            </div>
-        </div>
+        </form>
     </div>
 {% endblock %}
 {% block footer %}
@@ -358,8 +374,10 @@
     <script>
         $(".card").on('click', function () {
             if ($(this).hasClass('border-primary')) {
+                $(this).removeClass('selected');
                 $(this).removeClass('border-primary');
             } else {
+                $(this).addClass('selected');
                 $(this).addClass("border-primary");
             }
         });
