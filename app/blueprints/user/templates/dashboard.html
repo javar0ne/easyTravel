@@ -1,0 +1,43 @@
+{% extends "components/template.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block navbar %}
+    {% include "components/navbar.html" %}
+{% endblock %}
+{% block content %}
+    {% include "dashboard-section/heading.html" %}
+    {% include "dashboard-section/spotlight.html" %}
+    {% include "dashboard-section/show-more.html" %}
+    {% include "dashboard-section/by-activities.html" %}
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}
+{% block script %}
+    <script>
+      $(document).ready(function () {
+        const $carousel = $('#itineraryCarousel');
+        const $currentSlideInfo = $('#currentSlideInfo');
+        const $nextSlideTitle = $('#nextSlideTitle');
+        const $slides = $carousel.find('.carousel-item');
+        const totalSlides = $slides.length;
+
+        function updateSlideInfo(event) {
+          const currentIndex = event.from;
+          const nextIndex = event.to;
+          const nextTitle = $slides.eq((nextIndex + 1) % totalSlides).data('title');
+
+          $currentSlideInfo.text(`${nextIndex + 1} / ${totalSlides}`);
+          $nextSlideTitle.text(`Next: ${nextTitle}`);
+        }
+
+        $carousel.on('slide.bs.carousel', function (event) {
+          updateSlideInfo(event);
+        });
+
+        // Initialize with first slide's next info
+        const nextTitle = $slides.eq(1 % totalSlides).data('title');
+        $currentSlideInfo.text(`1 / ${totalSlides}`);
+        $nextSlideTitle.text(`Next: ${nextTitle}`);
+      });
+    </script>
+{% endblock %}

@@ -1,7 +1,7 @@
 {% extends "components/template.html" %}
 {% block title %}Login{% endblock %}
 {% block navbar %}
-    {% include "components/navbar.html" %}
+    {% include "components/navbar-min.html" %}
 {% endblock %}
 {% block content %}
      <div class="container mx-auto">
@@ -46,15 +46,15 @@
                                 <a href="/forgot-password" class="text-decoration-none text-muted">Forgot password?</a>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
+                        </div>
                      </div>
                      <div class="d-block d-md-none col-md-12">
                         <div class="form-group mb-3">
                             <div class="input-group mb-3">
-                              <div class="input-group-prepend">
                                 <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="19" src="../../../static/svg/email.svg" alt="email"/></span>
-                              </div>
-                              <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email" >
+                                <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email" >
                             </div>
                         </div>
                         <div class="form-group mb-3">
@@ -64,12 +64,14 @@
                               </div>
                               <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password" aria-label="password" aria-describedby="password" >
                               <div class="input-group-append password-eye" style="cursor: pointer">
-                                <span class="input-group-text bg-white rounded-0 border-left-0 border-black text-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                <span class="input-group-text password-eye bg-white rounded-0 border-left-0 border-black text-black" role="button"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
                               </div>
                             </div>
                             <small class="text-right"><a href="/forgot-password" class="text-decoration-none text-muted">Forgot password?</a></small>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign in</button>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign in</button>
+                        </div>
                      </div>
                  </div>
                  <div class="row mt-2">
