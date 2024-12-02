@@ -1,11 +1,12 @@
 import logging
 
 from flask import render_template, request, redirect
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.blueprints.template import template
 from app.blueprints.traveler.model import CreateTravelerRequest, ConfirmTravelerSignupRequest
 from app.blueprints.traveler.service import create_traveler, signup_request_exists, \
-    handle_signup_confirmation
+    handle_signup_confirmation, get_traveler_by_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -58,8 +59,10 @@ def traveler_signup_confirmation_post():
     return redirect('/login')
 
 @template.get('/traveler/dashboard')
+@jwt_required()
 def traveler_dashboard():
-    return render_template('traveler-dashboard.html')
+    traveler = get_traveler_by_user_id(get_jwt_identity())
+    return render_template('traveler-dashboard.html', traveler=traveler)
 
 # organization
 @template.get('/organization/dashboard')
