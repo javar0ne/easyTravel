@@ -3,7 +3,7 @@ import secrets
 from datetime import datetime, timezone
 
 from bson import ObjectId
-from flask import current_app
+from flask import url_for
 
 from app.blueprints.traveler.mail import send_traveler_signup_mail
 from app.blueprints.traveler.model import CreateTravelerRequest, UpdateTravelerRequest, Traveler, \
@@ -39,9 +39,6 @@ def get_traveler_by_user_id(user_id: str) -> Traveler:
     logger.info("found traveler with user id %s", user_id)
     return Traveler(**traveler_document)
 
-def generate_traveler_signup_url(token: str):
-    return current_app.config["APP_HOST"] + "/traveler/signup-confirmation/" + token
-
 def save_traveler_signup(traveler_id: str, email: str):
     logger.info("saving traveler signup for traveler with id %s", traveler_id)
     token = secrets.token_urlsafe(16)
@@ -52,7 +49,9 @@ def save_traveler_signup(traveler_id: str, email: str):
             "token": token
         }
     )
-    send_traveler_signup_mail(generate_traveler_signup_url(token), email)
+    url_signup_confirmation = url_for("template.traveler_signup_confirmation", token=token, _external=True)
+    logger.info(url_signup_confirmation)
+    send_traveler_signup_mail(url_signup_confirmation, email)
     logger.info("saved traveler signup for traveler with id %s", traveler_id)
 
 def create_traveler(request: CreateTravelerRequest) -> str:
@@ -87,11 +86,7 @@ def update_traveler(traveler_id: str, updated_traveler: UpdateTravelerRequest):
 
 def handle_signup_confirmation(request: ConfirmTravelerSignupRequest):
     logger.info("confirming traveler signup..")
-    traveler_signup = mongo.find_one(Collections.TRAVELER_SIGNUPS, {'token': request.token})
-
-
-    if not traveler_signup:
-        raise TravelerSignupConfirmationNotFoundException()
+    traveler_signup = get_signup_request(request.token)
 
     mongo.update_one(
         Collections.TRAVELERS,
@@ -101,3 +96,15 @@ def handle_signup_confirmation(request: ConfirmTravelerSignupRequest):
 
     mongo.delete_one(Collections.TRAVELER_SIGNUPS, {"token": request.token})
     logger.info("traveler signup confirmed for traveler with id %s!", traveler_signup.get("traveler_id"))
+
+
+def signup_request_exists(token: str):
+    return mongo.exists(Collections.TRAVELER_SIGNUPS, {'token': token})
+
+def get_signup_request(token: str):
+    traveler_signup = mongo.find_one(Collections.TRAVELER_SIGNUPS, {'token': token})
+
+    if not traveler_signup:
+        raise TravelerSignupConfirmationNotFoundException()
+
+    return traveler_signup

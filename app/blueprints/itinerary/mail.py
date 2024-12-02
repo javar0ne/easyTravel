@@ -16,7 +16,7 @@ def send_travel_schedule(email: str,
         html_content = render_template(
             "daily_travel_schedule.html",
             city = itinerary.city,
-            recipient_name = traveler.name+" "+traveler.surname,
+            recipient_name =traveler.first_name + " " + traveler.last_name,
             day = day_detail.day,
             title = day_detail.title,
             stages = day_detail.stages,
@@ -39,7 +39,7 @@ def send_docs_reminder(email: str,
         html_content = render_template(
             "docs_reminder.html",
             city = city,
-            recipient_name=traveler.name + " " + traveler.surname,
+            recipient_name=traveler.first_name + " " + traveler.last_name,
             docs = docs,
             year = date.today().year
         )
