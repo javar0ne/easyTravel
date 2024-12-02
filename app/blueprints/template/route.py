@@ -69,3 +69,7 @@ def organization_dashboard():
 @template.get('/organization/signup')
 def organization_signup():
     return render_template("organization-signup.html")
+
+@template.get("/generate-itinerary")
+def generate_itinerary():
+    return render_template("generate-itinerary.html")
