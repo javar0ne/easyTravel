@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, send_file
+from flask import request, send_file, render_template
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from openai import APIStatusError
 from pydantic import ValidationError
@@ -270,3 +270,7 @@ def get_itinerary_request(request_id):
     except Exception as err:
         logger.error(str(err))
         return error_response()
+
+@itinerary.get("/create-itinerary")
+def create_itinerary():
+    return render_template("create-itinerary.html")

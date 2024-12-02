@@ -1,0 +1,137 @@
+{% extends "components/template.html" %}
+{% block title %}Create itinerary{% endblock %}
+{% block navbar %}
+    {% include "components/navbar.html" %}
+{% endblock %}
+{% block content %}
+<form class="mx-5 my-3">
+    <div class="input-group-lg">
+        <h1 class="form-label d-none d-xl-block fw-medium fs-40">Tell us your destination</h1>
+        <h1 class="form-label d-none d-md-block d-xl-none fw-medium fs-32">Tell us your destination</h1>
+        <h1 class="form-label d-none d-sm-block d-md-none fw-medium fs-28">Tell us your destination</h1>
+        <h1 class="form-label d-block d-sm-none fw-medium fs-18">Tell us your destination</h1>
+        <div class="row">
+            <div class="col-sm-12 col-md-8">
+                <input type="text" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-black" id="city" placeholder="Rome">
+            </div>
+        </div>
+    </div>
+    <div class="input-group-lg mt-5">
+        <h1 class="form-label d-none d-xl-block fw-medium fs-40">Please indicate the period in which you would prefer to leave</h1>
+        <h1 class="form-label d-none d-md-block d-xl-none fw-medium fs-32">Please indicate the period in which you would prefer to leave</h1>
+        <h1 class="form-label d-none d-sm-block d-md-none fw-medium fs-28">Please indicate the period in which you would prefer to leave</h1>
+        <h1 class="form-label d-block d-sm-none fw-medium fs-18">Please indicate the period in which you would prefer to leave</h1>
+        <div class="row">
+            <div class="col-sm-12 col-md-8">
+                <input type="text" name="dates" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-black" id="date" placeholder="Add date">
+            </div>
+        </div>
+    </div>
+    <div class="input-group-lg mt-5">
+        <h1 class="form-label d-none d-xl-block fw-medium fs-40">What is your budget</h1>
+        <h1 class="form-label d-none d-md-block d-xl-none fw-medium fs-32">What is your budget</h1>
+        <h1 class="form-label d-none d-sm-block d-md-none fw-medium fs-28">What is your budget</h1>
+        <h1 class="form-label d-block d-sm-none fw-medium fs-18">What is your budget</h1>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div id="budget" class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="budget" id="budget-low" autocomplete="off" checked>
+                    <label for="budget-low" class="btn rounded-0 border-black">
+                        <img class="me-2" src="../../static/svg/budget-low.svg" alt="budget-low"/>
+                        Low Budget (0-500 EUR)</label>
+                </div>
+                <div id="budget" class="btn-group mt-2 ms-md-2 mt-lg-0" role="group">
+                    <input type="radio" class="btn-check" name="budget" id="budget-medium" autocomplete="off">
+                    <label for="budget-medium" class="btn rounded-0 border-black">
+                        <img class="me-2" src="../../static/svg/budget-medium.svg" alt="budget-medium"/>
+                        Medium Budget (500-1000 EUR)</label>
+                </div>
+                <div id="budget" class="btn-group mt-2 ms-lg-2 mt-lg-0" role="group">
+                    <input type="radio" class="btn-check" name="budget" id="budget-high" autocomplete="off">
+                    <label for="budget-high" class="btn rounded-0 border-black">
+                        <img class="me-2" src="../../static/svg/budget-high.svg" alt="budget-high"/>
+                        High Budget (500-1000 EUR)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="input-group-lg mt-5">
+        <h1 class="form-label d-none d-xl-block fw-medium fs-40">Who do you plan on traveling with on your next adventure?</h1>
+        <h1 class="form-label d-none d-md-block d-xl-none fw-medium fs-32">Who do you plan on traveling with on your next adventure?</h1>
+        <h1 class="form-label d-none d-sm-block d-md-none fw-medium fs-28">Who do you plan on traveling with on your next adventure?</h1>
+        <h1 class="form-label d-block d-sm-none fw-medium fs-18">Who do you plan on traveling with on your next adventure?</h1>
+        <div class="row">
+            <div class="col-12">
+                <div id="people" class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="people" id="people-solo" autocomplete="off" checked>
+                    <label class="btn rounded-0 border-black" for="people-solo">
+                        <img class="me-2" src="../../static/svg/people-solo.svg" alt="people-solo"/>
+                        Solo</label>
+                </div>
+                <div id="people" class="btn-group mt-2 mt-sm-0 ms-sm-2" role="group">
+                    <input type="radio" class="btn-check" name="people" id="people-couple" autocomplete="off">
+                    <label class="btn rounded-0 border-black" for="people-couple">
+                        <img class="me-2" src="../../static/svg/people-couple.svg" alt="people-couple"/>
+                        Couple</label>
+                </div>
+                <div id="people" class="btn-group mt-2 mt-sm-0 ms-sm-2" role="group">
+                    <input type="radio" class="btn-check" name="people" id="people-family" autocomplete="off">
+                    <label class="btn rounded-0 border-black" for="people-family">
+                        <img class="me-2" src="../../static/svg/people-family.svg" alt="people-family"/>
+                        Family</label>
+                </div>
+                <div id="people" class="btn-group mt-2 ms-sm-0 ms-md-2 mt-md-0" role="group">
+                    <input type="radio" class="btn-check" name="people" id="people-friends" autocomplete="off">
+                    <label class="btn rounded-0 border-black" for="people-friends">
+                        <img class="me-2" src="../../static/svg/people-friends.svg" alt="people-friends"/>
+                        Friends</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="input-group-lg mt-5">
+        <h1 class="form-label d-none d-xl-block fw-medium fs-40">What activity are you interested in?</h1>
+        <h1 class="form-label d-none d-md-block d-xl-none fw-medium fs-32">What activity are you interested in?</h1>
+        <h1 class="form-label d-none d-sm-block d-md-none fw-medium fs-28">What activity are you interested in?</h1>
+        <h1 class="form-label d-block d-sm-none fw-medium fs-18">What activity are you interested in?</h1>
+        <div class="row">
+            <div class="col">
+                {{ activity_checkbox.activity_checkbox("beach","beach","beach","Beach") }}
+                {{ activity_checkbox.activity_checkbox("adventure","adventure","adventure","Adventure") }}
+                {{ activity_checkbox.activity_checkbox("spa","spa_wellness","spa","Spa") }}
+            </div>
+        </div>
+    </div>
+    <div class="input-group-lg mt-5">
+        <h1 class="form-label d-none d-xl-block fw-medium fs-40">Would you like to have some of these options?</h1>
+        <h1 class="form-label d-none d-md-block d-xl-none fw-medium fs-32">Would you like to have some of these options?</h1>
+        <h1 class="form-label d-none d-sm-block d-md-none fw-medium fs-28">Would you like to have some of these options?</h1>
+        <h1 class="form-label d-block d-sm-none fw-medium fs-18">Would you like to have some of these options?</h1>
+        <div class="row">
+            <div class="col">
+                <div id="optional" class="btn-group" role="group">
+                    <input type="checkbox" class="btn-check" name="accessibility" id="accessibility" autocomplete="off">
+                    <label class="btn rounded-0 border-black" for="accessibility">
+                        <img class="me-2" src="../../static/svg/accessibility.svg" alt="accessibility"/>
+                        Access for disabled people</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-11">
+        <div class="col">
+            <button type="submit" class="btn btn-primary fw-medium">Generate</button>
+        </div>
+    </div>
+</form>
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}
+{% block script %}
+<script>
+    $('input[name="dates"]').daterangepicker({
+      maxDate:
+  });
+</script>
+{% endblock %}
