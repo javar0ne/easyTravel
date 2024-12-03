@@ -2,11 +2,11 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, computed_field
 from typing_extensions import Self
 
 from app.encoders import PyObjectId
-from app.models import Paginated, Coordinates, Activity
+from app.models import Paginated, Coordinates, Activity, UnsplashImage
 from app.utils import is_valid_enum_name
 
 COLLECTION_NAME = "itineraries"
@@ -257,3 +257,20 @@ class ItineraryMeta(BaseModel):
     duplicated_by: list[str] = []
     saved_by: list[str] = []
     views: int = 0
+
+class ItinerarySpotlight(BaseModel):
+    city: str
+    description: str
+    interested_in: list[str]
+    travelling_with: str
+    budget: str
+    saved_by: int
+    shared_with: list[str]
+    start_date: datetime
+    end_date: datetime
+    image: UnsplashImage
+
+    @computed_field
+    @property
+    def duration(self) -> int:
+        return (self.end_date - self.start_date).days + 1

@@ -6,6 +6,7 @@ from io import BytesIO
 
 from bson import ObjectId
 
+from app import unsplash
 from app.assistant import Conversation, ConversationRole
 from app.blueprints.admin.service import can_generate_itinerary
 from app.blueprints.event.service import get_event_by_id
@@ -15,18 +16,23 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     Activity, Budget, TravellingWith, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
-    AssistantItineraryDocsResponse, CityDescriptionRequest
+    AssistantItineraryDocsResponse, CityDescriptionRequest, ItinerarySpotlight
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
-from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, CITY_KEY_SUFFIX, redis_city_description, \
+from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, CITY_KEY_SUFFIX, redis_itinerary, \
+    redis_city_description, \
     CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, CITY_DESCRIPTION_USER_PROMPT, DAILY_EXPIRE, ITINERARY_USER_PROMPT, \
     ITINERARY_USER_EVENT_PROMPT, ITINERARY_SYSTEM_INSTRUCTIONS, ITINERARY_DAILY_PROMPT, \
-    JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE
+    JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, MOST_SAVED_KEY
 from app.models import PaginatedResponse, Paginated, Collections
 from app.pdf import PdfItinerary
 
 logger = logging.getLogger(__name__)
+
+
+def exists_by_id(itinerary_id: str):
+    return mongo.exists(Collections.USERS, {"_id": ObjectId(itinerary_id)})
 
 def get_itinerary_by_id(itinerary_id) -> Itinerary:
     logger.info("retrieving itinerary with id %s", itinerary_id)
@@ -37,6 +43,9 @@ def get_itinerary_by_id(itinerary_id) -> Itinerary:
 
     logger.info("found itinerary with id %s", itinerary_id)
     return Itinerary(**itinerary_document)
+
+def get_itinerary_meta(itinerary_id: str) -> ItineraryMeta:
+    return mongo.find_one(Collections.ITINERARY_METAS, {"itinerary_id": itinerary_id})
 
 def get_itineraries_allow_to_daily_schedule() -> list[Itinerary]:
     logger.info("retrieving itineraries allow to daily schedule")
@@ -367,15 +376,18 @@ def duplicate(user_id: str, duplicate_req: DuplicateRequest) -> str:
 
     return str(result.inserted_id)
 
-def get_city_description(request: CityDescriptionRequest) -> CityDescription:
-    city_key = f"{request.name.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"
+def get_city_description_by_req(request: CityDescriptionRequest) -> CityDescription:
+    return get_city_description(request.name)
+
+def get_city_description(name: str) -> CityDescription:
+    city_key = f"{name.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"
     if redis_city_description.get_client().exists(city_key):
         city_description = json.loads(redis_city_description.get_client().get(city_key))
         return CityDescription(**city_description)
 
     conversation = Conversation(CityDescription)
     conversation.add_message_from(CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS)
-    conversation.add_message(ConversationRole.USER.value, CITY_DESCRIPTION_USER_PROMPT.format(city=request.name))
+    conversation.add_message(ConversationRole.USER.value, CITY_DESCRIPTION_USER_PROMPT.format(city=name))
 
     city_description = assistant.ask(conversation)
 
@@ -452,6 +464,7 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
     if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
         raise DateNotValidException("start date must be greater or equal to today")
 
+    get_city_image(itinerary_request.city)
     request_id = mongo.insert_one(Collections.ITINERARY_REQUESTS, itinerary_request.model_dump()).inserted_id
     conversation = Conversation(AssistantItineraryResponse)
     conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
@@ -460,6 +473,16 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
     threading.Thread(target=generate_day_by_day,args=(conversation, request_id, trip_duration)).start()
 
     return request_id
+
+def get_city_image(city: str):
+    logger.info("getting city image for city %s", city)
+    if mongo.exists(Collections.IMAGES, {"city": city}):
+        logger.info("image already present for city %s!", city)
+        return
+
+    city_image = unsplash.find_one(city)
+    mongo.insert_one(Collections.IMAGES, city_image.model_dump(exclude={"_id"}))
+    logger.info("successfully got image for city %s!", city)
 
 def generate_itinerary_infos(itinerary_request: ItineraryRequest):
     trip_duration = (itinerary_request.end_date - itinerary_request.start_date).days + 1
@@ -546,3 +569,41 @@ def check_itinerary_last_day(itinerary):
     if delta.days == timedelta(days=0).days:
         update_itinerary_status(itinerary_id=itinerary.id,
                                 status=ItineraryStatus.COMPLETED)
+
+def handle_save_itinerary(user_id: str, itinerary_id: str):
+    logger.info("adding itinerary %s to saved ones for traveler %s..", itinerary_id, user_id)
+
+    if not exists_by_id(itinerary_id):
+        logger.warning("no itinerary found with id %s", itinerary_id)
+        return
+
+    mongo.update_one(Collections.ITINERARY_METAS, {"$push": {"saved_by": user_id}})
+    redis_itinerary.get_client().zincrby("likes", itinerary_id, 1)
+
+    logger.info("itinerary %s saved for user %s!", itinerary_id, user_id)
+
+def get_most_saved():
+    most_saved = redis_itinerary.get_client().zrevrange(name=MOST_SAVED_KEY, start=0, end=5, withscores=True)
+    itinerary_ids = list(map(lambda x: x[0], most_saved))
+    itineraries = mongo.find(
+        Collections.ITINERARIES,
+        {"_id": {"$in": itinerary_ids}},
+        {"city": 1, "start_date": 1, "end_date": 1, "interested_in": 1, "travelling_with": 1, "budget": 1}
+    )
+    spotlight_itineraries = []
+
+    for it in itineraries:
+        itinerary = Itinerary(**it)
+        itinerary_meta = get_itinerary_meta(str(itinerary.id))
+        city_description = get_city_description(itinerary.city)
+        # TODO: complete spotlight itinerary creation
+        #spotlight_itineraries.append(
+            # ItinerarySpotlight(
+            #     city=itinerary.city,
+            #     description=city_description,
+            #     interested_in=itinerary.interested_in,
+            #     travelling_with=itinerary.travelling_with,
+            #     budget=itinerary.budget,
+            #
+            # )
+        #)

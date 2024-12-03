@@ -4,8 +4,18 @@ const URLS = {
 
 }
 
-const ACCESS_TOKEN = "access_token"
-const REFRESH_TOKEN = "refresh_token"
+const ACCESS_TOKEN = "access_token";
+const REFRESH_TOKEN = "refresh_token";
+
+function get_access_token() {
+    const access_token = localStorage.getItem(ACCESS_TOKEN);
+
+    if(!access_token) {
+        go_to_dashboard();
+    }
+
+    return access_token;
+}
 
 function check_token_existence() {
     const access_token = localStorage.getItem(ACCESS_TOKEN);
@@ -21,17 +31,21 @@ function check_token_existence_with_redirect() {
     const refresh_token = localStorage.getItem(REFRESH_TOKEN);
 
     if(!access_token || !refresh_token){
-        window.location.href='/login';
+        go_to_login();
     }
+}
+
+function go_to_login() {
+    window.location.href='/login';
 }
 
 function go_to_dashboard() {
     fetch(
-        URLS.user + "/dashboard",
+        `${URLS.user}/dashboard`,
         {
             "headers": {
                 "Method": "GET",
-                "Authorization": "Bearer " + localStorage.getItem(ACCESS_TOKEN),
+                "Authorization": `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
                 "Content-Type": "application/json"
             }
         }
@@ -66,7 +80,7 @@ function login() {
 
     if(email && validate_email(email) && password) {
         fetch(
-            URLS.user + "/login",
+            `${URLS.user}/login`,
             {
                 "method": "POST",
                 "headers": {"Content-Type": "application/json"},
@@ -150,4 +164,27 @@ function validate_traveler_signup_confirmation() {
     });
 
     return true;
+}
+
+function get_traveler() {
+    const access_token = get_access_token();
+    fetch(
+        URLS.traveler,
+        {
+            // "headers": {"Content-Type": "application/json"}
+            "method": "GET",
+            "headers": {"Authorization": `Bearer ${access_token}`}
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            go_to_login();
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        $("#first_name").text(data.response.first_name)
+    })
+    .catch(console.log);
 }

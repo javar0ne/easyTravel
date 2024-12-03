@@ -38,6 +38,10 @@
         const nextTitle = $slides.eq(1 % totalSlides).data('title');
         $currentSlideInfo.text(`1 / ${totalSlides}`);
         $nextSlideTitle.text(`Next: ${nextTitle}`);
+
+        get_traveler();
       });
+
+      $('#create_itinerary').on("click", () => window.location.href='/itinerary/generate')
     </script>
 {% endblock %}
