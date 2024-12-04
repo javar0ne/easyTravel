@@ -1,9 +1,9 @@
 import requests
-from flask import Flask, request
+from flask import Flask
 from pymongo import MongoClient
 from redis import Redis
 
-from app.models import Collections, UnsplashImage
+from app.models import Collections, UnsplashSingleResponse
 
 
 class UnsplashWrapper:
@@ -18,12 +18,12 @@ class UnsplashWrapper:
     def build_headers(self):
         return { "Authorization": f"Client-ID {self.access_key}" }
 
-    def find_one(self, city: str) -> UnsplashImage:
-        url = f"{self.base_url}/photos/search?query={city}&orientation=landscape&page=1&per_page=1"
-        response = requests.get(url, headers=self.build_headers())
+    def find_one(self, city: str) -> UnsplashSingleResponse:
+        url = f"{self.base_url}/search/photos?query={city}&orientation=landscape&page=1&per_page=1"
+        response = requests.get(url, headers=self.build_headers(), verify=False)
 
         if response.status_code == 200:
-            return UnsplashImage(**response.json().get("results")[0])
+            return UnsplashSingleResponse(**response.json().get("results")[0])
 
 class RedisWrapper:
     def __init__(self, db: int = 0):

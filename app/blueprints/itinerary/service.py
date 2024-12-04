@@ -6,7 +6,6 @@ from io import BytesIO
 
 from bson import ObjectId
 
-from app import unsplash
 from app.assistant import Conversation, ConversationRole
 from app.blueprints.admin.service import can_generate_itinerary
 from app.blueprints.event.service import get_event_by_id
@@ -20,13 +19,14 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
-from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, CITY_KEY_SUFFIX, redis_itinerary, \
+from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, CITY_KEY_SUFFIX, unsplash, redis_itinerary, \
     redis_city_description, \
     CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, CITY_DESCRIPTION_USER_PROMPT, DAILY_EXPIRE, ITINERARY_USER_PROMPT, \
     ITINERARY_USER_EVENT_PROMPT, ITINERARY_SYSTEM_INSTRUCTIONS, ITINERARY_DAILY_PROMPT, \
     JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, MOST_SAVED_ITINERARIES_KEY
-from app.models import PaginatedResponse, Paginated, Collections
+from app.models import PaginatedResponse, Paginated, Collections, UnsplashImage
 from app.pdf import PdfItinerary
+from app.utils import encode_city_name
 
 logger = logging.getLogger(__name__)
 
@@ -380,7 +380,7 @@ def get_city_description_by_req(request: CityDescriptionRequest) -> CityDescript
     return get_city_description(request.name)
 
 def get_city_description(name: str) -> CityDescription:
-    city_key = f"{name.lower().replace(' ', '-')}-{CITY_KEY_SUFFIX}"
+    city_key = f"{encode_city_name(name)}-{CITY_KEY_SUFFIX}"
     if redis_city_description.get_client().exists(city_key):
         city_description = json.loads(redis_city_description.get_client().get(city_key))
         return CityDescription(**city_description)
@@ -476,12 +476,13 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
 
 def get_city_image(city: str):
     logger.info("getting city image for city %s", city)
-    if mongo.exists(Collections.IMAGES, {"city": city}):
+    if mongo.exists(Collections.IMAGES, {"city": encode_city_name(city)}):
         logger.info("image already present for city %s!", city)
         return
 
-    city_image = unsplash.find_one(city)
-    mongo.insert_one(Collections.IMAGES, city_image.model_dump(exclude={"_id"}))
+    response = unsplash.find_one(city)
+    city_image = UnsplashImage.from_unsplash(response, city)
+    mongo.insert_one(Collections.IMAGES, city_image.model_dump(exclude={"id"}))
     logger.info("successfully got image for city %s!", city)
 
 def generate_itinerary_infos(itinerary_request: ItineraryRequest):

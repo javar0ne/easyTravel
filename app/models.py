@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, computed_field
 from typing_extensions import Optional
 
 from app.encoders import PyObjectId
+from app.utils import encode_city_name
 
 
 class Collections(Enum):
@@ -28,6 +29,10 @@ class UnsplashImageUrls(BaseModel):
     thumb: Optional[str] = None
     small_s3: Optional[str] = None
 
+class UnsplashSingleResponse(BaseModel):
+    urls: UnsplashImageUrls
+    alt_description: Optional[str] = None
+
 class UnsplashImage(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     city: str
@@ -35,8 +40,8 @@ class UnsplashImage(BaseModel):
     urls: UnsplashImageUrls
 
     @staticmethod
-    def from_unsplash(response: dict, city: str):
-        return UnsplashImage(city=city, alt=response.get("alt_description"), urls=response.get("urls"))
+    def from_unsplash(response: UnsplashSingleResponse, city: str):
+        return UnsplashImage(city=encode_city_name(city), alt=response.alt_description, urls=response.urls)
 
 class Coordinates(BaseModel):
     lat: float
