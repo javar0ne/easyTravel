@@ -1,4 +1,4 @@
-import json
+import logging
 import logging
 import threading
 from datetime import datetime, timezone, timedelta
@@ -15,13 +15,12 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     Activity, Budget, TravellingWith, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
-    AssistantItineraryDocsResponse, CityDescriptionRequest, ItinerarySpotlight
+    AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
-from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, CITY_KEY_SUFFIX, unsplash, redis_itinerary, \
-    redis_city_description, \
-    CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, CITY_DESCRIPTION_USER_PROMPT, DAILY_EXPIRE, ITINERARY_USER_PROMPT, \
+from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, unsplash, redis_itinerary, \
+    CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
     ITINERARY_USER_EVENT_PROMPT, ITINERARY_SYSTEM_INSTRUCTIONS, ITINERARY_DAILY_PROMPT, \
     JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, MOST_SAVED_ITINERARIES_KEY
 from app.models import PaginatedResponse, Paginated, Collections, UnsplashImage
@@ -30,6 +29,14 @@ from app.utils import encode_city_name
 
 logger = logging.getLogger(__name__)
 
+
+def find_city_meta(city: str):
+    city_meta = mongo.find_one(Collections.CITY_METAS, {"name": encode_city_name(city)})
+
+    if not city_meta:
+        return None
+
+    return CityMeta(**city_meta)
 
 def exists_by_id(itinerary_id: str):
     return mongo.exists(Collections.USERS, {"_id": ObjectId(itinerary_id)})
@@ -380,11 +387,6 @@ def get_city_description_by_req(request: CityDescriptionRequest) -> CityDescript
     return get_city_description(request.name)
 
 def get_city_description(name: str) -> CityDescription:
-    city_key = f"{encode_city_name(name)}-{CITY_KEY_SUFFIX}"
-    if redis_city_description.get_client().exists(city_key):
-        city_description = json.loads(redis_city_description.get_client().get(city_key))
-        return CityDescription(**city_description)
-
     conversation = Conversation(CityDescription)
     conversation.add_message_from(CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS)
     conversation.add_message(ConversationRole.USER.value, CITY_DESCRIPTION_USER_PROMPT.format(city=name))
@@ -393,8 +395,6 @@ def get_city_description(name: str) -> CityDescription:
 
     if city_description is None:
         raise CityDescriptionNotFoundException("City description not found.")
-
-    redis_city_description.get_client().set(city_key, json.dumps(city_description.model_dump()), DAILY_EXPIRE)
 
     return city_description
 
@@ -464,26 +464,39 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
     if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
         raise DateNotValidException("start date must be greater or equal to today")
 
-    get_city_image(itinerary_request.city)
     request_id = mongo.insert_one(Collections.ITINERARY_REQUESTS, itinerary_request.model_dump()).inserted_id
     conversation = Conversation(AssistantItineraryResponse)
     conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
     conversation.add_message_from(initial_user_prompt)
 
     threading.Thread(target=generate_day_by_day,args=(conversation, request_id, trip_duration)).start()
+    threading.Thread(target=get_city_meta, args=itinerary_request.city).start()
 
     return request_id
 
-def get_city_image(city: str):
-    logger.info("getting city image for city %s", city)
-    if mongo.exists(Collections.IMAGES, {"city": encode_city_name(city)}):
-        logger.info("image already present for city %s!", city)
-        return
 
+def get_city_image(city: str) -> UnsplashImage:
+    logger.info("getting city image for city %s", city)
     response = unsplash.find_one(city)
-    city_image = UnsplashImage.from_unsplash(response, city)
-    mongo.insert_one(Collections.IMAGES, city_image.model_dump(exclude={"id"}))
     logger.info("successfully got image for city %s!", city)
+
+    return response
+
+def get_city_meta(name: str):
+    logger.info("getting city %s meta..", name)
+    city_meta = find_city_meta(name)
+
+    if not city_meta:
+        logger.info("no city meta found for city %s, getting them..", name)
+
+        city_image = get_city_image(name)
+        city_description = get_city_description(name)
+        city_meta = CityMeta.from_sources(city_image, city_description)
+        mongo.insert_one(Collections.CITY_METAS, city_meta.model_dump(exclude={"id"}))
+    else:
+        logger.info("city meta for city %s already present!", name)
+
+    logger.info("got city meta for city %s successfully!", name)
 
 def generate_itinerary_infos(itinerary_request: ItineraryRequest):
     trip_duration = (itinerary_request.end_date - itinerary_request.start_date).days + 1

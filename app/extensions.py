@@ -9,10 +9,8 @@ mail = Mail()
 
 # redis
 redis_auth = RedisWrapper(db=0)
-redis_city_description = RedisWrapper(db=1)
 redis_itinerary = RedisWrapper(db=2)
 DAILY_EXPIRE = 60 * 60 * 24
-CITY_KEY_SUFFIX = "itinerary-description"
 MOST_SAVED_ITINERARIES_KEY = "most-saved-itineraries"
 
 # mongodb

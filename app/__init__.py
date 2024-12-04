@@ -17,7 +17,7 @@ from app.blueprints.user.service import is_token_not_valid
 from app.config import Config
 from app.extensions import mail, scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, \
     JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES, JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER, JOB_NOTIFICATION_DOCS_REMINDER_HOUR, \
-    JOB_NOTIFICATION_DOCS_REMINDER_MINUTES, redis_auth, redis_city_description, mongo, assistant, redis_itinerary, \
+    JOB_NOTIFICATION_DOCS_REMINDER_MINUTES, redis_auth, mongo, assistant, redis_itinerary, \
     unsplash
 from app.response_wrapper import not_found_response, unauthorized_response, error_response
 
@@ -59,7 +59,6 @@ def init_extensions(app):
     mongo.init_app(app)
     unsplash.init_app(app)
     redis_auth.init_app(app)
-    redis_city_description.init_app(app)
     redis_itinerary.init_app(app)
     assistant.init_app(app)
     mail.init_app(app)

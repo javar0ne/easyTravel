@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, send_file, render_template
+from flask import request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from openai import APIStatusError
 from pydantic import ValidationError

@@ -4,14 +4,11 @@ from enum import Enum
 from pydantic import BaseModel, Field, computed_field
 from typing_extensions import Optional
 
-from app.encoders import PyObjectId
-from app.utils import encode_city_name
-
 
 class Collections(Enum):
     ADMIN_CONFIGS = "admin_configs"
     EVENTS = "events"
-    IMAGES = "images"
+    CITY_METAS = "city_metas"
     ITINERARIES = "itineraries"
     ITINERARY_METAS = "itinerary_metas"
     ITINERARY_REQUESTS = "itinerary_requests"
@@ -29,19 +26,9 @@ class UnsplashImageUrls(BaseModel):
     thumb: Optional[str] = None
     small_s3: Optional[str] = None
 
-class UnsplashSingleResponse(BaseModel):
+class UnsplashImage(BaseModel):
     urls: UnsplashImageUrls
     alt_description: Optional[str] = None
-
-class UnsplashImage(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    city: str
-    alt: Optional[str] = ""
-    urls: UnsplashImageUrls
-
-    @staticmethod
-    def from_unsplash(response: UnsplashSingleResponse, city: str):
-        return UnsplashImage(city=encode_city_name(city), alt=response.alt_description, urls=response.urls)
 
 class Coordinates(BaseModel):
     lat: float
