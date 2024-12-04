@@ -24,7 +24,7 @@ from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, CIT
     redis_city_description, \
     CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, CITY_DESCRIPTION_USER_PROMPT, DAILY_EXPIRE, ITINERARY_USER_PROMPT, \
     ITINERARY_USER_EVENT_PROMPT, ITINERARY_SYSTEM_INSTRUCTIONS, ITINERARY_DAILY_PROMPT, \
-    JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, MOST_SAVED_KEY
+    JOB_NOTIFICATION_DOCS_REMINDER_DAYS_BEFORE_START_DATE, MOST_SAVED_ITINERARIES_KEY
 from app.models import PaginatedResponse, Paginated, Collections
 from app.pdf import PdfItinerary
 
@@ -583,7 +583,7 @@ def handle_save_itinerary(user_id: str, itinerary_id: str):
     logger.info("itinerary %s saved for user %s!", itinerary_id, user_id)
 
 def get_most_saved():
-    most_saved = redis_itinerary.get_client().zrevrange(name=MOST_SAVED_KEY, start=0, end=5, withscores=True)
+    most_saved = redis_itinerary.get_client().zrevrange(name=MOST_SAVED_ITINERARIES_KEY, start=0, end=5, withscores=True)
     itinerary_ids = list(map(lambda x: x[0], most_saved))
     itineraries = mongo.find(
         Collections.ITINERARIES,
