@@ -35,7 +35,8 @@ class RedisWrapper:
             host=app.config['REDIS_HOST'],
             port=app.config['REDIS_PORT'],
             password=app.config['REDIS_PASSWORD'],
-            db=self.db
+            db=self.db,
+            decode_responses=True
         )
 
     def get_client(self) -> Redis:

@@ -259,14 +259,14 @@ class ItineraryMeta(BaseModel):
     saved_by: list[str] = []
     views: int = 0
 
-class ItinerarySpotlight(BaseModel):
+class SpotlightItinerary(BaseModel):
     city: str
     description: str
     interested_in: list[str]
     travelling_with: str
     budget: str
     saved_by: int
-    shared_with: list[str]
+    shared_with: Optional[list[str]] = []
     start_date: datetime
     end_date: datetime
     image: UnsplashImage

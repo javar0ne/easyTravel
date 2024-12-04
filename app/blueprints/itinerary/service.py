@@ -15,7 +15,7 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     Activity, Budget, TravellingWith, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
-    AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta
+    AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta, SpotlightItinerary
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
@@ -461,7 +461,7 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
     if not can_generate_itinerary():
         raise ItineraryGenerationDisabledException()
 
-    if itinerary_request.start_date < datetime.today().astimezone(timezone.utc):
+    if itinerary_request.start_date < datetime.today():
         raise DateNotValidException("start date must be greater or equal to today")
 
     request_id = mongo.insert_one(Collections.ITINERARY_REQUESTS, itinerary_request.model_dump()).inserted_id
@@ -470,7 +470,7 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
     conversation.add_message_from(initial_user_prompt)
 
     threading.Thread(target=generate_day_by_day,args=(conversation, request_id, trip_duration)).start()
-    threading.Thread(target=get_city_meta, args=itinerary_request.city).start()
+    threading.Thread(target=retrieve_city_meta, args={itinerary_request.city}).start()
 
     return request_id
 
@@ -482,7 +482,7 @@ def get_city_image(city: str) -> UnsplashImage:
 
     return response
 
-def get_city_meta(name: str):
+def retrieve_city_meta(name: str):
     logger.info("getting city %s meta..", name)
     city_meta = find_city_meta(name)
 
@@ -598,7 +598,7 @@ def handle_save_itinerary(user_id: str, itinerary_id: str):
 
 def get_most_saved():
     most_saved = redis_itinerary.get_client().zrevrange(name=MOST_SAVED_ITINERARIES_KEY, start=0, end=5, withscores=True)
-    itinerary_ids = list(map(lambda x: x[0], most_saved))
+    itinerary_ids = list(map(lambda x: ObjectId(str(x[0])), most_saved))
     itineraries = mongo.find(
         Collections.ITINERARIES,
         {"_id": {"$in": itinerary_ids}},
@@ -606,18 +606,25 @@ def get_most_saved():
     )
     spotlight_itineraries = []
 
-    for it in itineraries:
-        itinerary = Itinerary(**it)
-        itinerary_meta = get_itinerary_meta(str(itinerary.id))
-        city_description = get_city_description(itinerary.city)
-        # TODO: complete spotlight itinerary creation
-        #spotlight_itineraries.append(
-            # ItinerarySpotlight(
-            #     city=itinerary.city,
-            #     description=city_description,
-            #     interested_in=itinerary.interested_in,
-            #     travelling_with=itinerary.travelling_with,
-            #     budget=itinerary.budget,
-            #
-            # )
-        #)
+    counter = 0
+    for itinerary in itineraries:
+        saved_by = most_saved[counter]
+        city_meta = find_city_meta(itinerary.get("city"))
+        spotlight_itineraries.append(
+            SpotlightItinerary(
+                city=itinerary.get("city"),
+                description=city_meta.description,
+                interested_in=itinerary.get("interested_in"),
+                travelling_with=itinerary.get("travelling_with"),
+                budget=itinerary.get("budget"),
+                saved_by=int(saved_by[1]),
+                shared_with=itinerary.get("shared_with"),
+                start_date=itinerary.get("start_date"),
+                end_date=itinerary.get("end_date"),
+                image=city_meta.image
+            ).model_dump()
+        )
+
+        counter = counter + 1
+
+    return spotlight_itineraries
