@@ -606,13 +606,15 @@ def get_most_saved():
     )
     spotlight_itineraries = []
 
-    counter = 0
     for itinerary in itineraries:
+        logger.info(itinerary)
         saved_by = filter(lambda x: x[0] == str(itinerary.get("_id")), most_saved)
         city_meta = find_city_meta(itinerary.get("city"))
         spotlight_itineraries.append(
             SpotlightItinerary(
+                id=str(itinerary.get("_id")),
                 city=itinerary.get("city"),
+                country=city_meta.country,
                 description=city_meta.description,
                 interested_in=itinerary.get("interested_in"),
                 travelling_with=itinerary.get("travelling_with"),
@@ -624,8 +626,6 @@ def get_most_saved():
                 image=city_meta.image
             ).model_dump()
         )
-
-        counter = counter + 1
 
     spotlight_itineraries.sort(key=lambda x: x.get("saved_by"), reverse=True)
 

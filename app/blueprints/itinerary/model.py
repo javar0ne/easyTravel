@@ -260,7 +260,9 @@ class ItineraryMeta(BaseModel):
     views: int = 0
 
 class SpotlightItinerary(BaseModel):
+    id: str
     city: str
+    country: str
     description: str
     interested_in: list[str]
     travelling_with: str

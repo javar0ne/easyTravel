@@ -6,15 +6,59 @@ const URLS = {
 
 const ACCESS_TOKEN = "access_token";
 const REFRESH_TOKEN = "refresh_token";
+const REFRESH_TOKEN_TIME = 1000 * 60 * 13;
+let scheduled_refresh = null;
+
+
+function set_tokens(data) {
+    localStorage.setItem(ACCESS_TOKEN, data.response.access_token);
+    localStorage.setItem(REFRESH_TOKEN, data.response.refresh_token);
+
+    if(scheduled_refresh) clearTimeout(scheduled_refresh);
+
+    setTimeout(() => refresh_token(), REFRESH_TOKEN_TIME);
+}
 
 function get_access_token() {
     const access_token = localStorage.getItem(ACCESS_TOKEN);
 
     if(!access_token) {
-        go_to_dashboard();
+        go_to_login();
     }
 
     return access_token;
+}
+
+function get_refresh_token() {
+    const refresh_token = localStorage.getItem(REFRESH_TOKEN);
+
+    if(!refresh_token) {
+        go_to_login();
+    }
+
+    return refresh_token;
+}
+
+function refresh_token() {
+    fetch(
+        `${URLS.user}/refresh-token`,
+    {
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "refresh_token": get_refresh_token()
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok) go_to_login();
+
+        return response.json();
+    })
+    .then(set_tokens)
+    .catch(console.log)
 }
 
 function check_token_existence() {
@@ -39,12 +83,67 @@ function go_to_login() {
     window.location.href='/login';
 }
 
+function show_error_toast(message) {
+    $('#error_toast .toast-body').text(message);
+    bootstrap.Toast.getOrCreateInstance($('#error_toast')).show();
+}
+
+function temporary_error_toast() {
+    show_error_toast("There was a temporary error. Try again later!");
+}
+
+function credentials_error_toast() {
+    show_error_toast("Incorrect email or password!");
+}
+
+function decode_budget(budget) {
+    switch (budget) {
+        case "LOW": return "Low budget";
+        case "MEDIUM": return "Medium budget";
+        case "HIGH": return "High budget";
+        default: throw new Error("wrong budget value!");
+    }
+}
+
+function decode_travelling_with(travelling_with) {
+    switch (travelling_with) {
+        case "SOLO": return "Solo trip";
+        case "COUPLE": return "Couple trip";
+        case "FAMILY": return "Family trip";
+        case "FRIENDS": return "Friends trip";
+        default: throw new Error("wrong travelling with value!");
+    }
+}
+
+function decode_interested_in(activity) {
+    switch (activity) {
+        case "BEACH": return "Beaches";
+        case "CITY_SIGHTSEEING": return "City sightseeing";
+        case "OUTDOOR_ADVENTURES": return "Outdoor adventures";
+        case "FESTIVAL": return "Festival";
+        case "FOOD_EXPLORATION": return "Food exploration";
+        case "NIGHTLIFE": return "Nightlife";
+        case "SHOPPING": return "Shopping";
+        case "SPA_WELLNESS": return "Spa & Wellness";
+        default: throw new Error("wrong activity value!");
+    }
+}
+
+function decode_saved_by(saved_by) {
+    if(saved_by < 100) return saved_by;
+    else if(saved_by > 100 && saved_by <= 999) return "100+";
+    else if (saved_by > 1_000 && saved_by <= 9_999) return "1k+";
+    else if(data.saved_by > 10_000 && data.saved_by <= 99_999) return "10k+";
+    else if (data.saved_by > 100_000 && data.saved_by <= 999_999) return "100k+";
+
+    return "1M+";
+}
+
 function go_to_dashboard() {
     fetch(
         `${URLS.user}/dashboard`,
         {
             "headers": {
-                "Method": "GET",
                 "Authorization": `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
                 "Content-Type": "application/json"
             }
@@ -59,19 +158,6 @@ function go_to_dashboard() {
     })
     .then(data => window.location.href=data.response)
     .catch(console.log);
-}
-
-function show_error_toast(message) {
-    $('#error_toast .toast-body').text(message);
-    bootstrap.Toast.getOrCreateInstance($('#error_toast')).show();
-}
-
-function temporary_error_toast() {
-    show_error_toast("There was a temporary error. Try again later!");
-}
-
-function credentials_error_toast() {
-    show_error_toast("Incorrect email or password!");
 }
 
 function login() {
@@ -104,8 +190,7 @@ function login() {
             return data;
         })
         .then(data => {
-            localStorage.setItem(ACCESS_TOKEN, data.response.access_token);
-            localStorage.setItem(REFRESH_TOKEN, data.response.refresh_token);
+            set_tokens(data);
             go_to_dashboard();
         })
         .catch(console.log);
@@ -178,7 +263,7 @@ function get_traveler() {
     )
     .then(response => {
         if(!response.ok && response.status === 401) {
-            go_to_login();
+            //go_to_login();
         }
 
         return response.json();
@@ -198,14 +283,34 @@ function most_saved_itineraries() {
         }
     )
     .then(response => {
-        if(!response.ok && response.status === 401) {
-            go_to_login();
+        if(!response.ok) {
+            throw new Error("error while retrieving most saved itineraries!");
         }
 
         return response.json();
     })
     .then(data => {
-        //$("#top_itinerary_img").attr("src", data.response[1].image.urls.full);
+        handle_most_saved_itinerary(data.response[0]);
         console.log(data);
     });
+}
+
+function handle_most_saved_itinerary(data) {
+    $("#top_itinerary_country").text(data.country);
+    $("#top_itinerary_city").text(data.city);
+    $("#top_itinerary_description").text(data.description);
+    $("#top_itinerary_duration").text(`${data.duration} day${data.duration > 1 ? "s" : ""}`);
+    $("#top_itinerary_travelling_with").text(decode_travelling_with(data.travelling_with));
+    $("#top_itinerary_budget").text(decode_budget(data.budget));
+    $("#top_itinerary_saves").text(decode_saved_by(data.saved_by));
+    $("#top_itinerary_img").attr("src", data.image.urls.full);
+    $("#top_itinerary_img").attr("alt", data.image.alt_description);
+
+    data.interested_in.forEach((activity, idx) => {
+        $("#interested_in_container").append(
+            `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${idx === 0 ? "" : "ms-2"}">${decode_interested_in(activity)}</span>`
+        );
+    })
+
+    $("#top_itinerary_find_out").on("click", () => window.location.href=`/itinerary/detail/${data.id}`)
 }
