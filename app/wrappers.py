@@ -20,7 +20,7 @@ class UnsplashWrapper:
 
     def find_one(self, city: str) -> UnsplashImage:
         url = f"{self.base_url}/search/photos?query={city}&orientation=landscape&page=1&per_page=1"
-        response = requests.get(url, headers=self.build_headers(), verify=False)
+        response = requests.get(url, headers=self.build_headers())
 
         if response.status_code == 200:
             return UnsplashImage(**response.json().get("results")[0])

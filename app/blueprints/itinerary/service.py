@@ -489,7 +489,7 @@ def retrieve_city_meta(name: str):
     if not city_meta:
         logger.info("no city meta found for city %s, getting them..", name)
 
-        city_image = get_city_image(name)
+        city_image = get_city_image(encode_city_name(name))
         city_description = get_city_description(name)
         city_meta = CityMeta.from_sources(city_image, city_description)
         mongo.insert_one(Collections.CITY_METAS, city_meta.model_dump(exclude={"id"}))
@@ -597,8 +597,8 @@ def handle_save_itinerary(user_id: str, itinerary_id: str):
     logger.info("itinerary %s saved for user %s!", itinerary_id, user_id)
 
 def get_most_saved():
-    most_saved = redis_itinerary.get_client().zrevrange(name=MOST_SAVED_ITINERARIES_KEY, start=0, end=5, withscores=True)
-    itinerary_ids = list(map(lambda x: ObjectId(str(x[0])), most_saved))
+    most_saved = redis_itinerary.get_client().zrevrange(name=MOST_SAVED_ITINERARIES_KEY, start=0, end=4, withscores=True)
+    itinerary_ids = list(map(lambda x: ObjectId(x[0]), most_saved))
     itineraries = mongo.find(
         Collections.ITINERARIES,
         {"_id": {"$in": itinerary_ids}},
@@ -608,7 +608,7 @@ def get_most_saved():
 
     counter = 0
     for itinerary in itineraries:
-        saved_by = most_saved[counter]
+        saved_by = filter(lambda x: x[0] == str(itinerary.get("_id")), most_saved)
         city_meta = find_city_meta(itinerary.get("city"))
         spotlight_itineraries.append(
             SpotlightItinerary(
@@ -617,7 +617,7 @@ def get_most_saved():
                 interested_in=itinerary.get("interested_in"),
                 travelling_with=itinerary.get("travelling_with"),
                 budget=itinerary.get("budget"),
-                saved_by=int(saved_by[1]),
+                saved_by=int(next(saved_by)[1]),
                 shared_with=itinerary.get("shared_with"),
                 start_date=itinerary.get("start_date"),
                 end_date=itinerary.get("end_date"),
@@ -626,5 +626,7 @@ def get_most_saved():
         )
 
         counter = counter + 1
+
+    spotlight_itineraries.sort(key=lambda x: x.get("saved_by"), reverse=True)
 
     return spotlight_itineraries

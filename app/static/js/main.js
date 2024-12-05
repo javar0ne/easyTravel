@@ -1,7 +1,7 @@
 const URLS = {
     "user": "/v1/user",
-    "traveler": "/v1/traveler"
-
+    "traveler": "/v1/traveler",
+    "itinerary": "/v1/itinerary"
 }
 
 const ACCESS_TOKEN = "access_token";
@@ -187,4 +187,25 @@ function get_traveler() {
         $("#first_name").text(data.response.first_name)
     })
     .catch(console.log);
+}
+function most_saved_itineraries() {
+    const access_token = get_access_token();
+    fetch(
+        `${URLS.itinerary}/most-saved`,
+        {
+            "method": "GET",
+            "headers": {"Authorization": `Bearer ${access_token}`}
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            go_to_login();
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        //$("#top_itinerary_img").attr("src", data.response[1].image.urls.full);
+        console.log(data);
+    });
 }
