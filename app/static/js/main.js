@@ -273,9 +273,9 @@ function get_traveler() {
     })
     .catch(console.log);
 }
-function most_saved_itineraries() {
+function get_most_saved_itineraries() {
     const access_token = get_access_token();
-    fetch(
+    return fetch(
         `${URLS.itinerary}/most-saved`,
         {
             "method": "GET",
@@ -291,6 +291,7 @@ function most_saved_itineraries() {
     })
     .then(data => {
         handle_most_saved_itinerary(data.response[0]);
+        handle_itinerary_carousel(data.response);
         console.log(data);
     });
 }
@@ -313,4 +314,64 @@ function handle_most_saved_itinerary(data) {
     })
 
     $("#top_itinerary_find_out").on("click", () => window.location.href=`/itinerary/detail/${data.id}`)
+}
+
+function handle_itinerary_carousel(data) {
+    data.forEach((itinerary, idx) => {
+        if(idx > 0) {
+            $('#itinerary_carousel_container').append(
+                `<div id="itinerary_carousel_${idx}" class="carousel-item ${idx === 1 ? "active": ""} pb-1" data-title="${itinerary.country}, ${itinerary.city}">
+                    <img class="d-none d-2xl-block w-100 object-fit-cover" height="290"
+                         src="${itinerary.image.urls.full}" alt="${itinerary.image.alt_description}"/>
+                    <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="215"
+                         src="${itinerary.image.urls.full}" alt="${itinerary.image.alt_description}"/>
+                    <img class="d-block d-xxl-none w-100 object-fit-cover" height="390"
+                         src="${itinerary.image.urls.full}" alt="${itinerary.image.alt_description}"/>
+                    <div class="d-none d-sm-block">
+                        <div class="row mt-2">
+                            <div class="col-4">
+                                <h2 class="d-none d-sm-block d-md-none d-xxl-block fs-32">${itinerary.country}, ${itinerary.city}</h2>
+                                <h2 class="d-none d-md-block d-xxl-none fs-40">${itinerary.country}, ${itinerary.city}</h2>
+                            </div>
+                            <div class="col-8">
+                                <p class="d-none d-sm-block d-md-none d-xxl-block fs-14 m-0">${itinerary.description}</p>
+                                <p class="d-none d-md-block d-xxl-none m-0">${itinerary.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-block d-sm-none">
+                        <div class="row mt-2">
+                            <div class="col">
+                                <h2 class="fs-32">${itinerary.country}, ${itinerary.city}</h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <p class="fs-14 m-0">${itinerary.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div id="itinerary_carousel_activity_2xl_${idx}" class="d-none d-sm-block d-xl-none d-2xl-block">
+                            </div>
+                            <div id="itinerary_carousel_activity_xxl_${idx}" class="d-none d-xxl-block d-2xl-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>`
+            );
+
+            itinerary.interested_in.forEach(activity => {
+                const decoded_activity = decode_interested_in(activity);
+                $('#itinerary_carousel_activity_2xl_' + idx).append(
+                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1">${decoded_activity}</span>`
+                );
+                $('#itinerary_carousel_activity_xxl_' + idx).append(
+                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14">${decoded_activity}</span>`
+                );
+
+            })
+        }
+    });
 }

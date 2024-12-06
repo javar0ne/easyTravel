@@ -14,35 +14,38 @@
 {% endblock %}
 {% block script %}
     <script>
-      $(document).ready(function () {
-        const $carousel = $('#itineraryCarousel');
-        const $currentSlideInfo = $('#currentSlideInfo');
-        const $nextSlideTitle = $('#nextSlideTitle');
-        const $slides = $carousel.find('.carousel-item');
-        const totalSlides = $slides.length;
+        $(document).ready(function () {
+            get_traveler();
+            get_most_saved_itineraries()
+                .then(() => {
 
-        function updateSlideInfo(event) {
-          const currentIndex = event.from;
-          const nextIndex = event.to;
-          const nextTitle = $slides.eq((nextIndex + 1) % totalSlides).data('title');
+                    const $carousel = $('#itineraryCarousel');
+                    const $currentSlideInfo = $('#currentSlideInfo');
+                    const $nextSlideTitle = $('#nextSlideTitle');
+                    const $slides = $carousel.find('.carousel-item');
+                    const totalSlides = $slides.length;
 
-          $currentSlideInfo.text(`${nextIndex + 1} / ${totalSlides}`);
-          $nextSlideTitle.text(`Next: ${nextTitle}`);
-        }
+                    function updateSlideInfo(event) {
+                        const currentIndex = event.from;
+                        const nextIndex = event.to;
+                        const nextTitle = $slides.eq((nextIndex + 1) % totalSlides).data('title');
 
-        $carousel.on('slide.bs.carousel', function (event) {
-          updateSlideInfo(event);
+                        $currentSlideInfo.text(`${nextIndex + 1} / ${totalSlides}`);
+                        $nextSlideTitle.text(`Next: ${nextTitle}`);
+                    }
+
+                    $carousel.on('slide.bs.carousel', function (event) {
+                        updateSlideInfo(event);
+                    });
+
+                    // Initialize with first slide's next info
+                    const nextTitle = $slides.eq(1 % totalSlides).data('title');
+                    $currentSlideInfo.text(`1 / ${totalSlides}`);
+                    $nextSlideTitle.text(`Next: ${nextTitle}`);
+                });
+
         });
 
-        // Initialize with first slide's next info
-        const nextTitle = $slides.eq(1 % totalSlides).data('title');
-        $currentSlideInfo.text(`1 / ${totalSlides}`);
-        $nextSlideTitle.text(`Next: ${nextTitle}`);
-
-        get_traveler();
-        most_saved_itineraries();
-      });
-
-      $('#create_itinerary').on("click", () => window.location.href='/itinerary/generate')
+        $('#create_itinerary').on("click", () => window.location.href = '/itinerary/generate')
     </script>
 {% endblock %}
