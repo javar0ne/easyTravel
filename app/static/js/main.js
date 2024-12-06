@@ -365,10 +365,10 @@ function handle_itinerary_carousel(data) {
             itinerary.interested_in.forEach(activity => {
                 const decoded_activity = decode_interested_in(activity);
                 $('#itinerary_carousel_activity_2xl_' + idx).append(
-                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1">${decoded_activity}</span>`
+                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1">${decoded_activity}</span>&nbsp;`
                 );
                 $('#itinerary_carousel_activity_xxl_' + idx).append(
-                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14">${decoded_activity}</span>`
+                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14">${decoded_activity}</span>&nbsp;`
                 );
 
             })
