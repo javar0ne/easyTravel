@@ -317,10 +317,10 @@ function handle_most_saved_itinerary(data) {
 }
 
 function handle_itinerary_carousel(data) {
-    data.forEach((itinerary, idx) => {
-        if(idx > 0) {
+    data.forEach((itinerary, itinerary_num) => {
+        if(itinerary_num > 0) {
             $('#itinerary_carousel_container').append(
-                `<div id="itinerary_carousel_${idx}" class="carousel-item ${idx === 1 ? "active": ""} pb-1" data-title="${itinerary.country}, ${itinerary.city}">
+                `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 1 ? "active": ""} pb-1" data-title="${itinerary.country}, ${itinerary.city}">
                     <img class="d-none d-2xl-block w-100 object-fit-cover" height="290"
                          src="${itinerary.image.urls.full}" alt="${itinerary.image.alt_description}"/>
                     <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="215"
@@ -353,22 +353,22 @@ function handle_itinerary_carousel(data) {
                     </div>
                     <div class="row mt-2">
                         <div class="col-12">
-                            <div id="itinerary_carousel_activity_2xl_${idx}" class="d-none d-sm-block d-xl-none d-2xl-block">
+                            <div id="itinerary_carousel_activity_2xl_${itinerary_num}" class="d-none d-sm-block d-xl-none d-2xl-block">
                             </div>
-                            <div id="itinerary_carousel_activity_xxl_${idx}" class="d-none d-xxl-block d-2xl-none">
+                            <div id="itinerary_carousel_activity_xxl_${itinerary_num}" class="d-none d-xxl-block d-2xl-none">
                             </div>
                         </div>
                     </div>
                 </div>`
             );
 
-            itinerary.interested_in.forEach(activity => {
+            itinerary.interested_in.forEach((activity, activity_num) => {
                 const decoded_activity = decode_interested_in(activity);
-                $('#itinerary_carousel_activity_2xl_' + idx).append(
-                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1">${decoded_activity}</span>&nbsp;`
+                $('#itinerary_carousel_activity_2xl_' + itinerary_num).append(
+                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${activity_num > 0 ? "ms-1" : ""}">${decoded_activity}</span>`
                 );
-                $('#itinerary_carousel_activity_xxl_' + idx).append(
-                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14">${decoded_activity}</span>&nbsp;`
+                $('#itinerary_carousel_activity_xxl_' + itinerary_num).append(
+                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14 ${activity_num > 0 ? "ms-1" : ""}">${decoded_activity}</span>`
                 );
 
             })
