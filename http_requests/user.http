@@ -17,12 +17,8 @@ Authorization: Bearer {{bearer_token}}
 }
 
 ### Refresh token
-POST http://localhost:5000/v1/user/refresh-token
-Content-Type: application/json
-
-{
-  "refresh_token": "{{refresh_token}}"
-}
+POST http://localhost/v1/user/refresh-token
+Authorization: Bearer {{refresh_token}}
 
 ### Forgot password
 POST http://localhost:5000/v1/user/forgot-password
