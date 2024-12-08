@@ -1,0 +1,82 @@
+{% macro itinerary_upcoming_card(title,date_start,date_end,countdown,alt,img,budget_img,people_img) %}
+<div class="card border-0 shadow mb-3 w-full">
+  <div class="row g-0">
+    <div class="col-12 col-sm-6">
+      <div class="card-body">
+          <div class="row align-items-center">
+              <div class="col">
+                  <h5 class="d-none d-xxl-block card-title fs-36 fw-bold">{{ title }}</h5>
+                  <h5 class="d-none d-xl-block d-xxl-none card-title fs-28 fw-bold">{{ title }}</h5>
+                  <h5 class="d-none d-md-block d-xl-none card-title fs-24 fw-bold">{{ title }}</h5>
+                  <h5 class="d-block d-md-none card-title fs-20 fw-bold">{{ title }}</h5>
+              </div>
+              <div class="d-none d-lg-block col">
+                  <div class="d-flex justify-content-end">
+                      <span class="d-none d-xxl-block badge text-bg-dark lh-lg px-3 fs-14">{{ countdown }}</span>
+                      <span class="d-none d-lg-block d-xxl-none badge text-bg-dark lh-lg px-3 fs-12">{{ countdown }}</span>
+                  </div>
+              </div>
+          </div>
+          <p class="d-none d-lg-block card-text fs-14">{{ date_start }} - {{ date_end }}</p>
+          <p class="d-block d-lg-none card-text fs-12">{{ date_start }} - {{ date_end }}</p>
+          <div class="row">
+              <div class="col-12">
+                  <div class="d-flex mb-2 mb-xl-0">
+                      <img src="../../../static/svg/calendar.svg" alt="calendar">
+                      <span class="d-none d-xxl-block fs-20 px-2 py-1">5 days</span>
+                      <span class="d-none d-xl-block d-xxl-none fs-18 px-2 py-1">5 days</span>
+                      <span class="d-none d-lg-block d-xl-none fs-14 px-2 py-1">5 days</span>
+                      <span class="d-block d-lg-none fs-12 px-2 py-1">5 days</span>
+                  </div>
+                  <div class="d-flex mb-2 mb-xl-0">
+                      <img src="../../../static/svg/{{ people_img }}.svg" alt="people">
+                      <span class="d-none d-xxl-block fs-20 px-2 py-1">Couple's itinerary</span>
+                      <span class="d-none d-xl-block d-xxl-none fs-18 px-2 py-1">Couple's itinerary</span>
+                      <span class="d-none d-lg-block d-xl-none fs-14 px-2 py-1">Couple's itinerary</span>
+                      <span class="d-block d-lg-none fs-12 px-2 py-1">Couple's itinerary</span>
+                  </div>
+                  <div class="d-flex mb-2 mb-xl-0">
+                      <img src="../../../static/svg/{{ budget_img }}.svg" alt="budget">
+                      <span class="d-none d-xxl-block fs-20 px-2 py-1">Low budget</span>
+                      <span class="d-none d-xl-block d-xxl-none fs-18 px-2 py-1">Low budget</span>
+                      <span class="d-none d-lg-block d-xl-none fs-14 px-2 py-1">Low budget</span>
+                      <span class="d-block d-lg-none fs-12 px-2 py-1">Low budget</span>
+                  </div>
+              </div>
+          </div>
+          <div class="row mt-xl-4">
+              <div class="col-12 d-none d-xxl-block">
+                  <span class="bg-white border border-1 border-black rounded-pill px-2 py-1">Beaches</span>
+                  <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2">Outdoor adventures</span>
+                  <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2">Nightlife</span>
+              </div>
+              <div class="col-12 d-none d-xl-block d-xxl-none">
+                  <span class="bg-white border border-1 border-black rounded-pill fs-14 px-2 py-1">Beaches</span>
+                  <span class="bg-white border border-1 border-black rounded-pill fs-14 px-2 py-1 ms-2">Outdoor adventures</span>
+                  <span class="bg-white border border-1 border-black rounded-pill fs-14 px-2 py-1 ms-2">Nightlife</span>
+              </div>
+          </div>
+          <div class="d-none d-2xl-block">
+              <div class="d-flex justify-content-end mt-3">
+                  <button class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+              </div>
+          </div>
+          <div class="d-none d-md-block d-2xl-none">
+              <div class="d-flex justify-content-end mt-2 mt-xl-4 mt-xxl-4">
+                  <button class="d-none d-xxl-block px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                  <button class="d-none d-xl-block d-xxl-none px-5 py-1 fs-18 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                  <button class="d-none d-lg-block d-xl-none px-5 py-1 fs-16 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                  <button class="d-block d-lg-none px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+              </div>
+          </div>
+          <div class="d-block d-md-none">
+              <div class="d-flex justify-content-center mt-2 mt-xl-4 mt-xxl-3">
+                  <button class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div class="col-6 rounded-end" style="background-image: url('{{ img }}.jpg'); background-size: cover; background-position: center;"></div>
+  </div>
+</div>
+{% endmacro %}
