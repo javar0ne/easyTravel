@@ -1,0 +1,37 @@
+{% macro itinerary_stage(number,title,time,description) %}
+<div class="row gap-0 border border-black">
+    <div class="col-12 p-2">
+        <div class="row">
+            <div class="col">
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="bg-black px-3 py-1">
+                        <span class="fw-bold text-white">{{ number }}</span>
+                    </div>
+                    <span class="fw-medium">{{ title }}</span>
+                </div>
+            </div>
+            <div class="d-none d-xl-block col">
+                <div class="d-flex justify-content-end">
+                    <img src="../../../static/svg/clock.svg" alt="clock">
+                    <span class="fs-12 ms-1">{{ time }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-12">
+                <span class="text-muted fs-14">
+                    {{ description }}
+                </span>
+            </div>
+        </div>
+        <div class="d-block d-xl-none">
+            <div class="col">
+                <div class="d-flex justify-content-end">
+                    <img src="../../../static/svg/clock.svg" alt="clock">
+                    <span class="fs-12 ms-1">{{ time }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
