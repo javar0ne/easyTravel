@@ -12,7 +12,6 @@ const REFRESH_TOKEN_TIME = 1000 * 60 * 13;
 let scheduled_refresh = null;
 
 
-
 function set_tokens(data) {
     localStorage.setItem(ACCESS_TOKEN, data.response.access_token);
     localStorage.setItem(REFRESH_TOKEN, data.response.refresh_token);
@@ -408,4 +407,90 @@ function handle_itinerary_carousel(data) {
             });
         }
     });
+}
+
+function get_itinerary_by_activity(activity, activity_selector) {
+    fetch(
+        `${URLS.itinerary}/search`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "interested_in": [`${activity}`]
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok) {
+            throw new Error("error while retrieving itineraries by activity!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        data.response.content.forEach((itinerary, num) => {
+            const itinerary_html = `
+                <div class="card border border-0 rounded-0 mx-auto" role="button" style="width: 17rem;">
+                  <img class="card-img-top rounded-0" src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}">
+                  <div class="card-body px-1 py-2 rounded-0">
+                    <h5 class="card-title fs-24">${itinerary.country}, <span class="fw-bold fs-24">${itinerary.city}</span></h5>
+                    <p class="card-text">${itinerary.description}</p>
+                    <div class="row">
+                        <div id="${activity_selector}-activities-${num}" class="col-md-12"></div>
+                    </div>
+                  </div>
+                </div>
+            `;
+
+
+            $(`#${activity_selector}-section #activity_itinerary_carousel`).append(
+                `
+                    <div class="carousel-item ${num === 0 ? "active" : ""}">
+                        <div class="d-none d-2xl-block">
+                            <div class="row justify-content-around">
+                                <div class="col-md-2">${itinerary_html}</div>
+                            </div>
+                        </div>
+                        <div class="d-none d-xxl-block d-2xl-none">
+                            <div class="row justify-content-around">
+                                <div class="col-md-3">${itinerary_html}</div>
+                            </div>
+                        </div>
+                        <div class="d-none d-lg-block d-xxl-none">
+                            <div class="row justify-content-around">
+                                <div class="col-md-4">${itinerary_html}</div>
+                            </div>
+                        </div>
+                        <div class="d-none d-md-block d-lg-none">
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">${itinerary_html}</div>
+                            </div>
+                        </div>
+                        <div class="d-block d-md-none">
+                            <div class="row justify-content-center">
+                                <div class="col-12">${itinerary_html}</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            );
+
+            itinerary.interested_in.forEach((interested_in) => {
+                $(`#${activity_selector}-activities-${num}`).each(function() {
+                    $(this).append(
+                        `
+                            <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">${decode_interested_in(interested_in)}</span>
+                        `
+                    )
+                })
+            })
+        });
+    })
+}
+
+function get_itinerary_by_activities() {
+    get_itinerary_by_activity("OUTDOOR_ADVENTURES", "outdoor-adventures");
 }

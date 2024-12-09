@@ -100,6 +100,23 @@ class ItinerarySearch(Paginated):
 
         return self
 
+class ItinerarySearchResponse(BaseModel):
+    id: str
+    city: str
+    country: str
+    description: str
+    interested_in: list[str]
+    travelling_with: str
+    budget: str
+    start_date: datetime
+    end_date: datetime
+    image: UnsplashImage
+
+    @computed_field
+    @property
+    def duration(self) -> int:
+        return (self.end_date - self.start_date).days + 1
+
 
 class DuplicateRequest(BaseModel):
     id: PyObjectId
