@@ -1,254 +1,84 @@
-<div class="d-none d-2xl-block">
-    <div class="row">
-        <div class="col-md-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2 class="fs-40">Great Britain, London</h2>
-                    <p>London is a vibrant and cosmopolitan city, where history and modernity intertwine. From majestic monuments like Big Ben and Tower Bridge, to the trendy neighborhoods of Shoreditch and Notting Hill.</p>
-                </div>
-            </div>
-            <div class="row mb-2"><div class="col-md-12"><span class="bg-black text-white fs-20 px-2 py-1">5 giorni</span></div></div>
-            <div class="row mb-2"><div class="col-md-12"><span class="bg-black text-white fs-20 px-2 py-1">Viaggio di coppia</span></div></div>
-            <div class="row"><div class="col-md-12"><span class="bg-black text-white fs-20 px-2 py-1">Budget basso</span></div></div>
-            <div class="row mt-4">
-                <div class="col-md-6 border border-start-0 border-top-0 border-bottom-0 border-black">
-                    <img class="rounded-circle z-3 position-absolute" width="50" height="50" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-2 position-absolute ms-4" width="50" height="50" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-1 position-absolute ms-9" width="50" height="50" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-0 position-absolute ms-14" width="50" height="50" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                </div>
-                <div class="col-md-6">
-                    <p class="my-auto">10k travelers have already duplicated this itinerary</p>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1">Beaches</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2">Outdoor adventures</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2">Nightlife</span>
-                </div>
-            </div>
-            <div class="row mt-5">
-                <div class="col-md-12">
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-7">
-            <img class="w-100 h-100 object-fit-cover" src="https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image-spotlight">
-        </div>
+{% macro itinerary_spotlight(title,description,days,people,budget,duplicated,activities,img,alt) %}
+<div class="row">
+    <div class="d-block d-md-none col-12">
+        <img class="w-100 h-100 object-fit-cover" src="{{ img }}" alt="{{ img }}">
     </div>
 </div>
-<div class="d-none d-xxl-block d-2xl-none">
-    <div class="row">
-        <div class="col-md-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2 class="fs-32">Great Britain, London</h2>
-                    <p class="fs-14">London is a vibrant and cosmopolitan city, where history and modernity intertwine. From majestic monuments like Big Ben and Tower Bridge, to the trendy neighborhoods of Shoreditch and Notting Hill.</p>
-                </div>
-            </div>
-            <div class="row mb-2"><div class="col-md-12"><span class="bg-black text-white px-2 py-1">5 giorni</span></div></div>
-            <div class="row mb-2"><div class="col-md-12"><span class="bg-black text-white px-2 py-1">Viaggio di coppia</span></div></div>
-            <div class="row"><div class="col-md-12"><span class="bg-black text-white px-2 py-1">Budget basso</span></div></div>
-            <div class="row mt-4">
-                <div class="col-md-6 border border-start-0 border-top-0 border-bottom-0 border-black">
-                    <img class="rounded-circle z-3 position-absolute" width="40" height="40" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-2 position-absolute ms-4" width="40" height="40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-1 position-absolute ms-9" width="40" height="40" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-0 position-absolute ms-14" width="40" height="40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                </div>
-                <div class="col-md-6">
-                    <p class="my-auto fs-14">10k travelers have already duplicated this itinerary</p>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14">Beaches</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2 fs-14">Outdoor adventures</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2 fs-14">Nightlife</span>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
-                    </div>
-                </div>
+<div class="row">
+    <div class="col-12 col-md-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="d-none d-xl-block d-xxl-none fs-42">{{ title }}</h2>
+                <h2 class="d-none d-sm-block d-md-none d-2xl-block fs-40">{{ title }}</h2>
+                <h2 class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none fs-32">{{ title }}</h2>
+                <h2 class="d-block d-sm-none fs-26">{{ title }}</h2>
+                <h2 class="d-none d-md-block d-lg-none fs-24">{{ title }}</h2>
+                <p class="d-none d-xl-block d-xxl-none fs-20">{{ description }}</p>
+                <p class="d-none d-sm-block d-md-none d-2xl-block">{{ description }}</p>
+                <p class="d-block d-sm-none d-lg-block d-xl-none d-xxl-block d-2xl-none fs-14">{{ description }}</p>
+                <p class="d-none d-md-block d-lg-none fs-12">{{ description }}</p>
             </div>
         </div>
-        <div class="col-md-7">
-            <img class="w-100 h-100" src="https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image-spotlight">
+        <div class="row mb-2 mb-md-0 mb-lg-2">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col-12">
+                <span class="bg-black text-white px-2 py-1 fs-20">{{ days }}</span></div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col-12">
+                <span class="bg-black text-white px-2 py-1">{{ days }}</span></div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col-12">
+                <span class="bg-black text-white px-2 py-1 fs-12">{{ days }}</span></div>
         </div>
-    </div>
-</div>
-<div class="d-none d-xl-block d-xxl-none">
-    <div class="row">
-        <div class="col-md-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2 class="fs-42">Great Britain, London</h2>
-                    <p class="fs-20">London is a vibrant and cosmopolitan city, where history and modernity intertwine. From majestic monuments like Big Ben and Tower Bridge, to the trendy neighborhoods of Shoreditch and Notting Hill.</p>
-                </div>
-            </div>
-            <div class="row mb-2"><div class="col-md-12"><span class="bg-black text-white fs-20 px-2 py-1">5 giorni</span></div></div>
-            <div class="row mb-2"><div class="col-md-12"><span class="bg-black text-white fs-20 px-2 py-1">Viaggio di coppia</span></div></div>
-            <div class="row"><div class="col-md-12"><span class="bg-black text-white fs-20 px-2 py-1">Budget basso</span></div></div>
-            <div class="row mt-4">
-                <div class="col-md-6 border border-start-0 border-top-0 border-bottom-0 border-black">
-                    <img class="rounded-circle z-3 position-absolute" width="50" height="50" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-2 position-absolute ms-4" width="50" height="50" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-1 position-absolute ms-9" width="50" height="50" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-0 position-absolute ms-14" width="50" height="50" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                </div>
-                <div class="col-md-6">
-                    <p class="my-auto">10k travelers have already duplicated this itinerary</p>
-                </div>
-            </div>
-            <div class="row mt-5">
-                <div class="col-md-12">
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1">Beaches</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2">Outdoor adventures</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2">Nightlife</span>
-                </div>
-            </div>
-            <div class="row mt-5">
-                <div class="col-md-12">
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
-                    </div>
-                </div>
-            </div>
+        <div class="row mb-2 mb-md-1 mb-lg-2">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col-12">
+                <span class="bg-black text-white px-2 py-1 fs-20">{{ people }}</span></div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col-12">
+                <span class="bg-black text-white px-2 py-1">{{ people }}</span></div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col-12">
+                <span class="bg-black text-white px-2 py-1 fs-12">{{ people }}</span></div>
         </div>
-        <div class="col-md-7">
-            <img class="w-100 h-100 object-fit-cover" src="https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image-spotlight">
+        <div class="row mb-2 mb-md-1 mb-lg-2">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col-12">
+                <span class="bg-black text-white px-2 py-1 fs-20">{{ budget }}</span></div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col-12">
+                <span class="bg-black text-white px-2 py-1">{{ budget }}</span></div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col-12">
+                <span class="bg-black text-white px-2 py-1 fs-12">{{ budget }}</span></div>
         </div>
-    </div>
-</div>
-<div class="d-none d-lg-block d-xl-none">
-    <div class="row">
-        <div class="col-md-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2 class="fs-32">Great Britain, London</h2>
-                    <p class="fs-14">London is a vibrant and cosmopolitan city, where history and modernity intertwine. From majestic monuments like Big Ben and Tower Bridge, to the trendy neighborhoods of Shoreditch and Notting Hill.</p>
-                </div>
+        <div class="row mt-sm-4 mt-md-2 mt-lg-4">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col">
+                <p class="my-auto">{{ duplicated }}</p></div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col">
+                <p class="my-auto fs-14">{{ duplicated }}</p></div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col">
+                <p class="my-auto fs-12">{{ duplicated }}</p></div>
+        </div>
+        <div class="row mt-3 mt-sm-4 mt-md-3 mt-lg-4 mt-xl-5 mt-xxl-4">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col-12">
+                {% for activity in activities %}
+                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1">{{ activity }}</span>
+                {% endfor %}
             </div>
-            <div class="row mb-2"><div class="col-md-12"><span class="bg-black text-white px-2 py-1">5 giorni</span></div></div>
-            <div class="row mb-2"><div class="col-md-12"><span class="bg-black text-white px-2 py-1">Viaggio di coppia</span></div></div>
-            <div class="row"><div class="col-md-12"><span class="bg-black text-white px-2 py-1">Budget basso</span></div></div>
-            <div class="row mt-4">
-                <div class="col-md-6 border border-start-0 border-top-0 border-bottom-0 border-black">
-                    <img class="rounded-circle z-3 position-absolute" width="40" height="40" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-2 position-absolute ms-4" width="40" height="40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-1 position-absolute ms-9" width="40" height="40" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-0 position-absolute ms-14" width="40" height="40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                </div>
-                <div class="col-md-6">
-                    <p class="my-auto fs-14">10k travelers have already duplicated this itinerary</p>
-                </div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col-12">
+                {% for activity in activities %}
+                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14">{{ activity }}</span>
+                {% endfor %}
             </div>
-            <div class="row mt-4">
-                <div class="col-md-12">
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14">Beaches</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2 fs-14">Outdoor adventures</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2 fs-14">Nightlife</span>
-                </div>
-            </div>
-            <div class="row mt-17">
-                <div class="col-md-12">
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
-                    </div>
-                </div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col-12">
+                {% for activity in activities %}
+                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-12">{{ activity }}</span>
+                {% endfor %}
             </div>
         </div>
-        <div class="col-md-7">
-            <img class="w-100 h-100" src="https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image-spotlight">
-        </div>
-    </div>
-</div>
-<div class="d-none d-md-block d-lg-none">
-    <div class="row">
-        <div class="col-md-5">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2 class="fs-24">Great Britain, London</h2>
-                    <p class="fs-12">London is a vibrant and cosmopolitan city, where history and modernity intertwine. From majestic monuments like Big Ben and Tower Bridge, to the trendy neighborhoods of Shoreditch and Notting Hill.</p>
-                </div>
-                <div class="col-md-12"><span class="bg-black text-white px-2 py-1 fs-12">5 giorni</span></div>
-                <div class="col-md-12 mb-1"><span class="bg-black text-white px-2 py-1 fs-12">Viaggio di coppia</span></div>
-                <div class="col-md-12 mb-1"><span class="bg-black text-white px-2 py-1 fs-12">Budget basso</span></div>
-                <div class="row mt-2">
-                    <div class="col-md-6 border border-start-0 border-top-0 border-bottom-0 border-black">
-                        <img class="rounded-circle z-3 position-absolute" width="40" height="40" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                        <img class="rounded-circle z-2 position-absolute ms-4" width="40" height="40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                        <img class="rounded-circle z-1 position-absolute ms-9" width="40" height="40" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                        <img class="rounded-circle z-0 position-absolute ms-14" width="40" height="40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="my-auto fs-12">10k travelers have already duplicated this itinerary</p>
-                    </div>
-                </div>
-                <div class="col-md-12 mt-3">
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-12">Beaches</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2 fs-12">Outdoor adventures</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2 fs-12">Nightlife</span>
-                </div>
-                <div class="col-md-12 mt-11">
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-7">
-            <img class="w-100 h-100 object-fit-cover" src="https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image-spotlight">
-        </div>
-    </div>
-</div>
-<div class="d-none d-sm-block d-md-none">
-    <div class="row">
-        <div class="col-md-12">
-            <img class="w-100 h-100 object-fit-cover" src="https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image-spotlight">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="row">
+        <div class="d-none d-2xl-block">
+            <div class="row mt-12">
                 <div class="col-12">
-                    <h2 class="fs-40">Great Britain, London</h2>
-                    <p>London is a vibrant and cosmopolitan city, where history and modernity intertwine. From majestic monuments like Big Ben and Tower Bridge, to the trendy neighborhoods of Shoreditch and Notting Hill.</p>
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
+                    </div>
                 </div>
             </div>
-            <div class="row mb-2">
-                <div class="col-12">
-                    <span class="bg-black text-white fs-20 px-2 py-1">5 giorni</span>
-                    <span class="bg-black text-white fs-20 px-2 py-1">Viaggio di coppia</span>
-                    <span class="bg-black text-white fs-20 px-2 py-1">Budget basso</span>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-6 border border-start-0 border-top-0 border-bottom-0 border-black">
-                    <img class="rounded-circle z-3 position-absolute" width="50" height="50" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-2 position-absolute ms-4" width="50" height="50" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-1 position-absolute ms-9" width="50" height="50" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-0 position-absolute ms-14" width="50" height="50" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                </div>
-                <div class="col-6">
-                    <p class="my-auto">10k travelers have already duplicated this itinerary</p>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-12">
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1">Beaches</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2">Outdoor adventures</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2">Nightlife</span>
-                </div>
-            </div>
-            <div class="row mt-3">
+        </div>
+        <div class="d-block d-2xl-none">
+            <div class="row mt-4 mt-sm-3 mt-md-11 mt-lg-19 mt-xl-12 mt-xxl-5">
                 <div class="col-12">
                     <div class="d-grid">
                         <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
@@ -257,53 +87,8 @@
             </div>
         </div>
     </div>
-</div>
-<div class="d-block d-sm-none">
-    <div class="row">
-        <div class="col-md-12">
-            <img class="w-100 h-100 object-fit-cover" src="https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image-spotlight">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="row">
-                <div class="col-12">
-                    <h2 class="fs-26">Great Britain, London</h2>
-                    <p class="fs-14">London is a vibrant and cosmopolitan city, where history and modernity intertwine. From majestic monuments like Big Ben and Tower Bridge, to the trendy neighborhoods of Shoreditch and Notting Hill.</p>
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-12">
-                    <span class="bg-black text-white fs-12 px-2 py-1">5 giorni</span>
-                    <span class="bg-black text-white fs-12 px-2 py-1">Viaggio di coppia</span>
-                    <span class="bg-black text-white fs-12 px-2 py-1">Budget basso</span>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-6 border border-start-0 border-top-0 border-bottom-0 border-black">
-                    <img class="rounded-circle z-3 position-absolute" width="40" height="40" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-2 position-absolute ms-4" width="40" height="40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-1 position-absolute ms-9" width="40" height="40" src="https://images.unsplash.com/photo-1506863530036-1efeddceb993?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                    <img class="rounded-circle z-0 position-absolute ms-14" width="40" height="40" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                </div>
-                <div class="col-6">
-                    <p class="my-auto fs-12">10k travelers have already duplicated this itinerary</p>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-12">Beaches</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2 fs-12">Outdoor adventures</span>
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ms-2 fs-12">Nightlife</span>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="d-none d-md-block col-7">
+        <img class="w-100 h-100 object-fit-cover" src="{{ img }}" alt="{{ alt }}">
     </div>
 </div>
+{% endmacro %}
