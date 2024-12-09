@@ -2,6 +2,8 @@ import logging
 
 from flask import render_template, request, redirect
 
+from app import itinerary
+from app.blueprints.itinerary.service import get_itinerary_by_id
 from app.blueprints.template import template
 from app.blueprints.traveler.model import CreateTravelerRequest, ConfirmTravelerSignupRequest
 from app.blueprints.traveler.service import create_traveler, signup_request_exists, \
@@ -70,6 +72,12 @@ def organization_dashboard():
 def organization_signup():
     return render_template("organization-signup.html")
 
+#itinerary
 @template.get("/generate-itinerary")
 def generate_itinerary():
     return render_template("generate-itinerary.html")
+
+@template.get('/itinerary/detail/<itinerary_id>')
+def itinerary_detail(itinerary_id):
+    itinerary = get_itinerary_by_id(itinerary_id)
+    return render_template("itinerary-detail.html", itinerary=itinerary)
