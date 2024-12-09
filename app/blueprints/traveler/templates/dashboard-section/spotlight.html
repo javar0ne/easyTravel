@@ -1,8 +1,17 @@
 <div class="row mt-4">
     <div class="col-12 col-xl-12 col-xxl-8">
-        {% include "components/activity-spotlight.html" %}
+        {{ itinerary_spotlight.itinerary_spotlight(
+        "Great Britain, London",
+        "London is a vibrant and cosmopolitan city, where history and modernity intertwine. From majestic monuments like Big Ben and Tower Bridge, to the trendy neighborhoods of Shoreditch and Notting Hill.",
+        "5 days",
+        "For Couple",
+        "Low Budget",
+        "10k travelers have already duplicated this itinerary",
+        ["Beaches","Outdoors adventures","Nightlife"],
+        "https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "spotlight_img") }}
     </div>
     <div class="col-12 mt-5 mt-sm-4 mt-md-3 col-xl-12 col-xxl-4 mt-xxl-0">
-        {% include "components/activity-carousel.html" %}
+        {% include "components/itinerary-carousel.html" %}
     </div>
 </div>

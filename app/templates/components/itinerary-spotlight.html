@@ -1,0 +1,94 @@
+{% macro itinerary_spotlight(title,description,days,people,budget,duplicated,activities,img,alt) %}
+<div class="row">
+    <div class="d-block d-md-none col-12">
+        <img class="w-100 h-100 object-fit-cover" src="{{ img }}" alt="{{ img }}">
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 col-md-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="d-none d-xl-block d-xxl-none fs-42">{{ title }}</h2>
+                <h2 class="d-none d-sm-block d-md-none d-2xl-block fs-40">{{ title }}</h2>
+                <h2 class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none fs-32">{{ title }}</h2>
+                <h2 class="d-block d-sm-none fs-26">{{ title }}</h2>
+                <h2 class="d-none d-md-block d-lg-none fs-24">{{ title }}</h2>
+                <p class="d-none d-xl-block d-xxl-none fs-20">{{ description }}</p>
+                <p class="d-none d-sm-block d-md-none d-2xl-block">{{ description }}</p>
+                <p class="d-block d-sm-none d-lg-block d-xl-none d-xxl-block d-2xl-none fs-14">{{ description }}</p>
+                <p class="d-none d-md-block d-lg-none fs-12">{{ description }}</p>
+            </div>
+        </div>
+        <div class="row mb-2 mb-md-0 mb-lg-2">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col-12">
+                <span class="bg-black text-white px-2 py-1 fs-20">{{ days }}</span></div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col-12">
+                <span class="bg-black text-white px-2 py-1">{{ days }}</span></div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col-12">
+                <span class="bg-black text-white px-2 py-1 fs-12">{{ days }}</span></div>
+        </div>
+        <div class="row mb-2 mb-md-1 mb-lg-2">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col-12">
+                <span class="bg-black text-white px-2 py-1 fs-20">{{ people }}</span></div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col-12">
+                <span class="bg-black text-white px-2 py-1">{{ people }}</span></div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col-12">
+                <span class="bg-black text-white px-2 py-1 fs-12">{{ people }}</span></div>
+        </div>
+        <div class="row mb-2 mb-md-1 mb-lg-2">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col-12">
+                <span class="bg-black text-white px-2 py-1 fs-20">{{ budget }}</span></div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col-12">
+                <span class="bg-black text-white px-2 py-1">{{ budget }}</span></div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col-12">
+                <span class="bg-black text-white px-2 py-1 fs-12">{{ budget }}</span></div>
+        </div>
+        <div class="row mt-sm-4 mt-md-2 mt-lg-4">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col">
+                <p class="my-auto">{{ duplicated }}</p></div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col">
+                <p class="my-auto fs-14">{{ duplicated }}</p></div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col">
+                <p class="my-auto fs-12">{{ duplicated }}</p></div>
+        </div>
+        <div class="row mt-3 mt-sm-4 mt-md-3 mt-lg-4 mt-xl-5 mt-xxl-4">
+            <div class="d-none d-sm-block d-md-none d-xl-block d-xxl-none d-2xl-block col-12">
+                {% for activity in activities %}
+                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1">{{ activity }}</span>
+                {% endfor %}
+            </div>
+            <div class="d-none d-lg-block d-xl-none d-xxl-block d-2xl-none col-12">
+                {% for activity in activities %}
+                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14">{{ activity }}</span>
+                {% endfor %}
+            </div>
+            <div class="d-block d-sm-none d-md-block d-lg-none col-12">
+                {% for activity in activities %}
+                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-12">{{ activity }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="d-none d-2xl-block">
+            <div class="row mt-12">
+                <div class="col-12">
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-block d-2xl-none">
+            <div class="row mt-4 mt-sm-3 mt-md-11 mt-lg-19 mt-xl-12 mt-xxl-5">
+                <div class="col-12">
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-secondary fw-medium">Find out itinerary</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-none d-md-block col-7">
+        <img class="w-100 h-100 object-fit-cover" src="{{ img }}" alt="{{ alt }}">
+    </div>
+</div>
+{% endmacro %}
