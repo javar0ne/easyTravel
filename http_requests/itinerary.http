@@ -259,4 +259,4 @@ Content-Type: application/json
 GET http://localhost:5000/v1/itinerary/itinerary-request/{{itinerary.request_id}}
 
 ### Get most saved itineraries
-GET http://127.0.0.1:5000/v1/itinerary/most-saved
+GET http://127.0.0.1/v1/itinerary/most-saved
