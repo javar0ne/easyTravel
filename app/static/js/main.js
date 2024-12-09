@@ -4,10 +4,13 @@ const URLS = {
     "itinerary": "/v1/itinerary"
 }
 
+const CITY_DESCRIPTION_MAX_LENGTH = 250;
+
 const ACCESS_TOKEN = "access_token";
 const REFRESH_TOKEN = "refresh_token";
 const REFRESH_TOKEN_TIME = 1000 * 60 * 13;
 let scheduled_refresh = null;
+
 
 
 function set_tokens(data) {
@@ -297,15 +300,39 @@ function get_most_saved_itineraries() {
 }
 
 function handle_most_saved_itinerary(data) {
-    $("#top_itinerary_country").text(data.country);
+    $("span#top_itinerary_country").each(function() { $(this).text(data.country) });
+    $("span#top_itinerary_city").each(function() { $(this).text(data.city) });
+    $("p#top_itinerary_description").each(function() { $(this).text(data.description) });
+    $("span#top_itinerary_duration").each(function() { $(this).text(`${data.duration} day${data.duration > 1 ? "s" : ""}`) });
+    $("span#top_itinerary_travelling_with").each(function() { $(this).text(decode_travelling_with(data.travelling_with)) });
+    $("span#top_itinerary_budget").each(function() { $(this).text(decode_budget(data.budget)) });
+    $("span#top_itinerary_saves").each(function() { $(this).text(decode_saved_by(data.saved_by)) });
+    $("img#top_itinerary_img").each(function () {
+        $(this).attr("src", data.image.urls.regular);
+        $(this).attr("alt", data.image.alt_description);
+    });
+
+    $("div#interested_in_container").each(function() {
+        data.interested_in.forEach((activity, idx) => {
+            $(this).append(
+                `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${idx === 0 ? "" : "ms-2"}">${decode_interested_in(activity)}</span>`
+            );
+        })
+    })
+
+
+    $("button#top_itinerary_find_out").each(function() { $(this).on("click", () => window.location.href=`/itinerary/detail/${data.id}`) });
+
+    /*$("#top_itinerary_country").text(data.country);
     $("#top_itinerary_city").text(data.city);
     $("#top_itinerary_description").text(data.description);
     $("#top_itinerary_duration").text(`${data.duration} day${data.duration > 1 ? "s" : ""}`);
     $("#top_itinerary_travelling_with").text(decode_travelling_with(data.travelling_with));
     $("#top_itinerary_budget").text(decode_budget(data.budget));
     $("#top_itinerary_saves").text(decode_saved_by(data.saved_by));
-    $("#top_itinerary_img").attr("src", data.image.urls.full);
-    $("#top_itinerary_img").attr("alt", data.image.alt_description);
+    $("#top_itinerary_img")
+        .attr("src", data.image.urls.small)
+        .attr("alt", data.image.alt_description);
 
     data.interested_in.forEach((activity, idx) => {
         $("#interested_in_container").append(
@@ -313,65 +340,72 @@ function handle_most_saved_itinerary(data) {
         );
     })
 
-    $("#top_itinerary_find_out").on("click", () => window.location.href=`/itinerary/detail/${data.id}`)
+
+    $("#top_itinerary_find_out").on("click", () => window.location.href=`/itinerary/detail/${data.id}`);*/
 }
 
 function handle_itinerary_carousel(data) {
     data.forEach((itinerary, itinerary_num) => {
         if(itinerary_num > 0) {
-            $('#itinerary_carousel_container').append(
-                `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 1 ? "active": ""} pb-1" data-title="${itinerary.country}, ${itinerary.city}">
-                    <img class="d-none d-2xl-block w-100 object-fit-cover" height="290"
-                         src="${itinerary.image.urls.full}" alt="${itinerary.image.alt_description}"/>
-                    <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="215"
-                         src="${itinerary.image.urls.full}" alt="${itinerary.image.alt_description}"/>
-                    <img class="d-block d-xxl-none w-100 object-fit-cover" height="390"
-                         src="${itinerary.image.urls.full}" alt="${itinerary.image.alt_description}"/>
-                    <div class="d-none d-sm-block">
+            $('div#itinerary_carousel_container').each(function() {
+                const country_city = `${itinerary.country}, ${itinerary.city}`;
+                $(this).append(
+                    `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 1 ? "active": ""} pb-1" data-title="${country_city}">
+                        <img class="d-none d-2xl-block w-100 object-fit-cover" height="290"
+                             src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
+                        <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="215"
+                             src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
+                        <img class="d-block d-xxl-none w-100 object-fit-cover" height="390"
+                             src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
+                        <div class="d-none d-sm-block">
+                            <div class="row mt-2">
+                                <div class="col-4">
+                                    <h2 class="d-none d-sm-block d-md-none d-xxl-block ${country_city.length > 20 ? "fs-26" : "fs-32"}">${country_city}</h2>
+                                    <h2 class="d-none d-md-block d-xxl-none fs-40">${country_city}</h2>
+                                </div>
+                                <div class="col-8">
+                                    <p class="d-none d-sm-block d-md-none d-xxl-block fs-14 m-0">${itinerary.description.length > CITY_DESCRIPTION_MAX_LENGTH ? itinerary.description.substring(0, CITY_DESCRIPTION_MAX_LENGTH - 1) + "..." : itinerary.description}</p>
+                                    <p class="d-none d-md-block d-xxl-none m-0">${itinerary.description.length > CITY_DESCRIPTION_MAX_LENGTH ? itinerary.description.substring(0, CITY_DESCRIPTION_MAX_LENGTH - 1) + "..." : itinerary.description}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-block d-sm-none">
+                            <div class="row mt-2">
+                                <div class="col">
+                                    <h2 class="fs-32">${country_city}</h2>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <p class="fs-14 m-0">${itinerary.description.length > CITY_DESCRIPTION_MAX_LENGTH ? itinerary.description.substring(0, CITY_DESCRIPTION_MAX_LENGTH - 1) + "..." : itinerary.description}</p>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row mt-2">
-                            <div class="col-4">
-                                <h2 class="d-none d-sm-block d-md-none d-xxl-block fs-32">${itinerary.country}, ${itinerary.city}</h2>
-                                <h2 class="d-none d-md-block d-xxl-none fs-40">${itinerary.country}, ${itinerary.city}</h2>
-                            </div>
-                            <div class="col-8">
-                                <p class="d-none d-sm-block d-md-none d-xxl-block fs-14 m-0">${itinerary.description}</p>
-                                <p class="d-none d-md-block d-xxl-none m-0">${itinerary.description}</p>
+                            <div class="col-12">
+                                <div id="itinerary_carousel_activity_2xl_${itinerary_num}" class="d-none d-sm-block d-xl-none d-2xl-block">
+                                </div>
+                                <div id="itinerary_carousel_activity_xxl_${itinerary_num}" class="d-none d-xxl-block d-2xl-none">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="d-block d-sm-none">
-                        <div class="row mt-2">
-                            <div class="col">
-                                <h2 class="fs-32">${itinerary.country}, ${itinerary.city}</h2>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <p class="fs-14 m-0">${itinerary.description}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <div id="itinerary_carousel_activity_2xl_${itinerary_num}" class="d-none d-sm-block d-xl-none d-2xl-block">
-                            </div>
-                            <div id="itinerary_carousel_activity_xxl_${itinerary_num}" class="d-none d-xxl-block d-2xl-none">
-                            </div>
-                        </div>
-                    </div>
-                </div>`
-            );
-
-            itinerary.interested_in.forEach((activity, activity_num) => {
-                const decoded_activity = decode_interested_in(activity);
-                $('#itinerary_carousel_activity_2xl_' + itinerary_num).append(
-                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${activity_num > 0 ? "ms-1" : ""}">${decoded_activity}</span>`
-                );
-                $('#itinerary_carousel_activity_xxl_' + itinerary_num).append(
-                    `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14 ${activity_num > 0 ? "ms-1" : ""}">${decoded_activity}</span>`
+                    </div>`
                 );
 
-            })
+                itinerary.interested_in.forEach((activity, activity_num) => {
+                    const decoded_activity = decode_interested_in(activity);
+                    $('div#itinerary_carousel_activity_2xl_' + itinerary_num).each(function () {
+                        $(this).append(
+                            `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${activity_num > 0 ? "ms-1" : ""}">${decoded_activity}</span>`
+                        );
+                    })
+                    $('div#itinerary_carousel_activity_xxl_' + itinerary_num).each(function () {
+                        $(this).append(
+                            `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14 ${activity_num > 0 ? "ms-1" : ""}">${decoded_activity}</span>`
+                        );
+                    })
+                });
+            });
         }
     });
 }
