@@ -15,7 +15,7 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     Activity, Budget, TravellingWith, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
-    AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta, SpotlightItinerary
+    AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
@@ -207,9 +207,9 @@ def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
     if TravellingWith[itinerary_search.travelling_with] != TravellingWith.NONE:
         filters["travelling_with"] = {"$in": {"$each": itinerary_search.travelling_with}}
     if itinerary_search.interested_in:
-        filters["interested_in"] = {"$in": {"$each": itinerary_search.interested_in}}
+        filters["interested_in"] = {"$in": itinerary_search.interested_in}
 
-    aggregations.append({"$project": {"details": 0, "docs": 0}})
+    aggregations.append({"$project": {"city": 1, "start_date": 1, "end_date": 1, "interested_in": 1, "travelling_with": 1, "budget": 1}})
     aggregations.append({"$sort": {"created_at": -1}})
     aggregations.append({"$skip": itinerary_search.elements_to_skip})
     aggregations.append({"$limit": itinerary_search.page_size})
@@ -217,8 +217,22 @@ def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
     cursor = mongo.aggregate(Collections.ITINERARIES, filters, aggregations)
     total_itineraries = mongo.count_documents(Collections.ITINERARIES, filters)
 
-    for it in list(cursor):
-        found_itineraries.append(Itinerary(**it).model_dump())
+    for itinerary in list(cursor):
+        city_meta = find_city_meta(itinerary.get("city"))
+        found_itineraries.append(
+            ItinerarySearchResponse(
+                id=str(itinerary.get("_id")),
+                city=itinerary.get("city"),
+                country=city_meta.country,
+                description=city_meta.description,
+                interested_in=itinerary.get("interested_in"),
+                travelling_with=itinerary.get("travelling_with"),
+                budget=itinerary.get("budget"),
+                start_date=itinerary.get("start_date"),
+                end_date=itinerary.get("end_date"),
+                image=city_meta.image
+            ).model_dump()
+        )
 
     logger.info("found %d itineraries!", len(found_itineraries))
 
@@ -607,7 +621,6 @@ def get_most_saved():
     spotlight_itineraries = []
 
     for itinerary in itineraries:
-        logger.info(itinerary)
         saved_by = filter(lambda x: x[0] == str(itinerary.get("_id")), most_saved)
         city_meta = find_city_meta(itinerary.get("city"))
         spotlight_itineraries.append(

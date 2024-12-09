@@ -23,7 +23,7 @@
         <h1 class="form-label d-block d-sm-none fw-medium fs-18">Please indicate the period in which you would prefer to leave</h1>
         <div class="row">
             <div class="col-sm-12 col-md-8">
-                <input type="text" name="dates" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-black" id="date" placeholder="Add date">
+                <input type="text" id="daterange" name="dates" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-black" id="date" placeholder="Add date">
             </div>
         </div>
     </div>
@@ -130,8 +130,11 @@
 {% endblock %}
 {% block script %}
 <script>
-    $('input[name="dates"]').daterangepicker({
-      maxDate:
-  });
+    $('#daterange').daterangepicker({
+        minDate: moment(),
+        maxSpan: {
+            "days": 7
+        }
+    });
 </script>
 {% endblock %}
