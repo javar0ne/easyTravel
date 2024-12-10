@@ -17,9 +17,9 @@
             </div>
             <div class="col-6">
                 <div class="d-flex gap-2 justify-content-end">
-                    <a href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save.svg" alt="save"></a>
-                    <a href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Download itinerary"><img class="img-fluid" src="../../static/svg/download.svg" alt="download"></a>
-                    <a href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Duplicate itinerary"><img class="img-fluid" src="../../static/svg/copy.svg" alt="copy"></a>
+                    <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save.svg" alt="save"></a>
+                    <a id="download_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Download itinerary"><img class="img-fluid" src="../../static/svg/download.svg" alt="download"></a>
+                    <a id="duplicate_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Duplicate itinerary"><img class="img-fluid" src="../../static/svg/copy.svg" alt="copy"></a>
                 </div>
             </div>
         </div>
@@ -145,11 +145,13 @@
         }).addTo(map);
 
         map.on('load', () => {
+            let coordinates = [];
             let stages_counter = 0;
 
             {% for details in itinerary.details %}
                 {% for stage in details.stages %}
                   stages_counter++;
+                  coordinates.push([{{ stage.coordinates.lat }}, {{ stage.coordinates.lng }}])
                   L.marker(
                       [{{ stage.coordinates.lat }}, {{ stage.coordinates.lng }}],
                       {
@@ -170,6 +172,8 @@
                   .on("mouseout", e => e.target.togglePopup());
                 {% endfor %}
             {% endfor %}
+
+            map.fitBounds(coordinates);
         });
 
         map.setView([{{ itinerary.coordinates.lat }}, {{ itinerary.coordinates.lng }}], 13);
