@@ -1,0 +1,13 @@
+{% extends "components/template.html" %}
+{% block title %}Itinerary search{% endblock %}
+{% block navbar %}
+    {% include "components/navbar.html" %}
+{% endblock %}
+{% block content %}
+    ITINERARY SEARCH {% if itineraries %} {{ itineraries.content|count }} {% else %} 0 {% endif %}
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}
+{% block script %}
+{% endblock %}

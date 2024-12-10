@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, send_file, render_template
+from flask import request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from openai import APIStatusError
 from pydantic import ValidationError
@@ -12,7 +12,8 @@ from app.blueprints.itinerary.model import ItineraryRequest, ShareWithRequest, P
 from app.blueprints.itinerary.service import get_city_description, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary, delete_itinerary, \
-    get_saved_itineraries, handle_itinerary_request, handle_event_itinerary_request
+    get_saved_itineraries, handle_itinerary_request, handle_event_itinerary_request, handle_save_itinerary, \
+    get_most_saved
 from app.exceptions import ElementNotFoundException
 from app.models import Paginated
 from app.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
@@ -118,6 +119,16 @@ def completed_itineraries():
         logger.error(str(err))
         return error_response()
 
+@itinerary.post('/save/<itinerary_id>')
+@roles_required([Role.TRAVELER.name])
+def save_itinerary(itinerary_id):
+    try:
+        handle_save_itinerary(get_jwt_identity(), itinerary_id)
+        return no_content_response()
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
 @itinerary.get('/saved')
 @roles_required([Role.TRAVELER.name])
 def saved_itineraries():
@@ -208,7 +219,7 @@ def duplicate_itinerary():
 def city_description():
     try:
         city_description_req = CityDescriptionRequest(**request.json)
-        cd = get_city_description(city_description_req)
+        cd = get_city_description(city_description_req.name)
         return success_response(cd.model_dump())
     except APIStatusError as err:
         logger.error(str(err))
@@ -267,6 +278,15 @@ def get_itinerary_request(request_id):
     except ElementNotFoundException as err:
         logger.warning(str(err))
         return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.get('/most-saved')
+def most_saved():
+    try:
+        spotlight_itineraries = get_most_saved()
+        return success_response(spotlight_itineraries)
     except Exception as err:
         logger.error(str(err))
         return error_response()

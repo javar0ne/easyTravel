@@ -1,16 +1,18 @@
 import logging
 
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 
 from app.blueprints.traveler import traveler
 from app.blueprints.traveler.model import CreateTravelerRequest, UpdateTravelerRequest, ConfirmTravelerSignupRequest, \
     TravelerSignupConfirmationNotFoundException
 from app.blueprints.traveler.service import create_traveler, get_traveler_by_id, update_traveler, \
-    handle_signup_confirmation
+    handle_signup_confirmation, get_traveler_by_user_id
 from app.exceptions import ElementAlreadyExistsException, ElementNotFoundException
 from app.response_wrapper import bad_request_response, conflict_response, success_response, not_found_response, \
     error_response, no_content_response
+from app.role import roles_required, Role
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +20,19 @@ logger = logging.getLogger(__name__)
 def get_traveler(traveler_id):
     try:
         traveler = get_traveler_by_id(traveler_id)
+        return success_response(traveler.model_dump())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@traveler.get('')
+@roles_required([Role.TRAVELER.name])
+def get_logged_traveler():
+    try:
+        traveler = get_traveler_by_user_id(get_jwt_identity())
         return success_response(traveler.model_dump())
     except ElementNotFoundException as err:
         logger.warning(str(err))
