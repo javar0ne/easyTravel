@@ -1,8 +1,6 @@
 import logging
-from calendar import error
-from fileinput import filename
 
-from flask import request, url_for, redirect
+from flask import request
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from pydantic import ValidationError
 
@@ -56,11 +54,10 @@ def logout():
         return error_response()
 
 @user.post('/refresh-token')
+@jwt_required(refresh=True)
 def refresh_token():
     try:
-        refresh_token_req = RefreshTokenRequest(**request.json)
-        token = handle_refresh_token(refresh_token_req)
-
+        token = handle_refresh_token(get_jwt())
         return success_response(token.model_dump())
     except ValidationError as err:
         logger.error("validation error while parsing login request")

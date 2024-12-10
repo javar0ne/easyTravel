@@ -56,8 +56,8 @@ def handle_logout(access_token: dict, logout_req: LogoutRequest):
     blacklist_tokens(access_token, logout_req.refresh_token)
     logger.info("blacklisted tokens for user %s..", access_token['sub'])
 
-def handle_refresh_token(refresh_token_req: RefreshTokenRequest) -> Token:
-    return generate_tokens_from_refresh_token(refresh_token_req.refresh_token)
+def handle_refresh_token(refresh_token: dict) -> Token:
+    return generate_tokens_from_refresh_token(refresh_token)
 
 def create_user(email: str, password: str, roles: list[str]) -> Optional[ObjectId]:
     if exists_by_email(email):
@@ -86,15 +86,13 @@ def blacklist_tokens(access_token: dict, refresh_token: str):
     blacklist_token(access_token)
     blacklist_refresh_token(refresh_token)
 
-def generate_tokens_from_refresh_token(refresh_token: str) -> Optional[Token]:
-    jwt = decode_token(refresh_token)
-
-    if is_token_not_valid(jwt.get("sub"), jwt.get("iat"), jwt.get("jti")):
+def generate_tokens_from_refresh_token(refresh_token: dict) -> Optional[Token]:
+    if is_token_not_valid(refresh_token.get("sub"), refresh_token.get("iat"), refresh_token.get("jti")):
         raise RefreshTokenRevoked()
 
-    user = get_user_by_email(jwt['email'])
+    user = get_user_by_id(refresh_token.get('sub'))
     if not user:
-        logger.info("no user found with email %s", jwt['email'])
+        logger.info("no user found with id %s", refresh_token.get('sub'))
         return None
 
     return generate_tokens(user)

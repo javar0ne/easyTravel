@@ -7,6 +7,9 @@ input {
 button {
   box-shadow: none!important;
 }
+select {
+  box-shadow: none!important;
+}
 
 /* custom breakpoint */
 @media (min-width: 1600px) {
@@ -27,6 +30,9 @@ button {
 }
 .bg-black{
     background-color: #000009!important;
+}
+.bg-grey{
+    background-color: #F6F6F6!important;
 }
 .text-primary{
     color: #EE7674 !important;

@@ -14,6 +14,8 @@ services:
       - ADMIN_MAIL=${ADMIN_MAIL}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - UNSPLASH_BASE_URL=${UNSPLASH_BASE_URL}
+      - UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
     # uncomment only for development purpose
     volumes:
       - ../.:/app:ro

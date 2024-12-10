@@ -2,12 +2,12 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, computed_field
 from typing_extensions import Self
 
 from app.encoders import PyObjectId
-from app.models import Paginated, Coordinates, Activity
-from app.utils import is_valid_enum_name
+from app.models import Paginated, Coordinates, Activity, UnsplashImage
+from app.utils import is_valid_enum_name, encode_city_name
 
 COLLECTION_NAME = "itineraries"
 
@@ -100,6 +100,23 @@ class ItinerarySearch(Paginated):
 
         return self
 
+class ItinerarySearchResponse(BaseModel):
+    id: str
+    city: str
+    country: str
+    description: str
+    interested_in: list[str]
+    travelling_with: str
+    budget: str
+    start_date: datetime
+    end_date: datetime
+    image: UnsplashImage
+
+    @computed_field
+    @property
+    def duration(self) -> int:
+        return (self.end_date - self.start_date).days + 1
+
 
 class DuplicateRequest(BaseModel):
     id: PyObjectId
@@ -134,9 +151,10 @@ class CityDescriptionRequest(BaseModel):
 
 class CityDescription(BaseModel):
     name: str
+    country: str
     description: str
     lat: float
-    lon: float
+    lng: float
 
 class AssistantItineraryDocsDetail(BaseModel):
     name: str
@@ -257,3 +275,40 @@ class ItineraryMeta(BaseModel):
     duplicated_by: list[str] = []
     saved_by: list[str] = []
     views: int = 0
+
+class SpotlightItinerary(BaseModel):
+    id: str
+    city: str
+    country: str
+    description: str
+    interested_in: list[str]
+    travelling_with: str
+    budget: str
+    saved_by: int
+    shared_with: Optional[list[str]] = []
+    start_date: datetime
+    end_date: datetime
+    image: UnsplashImage
+
+    @computed_field
+    @property
+    def duration(self) -> int:
+        return (self.end_date - self.start_date).days + 1
+
+class CityMeta(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    name: str
+    country: str
+    coordinates: Coordinates
+    description: str
+    image: UnsplashImage
+
+    @staticmethod
+    def from_sources(image: UnsplashImage, city_description: CityDescription):
+        return CityMeta(
+            name=encode_city_name(city_description.name),
+            country=city_description.country,
+            coordinates=Coordinates(lat=city_description.lat, lng=city_description.lng),
+            description=city_description.description,
+            image=image
+        )

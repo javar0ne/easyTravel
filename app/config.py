@@ -2,9 +2,6 @@ import os
 
 
 class Config:
-    # general
-    APP_HOST = os.getenv("APP_HOST", "http://127.0.0.1:5000")
-
     # logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')
 
@@ -39,3 +36,7 @@ class Config:
     ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
 
     TEMPLATES_AUTO_RELOAD = True
+
+    # unsplash
+    UNSPLASH_BASE_URL = os.getenv("UNSPLASH_BASE_URL")
+    UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")

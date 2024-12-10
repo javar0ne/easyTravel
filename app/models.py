@@ -2,11 +2,13 @@ import math
 from enum import Enum
 
 from pydantic import BaseModel, Field, computed_field
+from typing_extensions import Optional
 
 
 class Collections(Enum):
     ADMIN_CONFIGS = "admin_configs"
     EVENTS = "events"
+    CITY_METAS = "city_metas"
     ITINERARIES = "itineraries"
     ITINERARY_METAS = "itinerary_metas"
     ITINERARY_REQUESTS = "itinerary_requests"
@@ -15,6 +17,18 @@ class Collections(Enum):
     TRAVELER_SIGNUPS = "traveler_signups"
     TRAVELERS = "travelers"
     USERS = "users"
+
+class UnsplashImageUrls(BaseModel):
+    raw: Optional[str] = None
+    full: Optional[str] = None
+    regular: Optional[str] = None
+    small: Optional[str] = None
+    thumb: Optional[str] = None
+    small_s3: Optional[str] = None
+
+class UnsplashImage(BaseModel):
+    urls: UnsplashImageUrls
+    alt_description: Optional[str] = None
 
 class Coordinates(BaseModel):
     lat: float
