@@ -1,0 +1,82 @@
+{% extends "components/template.html" %}
+{% block title %}Search itinerary{% endblock %}
+{% block navbar %}
+    {% include "components/navbar.html" %}
+{% endblock %}
+{% block content %}
+    <div class="row mx-2 mx-md-3 mx-lg-5 mt-3 mt-lg-0">
+        <div class="col">
+            <h1 class="d-none d-lg-block fs-40">Search itineraries</h1>
+            <h1 class="d-none d-md-block d-lg-none fs-32">Search itineraries</h1>
+            <h1 class="d-block d-md-none fs-26">Search itineraries</h1>
+            <p class="text-muted">19 itinerary found.</p>
+        </div>
+    </div>
+    <form>
+        <div class="row mx-2 mx-md-3 mx-lg-5 mt-3 align-items-end">
+            <div class="col-12 col-lg">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" placeholder="Select a city..." class="form-control border-0 bg-grey" id="location">
+            </div>
+            <div class="col-12 col-lg mt-3 mt-lg-0">
+                <label for="people" class="form-label">People</label>
+                <select class="form-select bg-grey border-0" id="people">
+                  <option selected>Choose one...</option>
+                  <option value="solo">Solo</option>
+                  <option value="couple">Couple</option>
+                  <option value="friends">Friends</option>
+                  <option value="family">Family</option>
+                </select>
+            </div>
+            <div class="col-12 col-lg mt-3 mt-lg-0">
+                <label for="budget" class="form-label">Budget</label>
+                <select class="form-select bg-grey border-0" id="budget">
+                  <option selected>Choose one...</option>
+                  <option value="low">Low</option>
+                  <option value="mid">Mid</option>
+                  <option value="high">High</option>
+                </select>
+            </div>
+            <div class="col-12 col-lg mt-3 mt-lg-0">
+                <label for="activity" class="form-label">Activity</label>
+                <select class="form-select bg-grey border-0" id="activity">
+                  <option selected>Choose one...</option>
+                  <option value="beach">Beach</option>
+                  <option value="nightlife">Nightlife</option>
+                </select>
+            </div>
+            <div class="col-12 col-lg mt-5 mt-lg-0">
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <hr class="mx-2 mx-md-3 mx-lg-5 mt-3">
+    <div class="row mt-5 justify-content-start mx-2 mx-md-3 mx-lg-5 mt-3">
+        <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+            {{ itinerary_card.itinerary_card("Portugal","Lisbona","Lisbon is a fascinating and lively city, where history mixes with the modern in perfect balance. Its narrow cobbled streets, filled with yellow trams and pastel-colored houses, lead to sunny squares and breathtaking views of the Atlantic Ocean. Perfect for those looking for authenticity and beauty in every corner.",["Beaches","Outdoor adventures","Nightlife"],"lisbona_img","https://images.unsplash.com/photo-1536663815808-535e2280d2c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
+        </div>
+        <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+            {{ itinerary_card.itinerary_card("Spain","Madrid","Lisbon is a fascinating and lively city, where history mixes with the modern in perfect balance. Its narrow cobbled streets, filled with yellow trams and pastel-colored houses, lead to sunny squares and breathtaking views of the Atlantic Ocean. Perfect for those looking for authenticity and beauty in every corner.",["Beaches","Outdoor adventures","Nightlife"],"lisbona_img","https://images.unsplash.com/photo-1509845350455-fb0c36048db1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
+        </div>
+        <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+            {{ itinerary_card.itinerary_card("France","Paris","Lisbon is a fascinating and lively city, where history mixes with the modern in perfect balance. Its narrow cobbled streets, filled with yellow trams and pastel-colored houses, lead to sunny squares and breathtaking views of the Atlantic Ocean. Perfect for those looking for authenticity and beauty in every corner.",["Beaches","Outdoor adventures","Nightlife"],"lisbona_img","https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
+        </div>
+        <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+            {{ itinerary_card.itinerary_card("Netherland","Amsterdam","Lisbon is a fascinating and lively city, where history mixes with the modern in perfect balance. Its narrow cobbled streets, filled with yellow trams and pastel-colored houses, lead to sunny squares and breathtaking views of the Atlantic Ocean. Perfect for those looking for authenticity and beauty in every corner.",["Beaches","Outdoor adventures","Nightlife"],"lisbona_img","https://plus.unsplash.com/premium_photo-1661887237533-b38811c27add?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
+        </div>
+        <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+            {{ itinerary_card.itinerary_card("Germany","Berlin","Lisbon is a fascinating and lively city, where history mixes with the modern in perfect balance. Its narrow cobbled streets, filled with yellow trams and pastel-colored houses, lead to sunny squares and breathtaking views of the Atlantic Ocean. Perfect for those looking for authenticity and beauty in every corner.",["Beaches","Outdoor adventures","Nightlife"],"lisbona_img","https://plus.unsplash.com/premium_photo-1677486562712-d03d3d9ac23d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
+        </div>
+        <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+            {{ itinerary_card.itinerary_card("Germany","Berlin","Lisbon is a fascinating and lively city, where history mixes with the modern in perfect balance. Its narrow cobbled streets, filled with yellow trams and pastel-colored houses, lead to sunny squares and breathtaking views of the Atlantic Ocean. Perfect for those looking for authenticity and beauty in every corner.",["Beaches","Outdoor adventures","Nightlife"],"lisbona_img","https://plus.unsplash.com/premium_photo-1677486562712-d03d3d9ac23d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
+        </div>
+        <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+            {{ itinerary_card.itinerary_card("Germany","Berlin","Lisbon is a fascinating and lively city, where history mixes with the modern in perfect balance. Its narrow cobbled streets, filled with yellow trams and pastel-colored houses, lead to sunny squares and breathtaking views of the Atlantic Ocean. Perfect for those looking for authenticity and beauty in every corner.",["Beaches","Outdoor adventures","Nightlife"],"lisbona_img","https://plus.unsplash.com/premium_photo-1677486562712-d03d3d9ac23d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}}

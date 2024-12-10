@@ -1,14 +1,16 @@
-<div class="card border border-0 rounded-0 mx-auto" role="button" style="width: 17rem;">
-  <img class="card-img-top rounded-0" src="https://images.unsplash.com/photo-1536663815808-535e2280d2c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="...">
+{% macro itinerary_card(region,city,description,activities,alt,img) %}
+<div class="card border border-0 rounded-0 w-100" role="button">
+  <img class="card-img-top rounded-0 w-100 object-fit-cover" height="381" src="{{ img }}" alt="{{ alt }}">
   <div class="card-body px-1 py-2 rounded-0">
-    <h5 class="card-title fs-24">Portugal, <span class="fw-bold fs-24">Lisbona</span></h5>
-    <p class="card-text">Lisbon is a fascinating and lively city, where history mixes with the modern in perfect balance. Its narrow cobbled streets, filled with yellow trams and pastel-colored houses, lead to sunny squares and breathtaking views of the Atlantic Ocean. Perfect for those looking for authenticity and beauty in every corner.</p>
+    <h5 class="card-title fw-light fs-24">{{ region }}, <span class="fw-bold fs-24">{{ city }}</span></h5>
+    <p class="card-text">{{ description }}</p>
     <div class="row">
-        <div class="col-md-12">
-            <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">Beaches</span>
-            <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">Outdoor adventures</span>
-            <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">Nightlife</span>
+        <div class="col">
+            {% for activity in activities %}
+            <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">{{ activity }}</span>
+            {% endfor %}
         </div>
     </div>
   </div>
 </div>
+{% endmacro %}
