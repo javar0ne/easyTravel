@@ -25,7 +25,7 @@
         </div>
         <div class="row mt-3">
             <div class="col-12">
-                <img class="img-fluid object-fit-cover" src="https://images.unsplash.com/photo-1470181942237-78ce33fec141?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover-itinerary">
+                <img class="img-fluid object-fit-cover" src="{{ itinerary.image.urls.regular }}" alt="{{ itinerary.image.alt_description }}">
                 <h1 class="d-none d-xl-block fs-40 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
                 <h1 class="d-none d-lg-block d-xl-none fs-32 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
                 <h1 class="d-block d-lg-none fs-28 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
@@ -39,24 +39,45 @@
                                 itinerary_info.itinerary_info(
                                     "budget-" ~ itinerary.budget.lower(),
                                     "budget-" ~ itinerary.budget.lower(),
-                                    "Estimated: " ~ itinerary.budget.min ~ " - " ~ itinerary.budget.max
+                                    "Estimated: " ~ itinerary.budget_min ~ " - " ~ itinerary.budget_max
                                 )
                             }}
                             {{
                                 itinerary_info.itinerary_info(
-                                    "path",
-                                    "path",
-                                    "1300 km"
+                                    "people-" ~ itinerary.travelling_with.lower(),
+                                    "people" ~ itinerary.travelling_with.lower(),
+                                    itinerary.travelling_with.lower().title()
                                 )
                             }}
-                            {{ itinerary_info.itinerary_info("ferris-wheel","ferris_wheel","20 free activity") }}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            {% for activity in itinerary.interested_in %}
+                                {{
+                                    itinerary_info.itinerary_info(
+                                        activity.lower().replace("_", "-"),
+                                        activity.lower().replace("_", "-"),
+                                        activity.lower().replace("_", " ").title()
+                                    )
+                                }}
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="d-block d-2xl-none">
                         <div class="col-12">
-                                {{ itinerary_info.itinerary_info("budget-high","budget_high","Estimated: 1000 EUR") }}
-                                {{ itinerary_info.itinerary_info("path","path","1300 km") }}
-                                {{ itinerary_info.itinerary_info("ferris-wheel","ferris_wheel","20 free activity") }}
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "budget-" ~ itinerary.budget.lower(),
+                                    "budget-" ~ itinerary.budget.lower(),
+                                    "Estimated: " ~ itinerary.budget_min ~ " - " ~ itinerary.budget_max
+                                )
+                            }}
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "people-" ~ itinerary.travelling_with.lower(),
+                                    "people" ~ itinerary.travelling_with.lower(),
+                                    itinerary.travelling_with.lower().title()
+                                )
+                            }}
                         </div>
                     </div>
                 </div>
@@ -112,6 +133,8 @@
 {% endblock %}
 {% block script %}
     <script>
+        //$("body").addClass("overflow-hidden");
+
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
@@ -149,6 +172,6 @@
             {% endfor %}
         });
 
-        map.setView([51.505, -0.09], 14);
+        map.setView([{{ itinerary.coordinates.lat }}, {{ itinerary.coordinates.lng }}], 13);
     </script>
 {% endblock %}

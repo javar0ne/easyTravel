@@ -15,7 +15,8 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     Activity, Budget, TravellingWith, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
-    AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse
+    AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse, \
+    ItineraryDetail
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
@@ -50,6 +51,19 @@ def get_itinerary_by_id(itinerary_id) -> Itinerary:
 
     logger.info("found itinerary with id %s", itinerary_id)
     return Itinerary(**itinerary_document)
+
+def get_itinerary_detail(itinerary_id) -> Itinerary:
+    logger.info("retrieving itinerary detail with id %s", itinerary_id)
+    itinerary_document = mongo.find_one(Collections.ITINERARIES, {'_id': ObjectId(itinerary_id)}, { 'docs': 0 })
+
+    if itinerary_document is None:
+        raise ElementNotFoundException(f"no itinerary found with id {itinerary_id}")
+
+    logger.info("found itinerary with id %s", itinerary_id)
+    itinerary = Itinerary(**itinerary_document)
+    city_meta = find_city_meta(itinerary.city)
+
+    return ItineraryDetail.from_sources(itinerary, city_meta)
 
 def get_itinerary_meta(itinerary_id: str) -> ItineraryMeta:
     return mongo.find_one(Collections.ITINERARY_METAS, {"itinerary_id": itinerary_id})

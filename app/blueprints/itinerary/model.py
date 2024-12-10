@@ -312,3 +312,60 @@ class CityMeta(BaseModel):
             description=city_description.description,
             image=image
         )
+
+class ItineraryDetail(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    city: str
+    country: str
+    description: str
+    coordinates: Coordinates
+    image: UnsplashImage
+    start_date: datetime
+    end_date: datetime
+    budget: str
+    travelling_with: str
+    accessibility: bool
+    interested_in: list[str]
+    user_id: PyObjectId
+    details: list[AssistantItinerary] = []
+    shared_with: list[str] = []
+    status: str
+    docs: Optional[AssistantItineraryDocs] = None
+    docs_notification: bool = False
+    reminder_notification: bool = False
+    is_public: bool = False
+
+    @computed_field
+    @property
+    def budget_min(self) -> int:
+        return Budget[self.budget].min
+
+    @computed_field
+    @property
+    def budget_max(self) -> int:
+        return Budget[self.budget].max
+
+    @staticmethod
+    def from_sources(itinerary: Itinerary, city_meta: CityMeta):
+        return ItineraryDetail(
+            city=itinerary.city,
+            country=city_meta.country,
+            description=city_meta.description,
+            coordinates=city_meta.coordinates,
+            image=city_meta.image,
+            start_date=itinerary.start_date,
+            end_date=itinerary.end_date,
+            budget=itinerary.budget,
+            travelling_with=itinerary.travelling_with,
+            accessibility=itinerary.accessibility,
+            interested_in=itinerary.interested_in,
+            user_id=itinerary.user_id,
+            details=itinerary.details,
+            shared_with=itinerary.shared_with,
+            status=itinerary.status,
+            docs=itinerary.docs,
+            docs_notification=itinerary.docs_notification,
+            reminder_notification=itinerary.reminder_notification,
+            is_public=itinerary.is_public
+        )
+
