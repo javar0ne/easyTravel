@@ -7,7 +7,7 @@
     {% include "dashboard-section/heading.html" %}
     {% include "dashboard-section/spotlight.html" %}
     {% include "dashboard-section/show-more.html" %}
-    {% include "dashboard-section/by-activities.html" %}
+    <div id="interested_in_activity_container"></div>
 {% endblock %}
 {% block footer %}
     {% include "components/footer.html" %}
@@ -15,7 +15,11 @@
 {% block script %}
     <script>
         $(document).ready(function () {
-            get_traveler();
+            get_traveler()
+                .then(data => {
+                    $("#first_name").text(data.response.first_name);
+                    data.response.interested_in.forEach(activity => get_itinerary_by_activity(activity, activity.toLowerCase().replace("_", "-")))
+                });
             get_most_saved_itineraries()
                 .then(() => {
 
@@ -43,9 +47,6 @@
                     $currentSlideInfo.text(`1 / ${totalSlides}`);
                     $nextSlideTitle.text(`Next: ${nextTitle}`);
                 });
-
-            get_itinerary_by_activities();
-
         });
 
         $('#create_itinerary').on("click", () => window.location.href = '/itinerary/generate');

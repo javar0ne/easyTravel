@@ -141,6 +141,10 @@ function decode_saved_by(saved_by) {
     return "1M+";
 }
 
+function capitalize(text) {
+    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+
 function go_to_dashboard() {
     fetch(
         `${URLS.user}/dashboard`,
@@ -254,13 +258,12 @@ function validate_traveler_signup_confirmation() {
 }
 
 function get_traveler() {
-    const access_token = get_access_token();
-    fetch(
+    return fetch(
         URLS.traveler,
         {
             // "headers": {"Content-Type": "application/json"}
             "method": "GET",
-            "headers": {"Authorization": `Bearer ${access_token}`}
+            "headers": {"Authorization": `Bearer ${get_access_token()}`}
         }
     )
     .then(response => {
@@ -269,11 +272,7 @@ function get_traveler() {
         }
 
         return response.json();
-    })
-    .then(data => {
-        $("#first_name").text(data.response.first_name)
-    })
-    .catch(console.log);
+    });
 }
 function get_most_saved_itineraries() {
     const access_token = get_access_token();
@@ -419,7 +418,9 @@ function get_itinerary_by_activity(activity, activity_selector) {
                 "Content-Type": "application/json"
             },
             "body": JSON.stringify({
-                "interested_in": [`${activity}`]
+                "interested_in": [`${activity}`],
+                "page_size": 5,
+                "page_number": 0
             })
         }
     )
@@ -431,66 +432,69 @@ function get_itinerary_by_activity(activity, activity_selector) {
         return response.json();
     })
     .then(data => {
-        data.response.content.forEach((itinerary, num) => {
-            const itinerary_html = `
-                <div class="card border border-0 rounded-0 mx-auto" role="button" style="width: 17rem;">
-                  <img class="card-img-top rounded-0" src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}">
-                  <div class="card-body px-1 py-2 rounded-0">
-                    <h5 class="card-title fs-24">${itinerary.country}, <span class="fw-bold fs-24">${itinerary.city}</span></h5>
-                    <p class="card-text">${itinerary.description}</p>
-                    <div class="row">
-                        <div id="${activity_selector}-activities-${num}" class="col-md-12"></div>
+        $("#interested_in_activity_container").append(
+            `
+            <div id="${activity_selector}-section">
+                <div class="row align-items-end mx-xxl-auto">
+                    <div class="col">
+                        <h2 class="d-none d-md-block mb-0 fs-40">${capitalize(activity).replace("_", " ")} itineraries</h2>
+                        <h2 class="d-none d-sm-block d-md-none mb-0 fs-32">${capitalize(activity).replace("_", " ")} itineraries</h2>
+                        <h2 class="d-block d-sm-none mb-0 fs-28">${capitalize(activity).replace("_", " ")} itineraries</h2>
                     </div>
-                  </div>
+                    <div class="col-3">
+                        <div class="d-grid justify-content-end">
+                            <span class="d-none d-md-block fs-14 text-black">Show more</span>
+                            <span class="d-block d-md-none fs-12 text-black">Show more</span>
+                        </div>
+                    </div>
                 </div>
-            `;
+                <div id="activity_itinerary_carousel" class="row mt-5 justify-content-center mx-auto">
+                </div>
+            </div>
+            `
+        );
 
-
+        data.response.content.forEach((itinerary, num) => {
             $(`#${activity_selector}-section #activity_itinerary_carousel`).append(
                 `
-                    <div class="carousel-item ${num === 0 ? "active" : ""}">
-                        <div class="d-none d-2xl-block">
-                            <div class="row justify-content-around">
-                                <div class="col-md-2">${itinerary_html}</div>
-                            </div>
+                 <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+                    <div class="card border border-0 rounded-0 w-100" role="button" onclick="window.location.href='/itinerary/detail/${itinerary.id}'">
+                      <img class="card-img-top rounded-0 w-100 object-fit-cover" height="381" src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}">
+                      <div class="card-body px-1 py-2 rounded-0">
+                        <h5 class="card-title fw-light fs-24">${itinerary.country}, <span class="fw-bold">${itinerary.city}</span></h5>
+                        <p class="card-text">${itinerary.description.length > CITY_DESCRIPTION_MAX_LENGTH ? itinerary.description.substring(0, CITY_DESCRIPTION_MAX_LENGTH - 1) + "..." : itinerary.description}</p>
+                        <div class="row">
+                            <div id="interested_in_itinerary_carousel_${num}" class="col"></div>
                         </div>
-                        <div class="d-none d-xxl-block d-2xl-none">
-                            <div class="row justify-content-around">
-                                <div class="col-md-3">${itinerary_html}</div>
-                            </div>
-                        </div>
-                        <div class="d-none d-lg-block d-xxl-none">
-                            <div class="row justify-content-around">
-                                <div class="col-md-4">${itinerary_html}</div>
-                            </div>
-                        </div>
-                        <div class="d-none d-md-block d-lg-none">
-                            <div class="row justify-content-center">
-                                <div class="col-md-6">${itinerary_html}</div>
-                            </div>
-                        </div>
-                        <div class="d-block d-md-none">
-                            <div class="row justify-content-center">
-                                <div class="col-12">${itinerary_html}</div>
-                            </div>
-                        </div>
+                      </div>
                     </div>
+                </div>
                 `
             );
 
             itinerary.interested_in.forEach((interested_in) => {
-                $(`#${activity_selector}-activities-${num}`).each(function() {
-                    $(this).append(
-                        `
-                            <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">${decode_interested_in(interested_in)}</span>
-                        `
-                    )
-                })
+                $(`#${activity_selector}-section #interested_in_itinerary_carousel_${num}`).append(
+                    `
+                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">${decode_interested_in(interested_in)}</span>
+                    `
+                )
             })
         });
+
+        if (data.response.content.length < 5) {
+            $(`#${activity_selector}-section #activity_itinerary_carousel`).removeClass("justify-content-center")
+            $(`#${activity_selector}-section #activity_itinerary_carousel`).addClass("justify-content-start")
+        }
     })
 }
 
 function get_itinerary_by_activities() {
+    get_itinerary_by_activity("BEACH", "beach");
+    get_itinerary_by_activity("CITY_SIGHTSEEING", "city-sightseeing");
     get_itinerary_by_activity("OUTDOOR_ADVENTURES", "outdoor-adventures");
+    get_itinerary_by_activity("FESTIVAL", "festival");
+    get_itinerary_by_activity("FOOD_EXPLORATION", "food-exploration");
+    get_itinerary_by_activity("NIGHTLIFE", "nightlife");
+    get_itinerary_by_activity("SHOPPING", "shopping");
+    get_itinerary_by_activity("SPA_WELLNESS", "spa-wellness");
 }
