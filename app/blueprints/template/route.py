@@ -2,7 +2,8 @@ import logging
 
 from flask import render_template, request, redirect
 
-from app.blueprints.itinerary.service import get_itinerary_by_id
+from app.blueprints.itinerary.model import ItinerarySearch
+from app.blueprints.itinerary.service import get_itinerary_by_id, search_itineraries
 from app.blueprints.template import template
 from app.blueprints.traveler.model import CreateTravelerRequest, ConfirmTravelerSignupRequest
 from app.blueprints.traveler.service import create_traveler, signup_request_exists, \
@@ -80,3 +81,15 @@ def generate_itinerary():
 def itinerary_detail(itinerary_id):
     itinerary = get_itinerary_by_id(itinerary_id)
     return render_template("itinerary-detail.html", itinerary=itinerary)
+
+@template.get('/itinerary/search')
+def itinerary_search():
+    interested_in = request.args.get('interested_in')
+
+    if not interested_in:
+        return render_template('itinerary-search.html')
+
+    search = ItinerarySearch(interested_in=[interested_in])
+    itineraries = search_itineraries(search)
+    return render_template('itinerary-search.html', itineraries=itineraries)
+

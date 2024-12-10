@@ -442,7 +442,7 @@ function get_itinerary_by_activity(activity, activity_selector) {
                         <h2 class="d-block d-sm-none mb-0 fs-28">${capitalize(activity).replace("_", " ")} itineraries</h2>
                     </div>
                     <div class="col-3">
-                        <div class="d-grid justify-content-end">
+                        <div class="d-grid justify-content-end" onclick="window.location.href='/itinerary/search?interested_in=${activity}'" style="cursor: pointer">
                             <span class="d-none d-md-block fs-14 text-black">Show more</span>
                             <span class="d-block d-md-none fs-12 text-black">Show more</span>
                         </div>
