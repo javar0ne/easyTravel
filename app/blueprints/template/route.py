@@ -1,15 +1,12 @@
-import logging
-
 from flask import render_template, request, redirect
 
 from app.blueprints.itinerary.model import ItinerarySearch
-from app.blueprints.itinerary.service import get_itinerary_by_id, search_itineraries, get_itinerary_detail
+from app.blueprints.itinerary.service import search_itineraries, get_itinerary_detail
 from app.blueprints.template import template
 from app.blueprints.traveler.model import CreateTravelerRequest, ConfirmTravelerSignupRequest
 from app.blueprints.traveler.service import create_traveler, signup_request_exists, \
     handle_signup_confirmation
 
-logger = logging.getLogger(__name__)
 
 # user
 @template.get('/login')

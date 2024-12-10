@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from enum import Enum
 from typing import Optional
@@ -10,7 +11,7 @@ from app.models import Paginated, Coordinates, Activity, UnsplashImage
 from app.utils import is_valid_enum_name, encode_city_name
 
 COLLECTION_NAME = "itineraries"
-
+logger = logging.getLogger(__name__)
 class ItineraryGenerationDisabledException(Exception):
     def __init__(self):
         super().__init__("Itinerary generation disabled!")
@@ -314,7 +315,7 @@ class CityMeta(BaseModel):
         )
 
 class ItineraryDetail(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    id: str
     city: str
     country: str
     description: str
@@ -326,7 +327,7 @@ class ItineraryDetail(BaseModel):
     travelling_with: str
     accessibility: bool
     interested_in: list[str]
-    user_id: PyObjectId
+    user_id: str
     details: list[AssistantItinerary] = []
     shared_with: list[str] = []
     status: str
@@ -348,6 +349,7 @@ class ItineraryDetail(BaseModel):
     @staticmethod
     def from_sources(itinerary: Itinerary, city_meta: CityMeta):
         return ItineraryDetail(
+            id=itinerary.id,
             city=itinerary.city,
             country=city_meta.country,
             description=city_meta.description,
@@ -366,6 +368,9 @@ class ItineraryDetail(BaseModel):
             docs=itinerary.docs,
             docs_notification=itinerary.docs_notification,
             reminder_notification=itinerary.reminder_notification,
-            is_public=itinerary.is_public
+            is_public=itinerary.is_public,
         )
 
+class ItineraryMetaDetail(BaseModel):
+    is_owner: bool = False
+    has_saved: bool = False

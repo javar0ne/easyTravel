@@ -1,5 +1,4 @@
 import logging
-import logging
 import threading
 from datetime import datetime, timezone, timedelta
 from io import BytesIO
@@ -16,7 +15,7 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
     AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse, \
-    ItineraryDetail
+    ItineraryDetail, ItineraryMetaDetail
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
@@ -40,7 +39,7 @@ def find_city_meta(city: str):
     return CityMeta(**city_meta)
 
 def exists_by_id(itinerary_id: str):
-    return mongo.exists(Collections.USERS, {"_id": ObjectId(itinerary_id)})
+    return mongo.exists(Collections.ITINERARIES, {"_id": ObjectId(itinerary_id)})
 
 def get_itinerary_by_id(itinerary_id) -> Itinerary:
     logger.info("retrieving itinerary with id %s", itinerary_id)
@@ -52,7 +51,7 @@ def get_itinerary_by_id(itinerary_id) -> Itinerary:
     logger.info("found itinerary with id %s", itinerary_id)
     return Itinerary(**itinerary_document)
 
-def get_itinerary_detail(itinerary_id) -> Itinerary:
+def get_itinerary_detail(itinerary_id: str) -> Itinerary:
     logger.info("retrieving itinerary detail with id %s", itinerary_id)
     itinerary_document = mongo.find_one(Collections.ITINERARIES, {'_id': ObjectId(itinerary_id)}, { 'docs': 0 })
 
@@ -614,15 +613,35 @@ def check_itinerary_last_day(itinerary):
 
 def handle_save_itinerary(user_id: str, itinerary_id: str):
     logger.info("adding itinerary %s to saved ones for traveler %s..", itinerary_id, user_id)
+    itinerary_meta = get_itinerary_meta(itinerary_id)
 
-    if not exists_by_id(itinerary_id):
-        logger.warning("no itinerary found with id %s", itinerary_id)
+    if not itinerary_meta:
+        logger.warning("no itinerary meta found with id %s", itinerary_id)
         return
 
-    mongo.update_one(Collections.ITINERARY_METAS, {"$push": {"saved_by": user_id}})
-    redis_itinerary.get_client().zincrby("likes", itinerary_id, 1)
+    if user_id not in itinerary_meta.get("saved_by"):
+        result = mongo.update_one(
+            Collections.ITINERARY_METAS,
+            {"itinerary_id": itinerary_id},
+            {"$push": {"saved_by": user_id}}
+        )
 
-    logger.info("itinerary %s saved for user %s!", itinerary_id, user_id)
+        if result.modified_count == 1:
+            redis_itinerary.get_client().zincrby(MOST_SAVED_ITINERARIES_KEY, 1, itinerary_id)
+
+        logger.info("itinerary %s saved for user %s!", itinerary_id, user_id)
+    else:
+        result = mongo.update_one(
+            Collections.ITINERARY_METAS,
+            {"itinerary_id": itinerary_id},
+            {"$pull": {"saved_by": user_id}}
+        )
+
+        if result.modified_count == 1:
+            redis_itinerary.get_client().zincrby(MOST_SAVED_ITINERARIES_KEY, -1, itinerary_id)
+
+        logger.info("itinerary %s removed from saved for user %s!", itinerary_id, user_id)
+
 
 def get_most_saved():
     most_saved = redis_itinerary.get_client().zrevrange(name=MOST_SAVED_ITINERARIES_KEY, start=0, end=4, withscores=True)
@@ -657,3 +676,17 @@ def get_most_saved():
     spotlight_itineraries.sort(key=lambda x: x.get("saved_by"), reverse=True)
 
     return spotlight_itineraries
+
+def get_itinerary_meta_detail(user_id: str, itinerary_id: str):
+    itinerary_meta = get_itinerary_meta(itinerary_id)
+    document = mongo.find_one(Collections.ITINERARIES, {"_id": ObjectId(itinerary_id)}, {"user_id": 1})
+    is_owner = False
+    has_saved = False
+
+    if document.get("user_id") == user_id:
+        is_owner = True
+
+    if user_id in itinerary_meta.get("saved_by"):
+        has_saved = True
+
+    return ItineraryMetaDetail(is_owner=is_owner, has_saved=has_saved)

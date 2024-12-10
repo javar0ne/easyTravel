@@ -176,6 +176,11 @@ Content-Type: application/json
   "page_number": 0
 }
 
+
+### Save itinerary
+POST http://localhost:5000/v1/itinerary/save/{{itinerary.id}}
+Authorization: Bearer {{bearer_token}}
+
 ### Retrive shared itinerary
 POST http://localhost:5000/v1/itinerary/shared
 Authorization: Bearer {{bearer_token}}
@@ -260,3 +265,8 @@ GET http://localhost:5000/v1/itinerary/itinerary-request/{{itinerary.request_id}
 
 ### Get most saved itineraries
 GET http://127.0.0.1/v1/itinerary/most-saved
+
+
+### Get itinerary meta detail
+GET http://127.0.0.1:5000/v1/itinerary/meta/detail/{{itinerary.id}}
+Authorization: Bearer {{bearer_token}}
