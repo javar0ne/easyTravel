@@ -90,6 +90,11 @@ function show_error_toast(message) {
     bootstrap.Toast.getOrCreateInstance($('#error_toast')).show();
 }
 
+function show_success_toast(message) {
+    $('#success_toast .toast-body').text(message);
+    bootstrap.Toast.getOrCreateInstance($('#success_toast')).show();
+}
+
 function temporary_error_toast() {
     show_error_toast("There was a temporary error. Try again later!");
 }
@@ -266,13 +271,6 @@ function get_traveler() {
             "headers": {"Authorization": `Bearer ${get_access_token()}`}
         }
     )
-    .then(response => {
-        if(!response.ok && response.status === 401) {
-            //go_to_login();
-        }
-
-        return response.json();
-    });
 }
 function get_most_saved_itineraries() {
     const access_token = get_access_token();
@@ -497,4 +495,55 @@ function get_itinerary_by_activities() {
     get_itinerary_by_activity("NIGHTLIFE", "nightlife");
     get_itinerary_by_activity("SHOPPING", "shopping");
     get_itinerary_by_activity("SPA_WELLNESS", "spa-wellness");
+}
+
+function save_itinerary(itinerary_id) {
+    fetch(
+        `${URLS.itinerary}/save/${itinerary_id}`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok) {
+            throw new Error("error while saving itinerary!");
+        }
+
+        const src = $("#save_itinerary img").attr("src");
+        if(src.includes("saved")) {
+            $("#save_itinerary img").attr("src", "../../static/svg/save.svg");
+            show_success_toast("Itinerary removed from saved!");
+        } else {
+            $("#save_itinerary img").attr("src", "../../static/svg/saved.svg");
+            show_success_toast("Itinerary saved!");
+        }
+
+    })
+}
+
+function get_itinerary_meta_detail(itinerary_id) {
+    return fetch(
+        `${URLS.itinerary}/meta/detail/${itinerary_id}`,
+        {
+            "method": "get",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+}
+
+function download_itinerary(itinerary_id) {
+    return fetch(
+        `${URLS.itinerary}/download/${itinerary_id}`,
+        {
+            "method": "get",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
 }
