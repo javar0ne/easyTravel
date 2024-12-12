@@ -1,6 +1,6 @@
 import logging
 
-from flask import request
+from flask import request, render_template
 from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 
@@ -93,3 +93,7 @@ def confirm_signup():
     except Exception as err:
         logger.error(str(err))
         return error_response()
+
+@traveler.get("/profile")
+def profile():
+    return render_template("profile.html")

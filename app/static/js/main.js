@@ -12,6 +12,9 @@ const REFRESH_TOKEN = "refresh_token";
 const REFRESH_TOKEN_TIME = 1000 * 60 * 13;
 let scheduled_refresh = null;
 
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
 
 function set_tokens(data) {
     localStorage.setItem(ACCESS_TOKEN, data.response.access_token);

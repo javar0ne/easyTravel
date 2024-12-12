@@ -55,6 +55,9 @@ select {
 .border-black{
     border-color: #000009 !important;
 }
+.border-grey{
+    border-color: #D6D6D6 !important;
+}
 .btn-primary{
     background-color: #EE7674;
     color: #000009;
