@@ -93,7 +93,3 @@ def confirm_signup():
     except Exception as err:
         logger.error(str(err))
         return error_response()
-
-@traveler.get("/profile")
-def profile():
-    return render_template("profile.html")
