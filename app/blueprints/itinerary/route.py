@@ -13,7 +13,7 @@ from app.blueprints.itinerary.service import get_city_description, get_itinerary
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary, delete_itinerary, \
     get_saved_itineraries, handle_itinerary_request, handle_event_itinerary_request, handle_save_itinerary, \
-    get_most_saved
+    get_most_saved, get_itinerary_meta_detail
 from app.exceptions import ElementNotFoundException
 from app.models import Paginated
 from app.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
@@ -287,6 +287,16 @@ def most_saved():
     try:
         spotlight_itineraries = get_most_saved()
         return success_response(spotlight_itineraries)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.get('/meta/detail/<itinerary_id>')
+@roles_required([Role.TRAVELER.name])
+def itinerary_meta_detail(itinerary_id):
+    try:
+        meta_detail = get_itinerary_meta_detail(get_jwt_identity(), itinerary_id)
+        return success_response(meta_detail.model_dump())
     except Exception as err:
         logger.error(str(err))
         return error_response()

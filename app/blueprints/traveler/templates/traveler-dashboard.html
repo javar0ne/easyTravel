@@ -16,6 +16,13 @@
     <script>
         $(document).ready(function () {
             get_traveler()
+                .then(response => {
+                    if(!response.ok && response.status === 401) {
+                        go_to_login();
+                    }
+
+                    return response.json();
+                })
                 .then(data => {
                     $("#first_name").text(data.response.first_name);
                     data.response.interested_in.forEach(activity => get_itinerary_by_activity(activity, activity.toLowerCase().replace("_", "-")))

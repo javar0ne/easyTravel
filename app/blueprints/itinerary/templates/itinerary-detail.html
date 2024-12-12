@@ -3,6 +3,7 @@
 {% block navbar %}
 {% endblock %}
 {% block content %}
+{% set stages_counter = namespace(value=0) %}
 <div class="row">
     <div class="col-12 col-md-4 pe-md-1 pt-3">
         <div class="row align-items-center">
@@ -15,82 +16,185 @@
                   </div>
             </div>
             <div class="col-6">
-                <div class="d-flex gap-2 justify-content-end">
-                    <a href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save.svg" alt="save"></a>
-                    <a href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Download itinerary"><img class="img-fluid" src="../../static/svg/download.svg" alt="download"></a>
-                    <a href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Duplicate itinerary"><img class="img-fluid" src="../../static/svg/copy.svg" alt="copy"></a>
-                </div>
+                <div id="actions_container" class="d-flex gap-2 justify-content-end"></div>
             </div>
         </div>
         <div class="row mt-3">
             <div class="col-12">
-                <img class="img-fluid object-fit-cover" src="https://images.unsplash.com/photo-1470181942237-78ce33fec141?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="cover-itinerary">
-                <h1 class="d-none d-xl-block fs-40 fw-bold mt-2">United Kingdom, London</h1>
-                <h1 class="d-none d-lg-block d-xl-none fs-32 fw-bold mt-2">United Kingdom, London</h1>
-                <h1 class="d-block d-lg-none fs-28 fw-bold mt-2">United Kingdom, London</h1>
-                <p class="d-none d-xl-block">Londra è una città vibrante e cosmopolita, dove storia e modernità si intrecciano. Dai maestosi monumenti come il Big Ben e il Tower Bridge, ai quartieri trendy di Shoreditch e Notting Hill.</p>
-                <p class="d-none d-lg-block d-xl-none fs-14">Londra è una città vibrante e cosmopolita, dove storia e modernità si intrecciano. Dai maestosi monumenti come il Big Ben e il Tower Bridge, ai quartieri trendy di Shoreditch e Notting Hill.</p>
-                <p class="d-block d-lg-none fs-12">Londra è una città vibrante e cosmopolita, dove storia e modernità si intrecciano. Dai maestosi monumenti come il Big Ben e il Tower Bridge, ai quartieri trendy di Shoreditch e Notting Hill.</p>
+                <img class="img-fluid object-fit-cover" src="{{ itinerary.image.urls.regular }}" alt="{{ itinerary.image.alt_description }}">
+                <h1 class="d-none d-xl-block fs-40 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
+                <h1 class="d-none d-lg-block d-xl-none fs-32 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
+                <h1 class="d-block d-lg-none fs-28 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
+                <p class="d-none d-xl-block">{{ itinerary.description }}</p>
+                <p class="d-none d-lg-block d-xl-none fs-14">{{ itinerary.description }}</p>
+                <p class="d-block d-lg-none fs-12">{{ itinerary.description }}</p>
                 <div class="row">
                     <div class="d-none d-2xl-block">
                         <div class="d-flex justify-content-between">
-                            {{ itinerary_info.itinerary_info("budget-high","budget_high","Estimated: 1000 EUR") }}
-                            {{ itinerary_info.itinerary_info("path","path","1300 km") }}
-                            {{ itinerary_info.itinerary_info("ferris-wheel","ferris_wheel","20 free activity") }}
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "budget-" ~ itinerary.budget.lower(),
+                                    "budget-" ~ itinerary.budget.lower(),
+                                    "Estimated: " ~ itinerary.budget_min ~ " - " ~ itinerary.budget_max
+                                )
+                            }}
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "people-" ~ itinerary.travelling_with.lower(),
+                                    "people" ~ itinerary.travelling_with.lower(),
+                                    itinerary.travelling_with.lower().title()
+                                )
+                            }}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            {% for activity in itinerary.interested_in %}
+                                {{
+                                    itinerary_info.itinerary_info(
+                                        activity.lower().replace("_", "-"),
+                                        activity.lower().replace("_", "-"),
+                                        activity.lower().replace("_", " ").title()
+                                    )
+                                }}
+                            {% endfor %}
                         </div>
                     </div>
                     <div class="d-block d-2xl-none">
                         <div class="col-12">
-                                {{ itinerary_info.itinerary_info("budget-high","budget_high","Estimated: 1000 EUR") }}
-                                {{ itinerary_info.itinerary_info("path","path","1300 km") }}
-                                {{ itinerary_info.itinerary_info("ferris-wheel","ferris_wheel","20 free activity") }}
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "budget-" ~ itinerary.budget.lower(),
+                                    "budget-" ~ itinerary.budget.lower(),
+                                    "Estimated: " ~ itinerary.budget_min ~ " - " ~ itinerary.budget_max
+                                )
+                            }}
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "people-" ~ itinerary.travelling_with.lower(),
+                                    "people" ~ itinerary.travelling_with.lower(),
+                                    itinerary.travelling_with.lower().title()
+                                )
+                            }}
                         </div>
                     </div>
                 </div>
                 <h1 class="d-none d-xl-block fs-32 fw-medium mt-5">Itinerary</h1>
                 <h1 class="d-none d-lg-block d-xl-none fs-28 fw-medium mt-4">Itinerary</h1>
                 <h1 class="d-none d-md-block d-lg-none fs-26 fw-medium mt-3">Itinerary</h1>
-                <div class="accordion" id="accordionDay1">
-                  <div class="accordion-item border-0">
-                    <h2 class="accordion-header">
-                      <button class="accordion-button accordion-flush border border-2 border-black bg-white rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        <p class="lh-1 mb-0">
-                            <span class="d-none d-xl-block fw-medium fs-24">Day 1 </span>
-                            <span class="d-block d-lg-none fw-medium fs-20">Day 1 </span>
-                            <br>
-                            <span class="d-none d-xl-block text-muted fs-16">Thu, 24 Oct</span>
-                            <span class="d-block d-lg-none text-muted fs-14">Thu, 24 Oct</span>
-                        </p>
-                      </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionDay1">
-                      <div class="accordion-body">
-                        <div class="row">
-                            <div class="col-12">
-                                {{ itinerary_stage.itinerary_stage("1","Borugh Market","120 minutes","Borough Market è uno dei mercati più antichi e iconici di Londra, situato  vicino a London Bridge, ed è il paradiso per gli amanti del cibo.") }}
+
+                {% for details in itinerary.details %}
+
+                    <div class="accordion" id="accordionDay{{ details.day }}">
+                      <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                          <button class="accordion-button accordion-flush border border-2 border-black bg-white rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ details.day }}" aria-expanded="true" aria-controls="collapse{{ details.day }}">
+                            <p class="lh-1 mb-0">
+                                <span class="d-none d-xl-block fw-medium fs-24">Day {{ details.day }} </span>
+                                <span class="d-block d-lg-none fw-medium fs-20">Day {{ details.day }} </span>
+                                <br>
+{#                                <span class="d-none d-xl-block text-muted fs-16">{{ details.date.strftime('%a, %d %b') }}</span>#}
+{#                                <span class="d-block d-lg-none text-muted fs-14">{{ details.date.strftime('%a, %d %b') }}</span>#}
+                            </p>
+                          </button>
+                        </h2>
+                        <div id="collapse{{ details.day }}" class="accordion-collapse collapse show" data-bs-parent="#collapse{{ details.day }}">
+                          <div class="accordion-body">
+                            <div class="row">
+
+                                {% for stage in details.stages %}
+                                    {% set stages_counter.value = stages_counter.value + 1 %}
+                                    <div class="col-12">
+                                        {{ itinerary_stage.itinerary_stage(stages_counter.value, stage.title, stage.avg_duration ~ " minutes", stage.description) }}
+                                    </div>
+
+                                {% endfor %}
+
                             </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+
+                {% endfor %}
+
             </div>
         </div>
     </div>
     <div class="col-12 col-md-8 pe-md-0 mt-3 mt-md-0">
-        <div id="map"></div>
+        <div id="map" class="position-fixed"></div>
     </div>
 </div>
 {% endblock %}
-{% block footer %}
+{#{% block footer %}
     {% include "components/footer.html" %}
-{% endblock %}
+{% endblock %}#}
 {% block script %}
     <script>
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+        var map = L.map('map');
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
+
+        $(this).on('load', () => {
+            get_itinerary_meta_detail("{{ itinerary.id }}")
+                .then(response => {
+                    if(!response.ok && response.status === 401) {
+                        go_to_login();
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    if(!data.response.is_owner) {
+                        $("#actions_container").append(`
+                            <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="${data.response.has_saved ? "../../static/svg/saved.svg" : "../../static/svg/save.svg"}" alt="save"></a>
+                        `)
+
+                        $("#save_itinerary").on("click", () => save_itinerary("{{ itinerary.id }}"))
+                    }
+
+                    $("#actions_container").append(`
+                        <a id="download_itinerary" href="${URLS.itinerary}/download/{{ itinerary.id }}"  target="_blank" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Download itinerary"><img class="img-fluid" src="../../static/svg/download.svg" alt="download"></a>
+                        <a id="duplicate_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Duplicate itinerary"><img class="img-fluid" src="../../static/svg/copy.svg" alt="copy"></a>
+                    `);
+                });
+        })
+
+        map.on('load', () => {
+            let coordinates = [];
+            let stages_counter = 0;
+
+            {% for details in itinerary.details %}
+                {% for stage in details.stages %}
+                  stages_counter++;
+                  coordinates.push([{{ stage.coordinates.lat }}, {{ stage.coordinates.lng }}])
+                  L.marker(
+                      [{{ stage.coordinates.lat }}, {{ stage.coordinates.lng }}],
+                      {
+                          title:stages_counter,
+                          icon: L.icon({
+                            iconUrl: `../../static/svg/pin-${stages_counter}.svg`,
+
+                            iconSize:     [38, 95], // size of the icon
+                            iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+                            popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+                          })
+                      }
+                  ).addTo(map)
+                  .bindPopup(
+                      `<p><b>{{ stage.title }}</b></p>`
+                  )
+                  .on("mouseover", e => e.target.togglePopup())
+                  .on("mouseout", e => e.target.togglePopup());
+                {% endfor %}
+            {% endfor %}
+
+            map.fitBounds(coordinates);
+            map.setMaxBounds(map.getBounds());
+        });
+        map.setView([{{ itinerary.coordinates.lat }}, {{ itinerary.coordinates.lng }}], 12);
     </script>
 {% endblock %}
