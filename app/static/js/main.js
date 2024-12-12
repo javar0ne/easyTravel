@@ -1,7 +1,8 @@
 const URLS = {
     "user": "/v1/user",
     "traveler": "/v1/traveler",
-    "itinerary": "/v1/itinerary"
+    "itinerary": "/v1/itinerary",
+    "rest_countries": "https://restcountries.com/v3.1"
 }
 
 const CITY_DESCRIPTION_MAX_LENGTH = 250;
@@ -262,6 +263,42 @@ function validate_traveler_signup_confirmation() {
     return true;
 }
 
+function validate_generate_itinerary() {
+    const city = $("#city").val();
+    const budget_selected = $("input[name='budget']:checked").length;
+    const people_selected = $("input[name='travelling-with']:checked").length;
+    const interested_in = $("input[name='interested-in']:checked").length;
+    const start_date = $('#daterange').data('daterangepicker').startDate;
+    const end_date = $('#daterange').data('daterangepicker').endDate;
+
+    if(!city) {
+        show_error_toast("City must not be empty!");
+    }
+    if(!start_date || !end_date) {
+        show_error_toast("Start date and end date must not be empty!");
+    } else if(end_date.diff(start_date, 'days') > 7) {
+        show_error_toast("Start date and end date must differ by 7 days at most!");
+    } else {
+        $('#start_date').attr("value", start_date.format('YYYY-MM-DD'));
+        $('#end_date').attr("value", end_date.format('YYYY-MM-DD'));
+    }
+    if(budget_selected === 0) {
+        show_error_toast("At least one budget must be selected!");
+    }
+    if(people_selected === 0) {
+        show_error_toast("At least one option of people must be selected!");
+    }
+    if(interested_in === 0) {
+        show_error_toast("At least one activity must be selected!");
+
+    }
+
+    return city !== '' &&
+        budget_selected > 0 &&
+        people_selected > 0 &&
+        interested_in > 0;
+}
+
 function get_traveler() {
     return fetch(
         URLS.traveler,
@@ -318,26 +355,6 @@ function handle_most_saved_itinerary(data) {
 
 
     $("button#top_itinerary_find_out").each(function() { $(this).on("click", () => window.location.href=`/itinerary/detail/${data.id}`) });
-
-    /*$("#top_itinerary_country").text(data.country);
-    $("#top_itinerary_city").text(data.city);
-    $("#top_itinerary_description").text(data.description);
-    $("#top_itinerary_duration").text(`${data.duration} day${data.duration > 1 ? "s" : ""}`);
-    $("#top_itinerary_travelling_with").text(decode_travelling_with(data.travelling_with));
-    $("#top_itinerary_budget").text(decode_budget(data.budget));
-    $("#top_itinerary_saves").text(decode_saved_by(data.saved_by));
-    $("#top_itinerary_img")
-        .attr("src", data.image.urls.small)
-        .attr("alt", data.image.alt_description);
-
-    data.interested_in.forEach((activity, idx) => {
-        $("#interested_in_container").append(
-            `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${idx === 0 ? "" : "ms-2"}">${decode_interested_in(activity)}</span>`
-        );
-    })
-
-
-    $("#top_itinerary_find_out").on("click", () => window.location.href=`/itinerary/detail/${data.id}`);*/
 }
 
 function handle_itinerary_carousel(data) {
@@ -546,4 +563,90 @@ function download_itinerary(itinerary_id) {
             }
         }
     )
+}
+
+function search_for_capital(city) {
+    if(!city) throw new Error("city is null!");
+
+    fetch(
+        `${URLS.rest_countries}/capital/${encodeURIComponent(city)}?fields=capital,name`
+    ).then(response => {
+        if(!response.ok) {
+            throw new Error("error while retrieving capital");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        $("#autocomplete-list").empty();
+        data.forEach(element => {
+            $("#autocomplete-list").append(`
+                <div onclick="set_city('${element.capital[0]}')" class="ms-3 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
+            `);
+
+            $("#autocomplete-list").css("display", "");
+        });
+    })
+}
+
+function set_city(city) {
+    if(city) {
+        $("#city").val(city);
+        $("#autocomplete-list").empty();
+    }
+}
+
+function generate_itinerary() {
+    if(validate_generate_itinerary()) {
+        const city = $("#city").val();
+        const budget = $("input[name='budget']:checked").attr("value");
+        const travelling_with = $("input[name='travelling-with']:checked").attr("value");
+        const start_date = $("#start_date").attr("value");
+        const end_date = $("#end_date").attr("value");
+        const accessibility = $("#accessibility").prop("checked");
+
+        let interested_in = []
+        $("input[name='interested-in']:checked").each(function () {
+          interested_in.push($(this).attr("value"));
+        })
+
+        console.log(JSON.stringify({
+                    "city": city,
+                    "budget": budget,
+                    "interested_in": interested_in,
+                    "travelling_with": travelling_with,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "accessibility": accessibility
+                }));
+
+        fetch(
+            `${URLS.itinerary}/request`,
+            {
+                "method": "post",
+                "headers": {
+                    "Authorization": `Bearer ${get_access_token()}`,
+                    "Content-Type": "application/json"
+                },
+                "body": JSON.stringify({
+                    "city": city,
+                    "budget": budget,
+                    "interested_in": interested_in,
+                    "travelling_with": travelling_with,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "accessibility": accessibility
+                })
+            }
+        )
+        .then(response => {
+            if(!response.ok && response.status === 401) {
+                throw new Error("authentication error!");
+            }
+
+            return response.json();
+        })
+        .then(data => window.location.href=`${URLS.itinerary}/itinerary/request/${data.response.request_id}`);
+    }
+
 }

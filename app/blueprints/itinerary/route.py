@@ -228,7 +228,7 @@ def city_description():
         logger.error(str(err))
         return error_response()
 
-@itinerary.post('/itinerary-request')
+@itinerary.post('/request')
 @roles_required([Role.TRAVELER.name])
 def generate_itinerary():
     try:

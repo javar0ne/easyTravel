@@ -167,3 +167,9 @@ select {
   width: 100%;
   height: 100vh;
 }
+
+/* Autocomplete */
+.autocomplete-item:hover {
+    background: #000009;
+    color: white;
+}
