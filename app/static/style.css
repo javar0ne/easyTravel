@@ -10,6 +10,9 @@ button {
 select {
   box-shadow: none!important;
 }
+textarea {
+  box-shadow: none!important;
+}
 
 /* custom breakpoint */
 @media (min-width: 1600px) {
