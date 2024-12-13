@@ -305,7 +305,3 @@ def itinerary_meta_detail(itinerary_id):
     except Exception as err:
         logger.error(str(err))
         return error_response()
-
-@itinerary.get("/tmp")
-def tmp():
-    return render_template("upcoming_itinerary.html")
