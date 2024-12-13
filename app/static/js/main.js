@@ -89,6 +89,10 @@ function go_to_login() {
     window.location.href='/login';
 }
 
+function go_to_itinerary(id) {
+    window.location.href=`/itinerary/detail/${id}`;
+}
+
 function show_error_toast(message) {
     $('#error_toast .toast-body').text(message);
     bootstrap.Toast.getOrCreateInstance($('#error_toast')).show();
@@ -331,7 +335,6 @@ function get_most_saved_itineraries() {
     .then(data => {
         handle_most_saved_itinerary(data.response[0]);
         handle_itinerary_carousel(data.response);
-        console.log(data);
     });
 }
 
@@ -357,7 +360,7 @@ function handle_most_saved_itinerary(data) {
     })
 
 
-    $("button#top_itinerary_find_out").each(function() { $(this).on("click", () => window.location.href=`/itinerary/detail/${data.id}`) });
+    $("button#top_itinerary_find_out").each(function() { $(this).on("click", () => go_to_itinerary(data.id)) });
 }
 
 function handle_itinerary_carousel(data) {
@@ -366,7 +369,7 @@ function handle_itinerary_carousel(data) {
             $('div#itinerary_carousel_container').each(function() {
                 const country_city = `${itinerary.country}, ${itinerary.city}`;
                 $(this).append(
-                    `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 1 ? "active": ""} pb-1" data-title="${country_city}">
+                    `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 1 ? "active": ""} pb-1" data-title="${country_city}" onclick="go_to_itinerary('${itinerary.id}')" style="cursor:pointer;">
                         <img class="d-none d-2xl-block w-100 object-fit-cover" height="290"
                              src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
                         <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="215"
@@ -476,7 +479,7 @@ function get_itinerary_by_activity(activity, activity_selector) {
             $(`#${activity_selector}-section #activity_itinerary_carousel`).append(
                 `
                  <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
-                    <div class="card border border-0 rounded-0 w-100" role="button" onclick="window.location.href='/itinerary/detail/${itinerary.id}'">
+                    <div class="card border border-0 rounded-0 w-100" role="button" onclick="go_to_itinerary('${itinerary.id}')">
                       <img class="card-img-top rounded-0 w-100 object-fit-cover" height="381" src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}">
                       <div class="card-body px-1 py-2 rounded-0">
                         <h5 class="card-title fw-light fs-24">${itinerary.country}, <span class="fw-bold">${itinerary.city}</span></h5>
@@ -498,11 +501,6 @@ function get_itinerary_by_activity(activity, activity_selector) {
                 )
             })
         });
-
-        if (data.response.content.length < 5) {
-            $(`#${activity_selector}-section #activity_itinerary_carousel`).removeClass("justify-content-center")
-            $(`#${activity_selector}-section #activity_itinerary_carousel`).addClass("justify-content-start")
-        }
     })
 }
 
@@ -616,16 +614,6 @@ function generate_itinerary() {
         $("input[name='interested-in']:checked").each(function () {
           interested_in.push($(this).attr("value"));
         })
-
-        console.log(JSON.stringify({
-                    "city": city,
-                    "budget": budget,
-                    "interested_in": interested_in,
-                    "travelling_with": travelling_with,
-                    "start_date": start_date,
-                    "end_date": end_date,
-                    "accessibility": accessibility
-                }));
 
         fetch(
             `${URLS.itinerary}/request`,

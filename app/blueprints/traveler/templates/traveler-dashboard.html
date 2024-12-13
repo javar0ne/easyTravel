@@ -25,7 +25,13 @@
                 })
                 .then(data => {
                     $("#first_name").text(data.response.first_name);
-                    data.response.interested_in.forEach(activity => get_itinerary_by_activity(activity, activity.toLowerCase().replace("_", "-")))
+                    data.response.interested_in.forEach((activity, idx) => {
+                        get_itinerary_by_activity(activity, activity.toLowerCase().replace("_", "-"))
+
+                        if(idx === 0) {
+                            $('#be_inspired').on("click", () => window.location.href = `#${activity.toLowerCase().replace("_", "-")}-section`);
+                        }
+                    })
                 });
             get_most_saved_itineraries()
                 .then(() => {
@@ -57,6 +63,5 @@
         });
 
         $('#create_itinerary').on("click", () => window.location.href = '/itinerary/generate');
-        $('#be_inspired').on("click", () => window.location.href = '#nightlife');
     </script>
 {% endblock %}
