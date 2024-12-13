@@ -1,6 +1,6 @@
-{% macro activity_checkbox(id,image,alt,name) %}
-<div id="budget" class="btn-group mb-2 me-2" role="group">
-    <input type="checkbox" class="btn-check" name="budget" id="{{ id }}" autocomplete="off">
+{% macro activity_checkbox(id,image,alt,name, value) %}
+<div id="interested-in" class="btn-group mb-2 me-2" role="group">
+    <input type="checkbox" class="btn-check" name="interested-in" id="{{ id }}" autocomplete="off" value="{{ value }}">
     <label for="{{ id }}" class="btn btn-lg rounded-0 border-2 border-black">
         <img class="me-3" height="40" src="../../static/svg/{{ image }}.svg" alt="{{ alt }}"/>{{ name }}</label>
 </div>

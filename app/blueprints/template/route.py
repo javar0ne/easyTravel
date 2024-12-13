@@ -1,7 +1,9 @@
 from flask import render_template, request, redirect
 
-from app.blueprints.itinerary.model import ItinerarySearch
-from app.blueprints.itinerary.service import search_itineraries, get_itinerary_detail
+from app import itinerary
+from app.blueprints.itinerary.model import ItinerarySearch, ItineraryRequest
+from app.blueprints.itinerary.service import search_itineraries, get_itinerary_detail, get_itinerary_request_by_id, \
+    find_city_meta
 from app.blueprints.template import template
 from app.blueprints.traveler.model import CreateTravelerRequest, ConfirmTravelerSignupRequest
 from app.blueprints.traveler.service import create_traveler, signup_request_exists, \
@@ -73,6 +75,14 @@ def organization_signup():
 @template.get("/itinerary/generate")
 def generate_itinerary():
     return render_template("generate-itinerary.html")
+
+@template.get("/itinerary/request/<itinerary_request_id>")
+def itinerary_request(itinerary_request_id):
+    lat = request.args.get("lat")
+    lng = request.args.get("lng")
+    itinerary_request = get_itinerary_request_by_id(itinerary_request_id)
+    city_meta = find_city_meta(itinerary_request.city)
+    return render_template("itinerary-request.html", itinerary_request=itinerary_request, city_meta=city_meta, lat=lat, lng=lng)
 
 @template.get("/itinerary/detail/<itinerary_id>")
 def itinerary_detail(itinerary_id):

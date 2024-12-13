@@ -4,7 +4,7 @@
     {% include "components/navbar.html" %}
 {% endblock %}
 {% block content %}
-<form class="mx-5 my-3">
+{#<form class="mx-5 my-3">#}
     <div class="input-group-lg">
         <h1 class="form-label d-none d-xl-block fw-medium fs-40">Tell us your destination</h1>
         <h1 class="form-label d-none d-md-block d-xl-none fw-medium fs-32">Tell us your destination</h1>
@@ -12,7 +12,10 @@
         <h1 class="form-label d-block d-sm-none fw-medium fs-18">Tell us your destination</h1>
         <div class="row">
             <div class="col-sm-12 col-md-8">
-                <input type="text" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-black" id="city" placeholder="Rome">
+                <input type="text" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-black" id="city" name="city" placeholder="Rome">
+                <input type="hidden" id="city_lat">
+                <input type="hidden" id="city_lng">
+                <div id="autocomplete-list" class="autocomplete-list w-auto" style="display: none; cursor: pointer;"></div>
             </div>
         </div>
     </div>
@@ -24,6 +27,8 @@
         <div class="row">
             <div class="col-sm-12 col-md-8">
                 <input type="text" id="daterange" name="dates" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 border-black" id="date" placeholder="Add date">
+                <input type="hidden" id="start_date" name="start_date">
+                <input type="hidden" id="end_date" name="end_date">
             </div>
         </div>
     </div>
@@ -35,19 +40,19 @@
         <div class="row mt-3">
             <div class="col-12">
                 <div id="budget" class="btn-group" role="group">
-                    <input type="radio" class="btn-check" name="budget" id="budget-low" autocomplete="off" checked>
+                    <input type="radio" class="btn-check" name="budget" id="budget-low" autocomplete="off" checked value="LOW">
                     <label for="budget-low" class="btn rounded-0 border-black">
                         <img class="me-2" src="../../static/svg/budget-low.svg" alt="budget-low"/>
                         Low Budget (0-500 EUR)</label>
                 </div>
                 <div id="budget" class="btn-group mt-2 ms-md-2 mt-lg-0" role="group">
-                    <input type="radio" class="btn-check" name="budget" id="budget-medium" autocomplete="off">
+                    <input type="radio" class="btn-check" name="budget" id="budget-medium" autocomplete="off" value="MEDIUM">
                     <label for="budget-medium" class="btn rounded-0 border-black">
                         <img class="me-2" src="../../static/svg/budget-medium.svg" alt="budget-medium"/>
                         Medium Budget (500-1000 EUR)</label>
                 </div>
                 <div id="budget" class="btn-group mt-2 ms-lg-2 mt-lg-0" role="group">
-                    <input type="radio" class="btn-check" name="budget" id="budget-high" autocomplete="off">
+                    <input type="radio" class="btn-check" name="budget" id="budget-high" autocomplete="off" value="HIGH">
                     <label for="budget-high" class="btn rounded-0 border-black">
                         <img class="me-2" src="../../static/svg/budget-high.svg" alt="budget-high"/>
                         High Budget (500-1000 EUR)</label>
@@ -63,25 +68,25 @@
         <div class="row">
             <div class="col-12">
                 <div id="people" class="btn-group" role="group">
-                    <input type="radio" class="btn-check" name="people" id="people-solo" autocomplete="off" checked>
+                    <input type="radio" class="btn-check" name="travelling-with" id="people-solo" autocomplete="off" checked value="SOLO">
                     <label class="btn rounded-0 border-black" for="people-solo">
                         <img class="me-2" src="../../static/svg/people-solo.svg" alt="people-solo"/>
                         Solo</label>
                 </div>
                 <div id="people" class="btn-group mt-2 mt-sm-0 ms-sm-2" role="group">
-                    <input type="radio" class="btn-check" name="people" id="people-couple" autocomplete="off">
+                    <input type="radio" class="btn-check" name="travelling-with" id="people-couple" autocomplete="off" value="COUPLE">
                     <label class="btn rounded-0 border-black" for="people-couple">
                         <img class="me-2" src="../../static/svg/people-couple.svg" alt="people-couple"/>
                         Couple</label>
                 </div>
                 <div id="people" class="btn-group mt-2 mt-sm-0 ms-sm-2" role="group">
-                    <input type="radio" class="btn-check" name="people" id="people-family" autocomplete="off">
+                    <input type="radio" class="btn-check" name="travelling-with" id="people-family" autocomplete="off" value="FAMILY">
                     <label class="btn rounded-0 border-black" for="people-family">
                         <img class="me-2" src="../../static/svg/people-family.svg" alt="people-family"/>
                         Family</label>
                 </div>
                 <div id="people" class="btn-group mt-2 ms-sm-0 ms-md-2 mt-md-0" role="group">
-                    <input type="radio" class="btn-check" name="people" id="people-friends" autocomplete="off">
+                    <input type="radio" class="btn-check" name="travelling-with" id="people-friends" autocomplete="off" value="FRIENDS">
                     <label class="btn rounded-0 border-black" for="people-friends">
                         <img class="me-2" src="../../static/svg/people-friends.svg" alt="people-friends"/>
                         Friends</label>
@@ -96,9 +101,14 @@
         <h1 class="form-label d-block d-sm-none fw-medium fs-18">What activity are you interested in?</h1>
         <div class="row">
             <div class="col">
-                {{ activity_checkbox.activity_checkbox("beach","beach","beach","Beach") }}
-                {{ activity_checkbox.activity_checkbox("adventure","adventure","adventure","Adventure") }}
-                {{ activity_checkbox.activity_checkbox("spa","spa_wellness","spa","Spa") }}
+                {{ activity_checkbox.activity_checkbox("beach","beach","beach","Beach","BEACH") }}
+                {{ activity_checkbox.activity_checkbox("city-sightseeing","city-sightseeing","city-sightseeing","City sightseeing", "CITY_SIGHTSEEING") }}
+                {{ activity_checkbox.activity_checkbox("outdoor-adventures","outdoor-adventures","outdoor-adventures","Outdoor Adventures", "OUTDOOR_ADVENTURES") }}
+                {{ activity_checkbox.activity_checkbox("festival","festival","festival","Festival", "FESTIVAL") }}
+                {{ activity_checkbox.activity_checkbox("food-exploration","food-exploration","food-exploration","Food exploration", "FOOD_EXPLORATION") }}
+                {{ activity_checkbox.activity_checkbox("nightlife","nightlife","nightlife","Nightlife", "NIGHTLIFE") }}
+                {{ activity_checkbox.activity_checkbox("shopping","shopping","shopping","Shopping", "SHOPPING") }}
+                {{ activity_checkbox.activity_checkbox("spa-wellness","spa-wellness","spa-wellness","Spa & Wellness", "SPA_WELLNESS") }}
             </div>
         </div>
     </div>
@@ -120,21 +130,46 @@
     </div>
     <div class="row mt-11">
         <div class="col">
-            <button type="submit" class="btn btn-primary fw-medium">Generate</button>
+            <button type="submit" class="btn btn-primary fw-medium" onclick="generate_itinerary()">Generate</button>
         </div>
     </div>
-</form>
+{#</form>#}
 {% endblock %}
 {% block footer %}
     {% include "components/footer.html" %}
 {% endblock %}
 {% block script %}
 <script>
+    $(this).on("load", () => {
+        get_traveler()
+            .then(response => {
+                if(!response.ok && response.status === 401) {
+                    go_to_login()
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                 data.response.interested_in.forEach(activity => $(`input[value='${activity}']`).prop("checked", true))
+            });
+    })
+
     $('#daterange').daterangepicker({
         minDate: moment(),
         maxSpan: {
             "days": 7
         }
     });
+
+    $("#city").on("keyup", event => {
+        const city = event.target.value;
+        if(city && city.length >= 2) {
+            search_for_capital(city)
+        } else {
+            $("#autocomplete-list").empty();
+        }
+    });
+
+
 </script>
 {% endblock %}

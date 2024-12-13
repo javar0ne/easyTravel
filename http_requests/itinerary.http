@@ -3,7 +3,7 @@ GET http://localhost:5000/v1/itinerary/{{itinerary.id}}
 
 ### Create itinerary
 POST http://localhost:5000/v1/itinerary/create/{{itinerary.request_id}}
-Content-Type: application/json
+Authorization: Bearer {{bearer_token}}
 
 ### Update itinerary
 PUT http://localhost:5000/v1/itinerary/{{itinerary.id}}
@@ -231,7 +231,7 @@ Content-Type: application/json
 }
 
 ### Generate itinerary request
-POST http://localhost:5000/v1/itinerary/itinerary-request
+POST http://localhost:5000/v1/itinerary/request
 Authorization: Bearer {{bearer_token}}
 Content-Type: application/json
 
