@@ -8,12 +8,12 @@ from pydantic import ValidationError
 from app.blueprints.itinerary import itinerary
 from app.blueprints.itinerary.model import ItineraryRequest, ShareWithRequest, PublishReqeust, DuplicateRequest, \
     ItinerarySearch, DateNotValidException, UpdateItineraryRequest, CannotUpdateItineraryException, \
-    ItineraryGenerationDisabledException, CityDescriptionRequest
+    ItineraryGenerationDisabledException, CityMetaRequest
 from app.blueprints.itinerary.service import get_city_description, get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary, delete_itinerary, \
     get_saved_itineraries, handle_itinerary_request, handle_event_itinerary_request, handle_save_itinerary, \
-    get_most_saved, get_itinerary_meta_detail
+    get_most_saved, get_itinerary_meta_detail, find_city_meta
 from app.exceptions import ElementNotFoundException
 from app.models import Paginated
 from app.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
@@ -35,6 +35,7 @@ def get_itinerary(itinerary_id):
         return error_response()
 
 @itinerary.post('/create/<itinerary_request_id>')
+@roles_required([Role.TRAVELER.name])
 def create(itinerary_request_id):
     try:
         inserted_id = create_itinerary(itinerary_request_id)
@@ -215,12 +216,16 @@ def duplicate_itinerary():
         logger.error(str(err))
         return error_response()
 
-@itinerary.get('/city-description')
+@itinerary.post('/city-meta')
 def city_description():
     try:
-        city_description_req = CityDescriptionRequest(**request.json)
-        cd = get_city_description(city_description_req.name)
-        return success_response(cd.model_dump())
+        city_meta_req = CityMetaRequest(**request.json)
+        meta = find_city_meta(city_meta_req.name)
+
+        if not meta:
+            return no_content_response()
+
+        return success_response(meta.model_dump())
     except APIStatusError as err:
         logger.error(str(err))
         return bad_gateway_response()
@@ -270,7 +275,7 @@ def generate_event_itinerary(event_id):
         logger.error(str(err))
         return error_response()
 
-@itinerary.get('/itinerary-request/<request_id>')
+@itinerary.get('/request/<request_id>')
 def get_itinerary_request(request_id):
     try:
         itinerary_request = get_itinerary_request_by_id(request_id)

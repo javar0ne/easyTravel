@@ -1,7 +1,9 @@
 from flask import render_template, request, redirect
 
+from app import itinerary
 from app.blueprints.itinerary.model import ItinerarySearch, ItineraryRequest
-from app.blueprints.itinerary.service import search_itineraries, get_itinerary_detail
+from app.blueprints.itinerary.service import search_itineraries, get_itinerary_detail, get_itinerary_request_by_id, \
+    find_city_meta
 from app.blueprints.template import template
 from app.blueprints.traveler.model import CreateTravelerRequest, ConfirmTravelerSignupRequest
 from app.blueprints.traveler.service import create_traveler, signup_request_exists, \
@@ -70,20 +72,17 @@ def organization_signup():
     return render_template("organization-signup.html")
 
 # itinerary
-@template.route("/itinerary/generate", methods=['GET', 'POST'])
+@template.get("/itinerary/generate")
 def generate_itinerary():
-    if request.method == 'GET':
-        return render_template("generate-itinerary.html")
+    return render_template("generate-itinerary.html")
 
-    itinerary_request = ItineraryRequest(
-        city=request.form.get('city'),
-        start_date=request.form.get('start_date'),
-        end_date=request.form.get('end_date'),
-        budget=request.form.get('budget'),
-        travelling_with=request.form.get('travelling-with'),
-        interested_in=request.form.getlist("interested_in"),
-        accessibility=request.form.get('accessibility')
-    )
+@template.get("/itinerary/request/<itinerary_request_id>")
+def itinerary_request(itinerary_request_id):
+    lat = request.args.get("lat")
+    lng = request.args.get("lng")
+    itinerary_request = get_itinerary_request_by_id(itinerary_request_id)
+    city_meta = find_city_meta(itinerary_request.city)
+    return render_template("itinerary-request.html", itinerary_request=itinerary_request, city_meta=city_meta, lat=lat, lng=lng)
 
 @template.get("/itinerary/detail/<itinerary_id>")
 def itinerary_detail(itinerary_id):

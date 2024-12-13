@@ -147,7 +147,7 @@ class AssistantItinerary(BaseModel):
 class AssistantItineraryResponse(BaseModel):
     itinerary: list[AssistantItinerary]
 
-class CityDescriptionRequest(BaseModel):
+class CityMetaRequest(BaseModel):
     name: str
 
 class CityDescription(BaseModel):
@@ -213,6 +213,7 @@ class UpdateItineraryRequest(ItineraryBaseModel):
     is_public: bool
 
 class ItineraryRequest(ItineraryBaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
     city: str
     start_date: datetime
     end_date: datetime
@@ -299,6 +300,7 @@ class SpotlightItinerary(BaseModel):
 class CityMeta(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
+    key: str
     country: str
     coordinates: Coordinates
     description: str
@@ -307,7 +309,8 @@ class CityMeta(BaseModel):
     @staticmethod
     def from_sources(image: UnsplashImage, city_description: CityDescription):
         return CityMeta(
-            name=encode_city_name(city_description.name),
+            name=city_description.name,
+            key=encode_city_name(city_description.name),
             country=city_description.country,
             coordinates=Coordinates(lat=city_description.lat, lng=city_description.lng),
             description=city_description.description,
@@ -369,6 +372,45 @@ class ItineraryDetail(BaseModel):
             docs_notification=itinerary.docs_notification,
             reminder_notification=itinerary.reminder_notification,
             is_public=itinerary.is_public,
+        )
+
+class ItineraryRequestDetail(BaseModel):
+    id: str
+    city: str
+    start_date: datetime
+    end_date: datetime
+    budget: str
+    travelling_with: str
+    accessibility: bool
+    interested_in: list[str]
+    user_id: str
+    details: list[AssistantItinerary] = []
+    status: str
+
+    @computed_field
+    @property
+    def budget_min(self) -> int:
+        return Budget[self.budget].min
+
+    @computed_field
+    @property
+    def budget_max(self) -> int:
+        return Budget[self.budget].max
+
+    @staticmethod
+    def from_req(itinerary_request: ItineraryRequest):
+        return ItineraryRequestDetail(
+            id=itinerary_request.id,
+            city=itinerary_request.city,
+            start_date=itinerary_request.start_date,
+            end_date=itinerary_request.end_date,
+            budget=itinerary_request.budget,
+            travelling_with=itinerary_request.travelling_with,
+            accessibility=itinerary_request.accessibility,
+            interested_in=itinerary_request.interested_in,
+            user_id=itinerary_request.user_id,
+            details=itinerary_request.details,
+            status=itinerary_request.status,
         )
 
 class ItineraryMetaDetail(BaseModel):

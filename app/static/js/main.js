@@ -572,7 +572,7 @@ function search_for_capital(city) {
     if(!city) throw new Error("city is null!");
 
     fetch(
-        `${URLS.rest_countries}/capital/${encodeURIComponent(city)}?fields=capital,name`
+        `${URLS.rest_countries}/capital/${encodeURIComponent(city)}?fields=capital,name,capitalInfo`
     ).then(response => {
         if(!response.ok) {
             throw new Error("error while retrieving capital");
@@ -584,7 +584,7 @@ function search_for_capital(city) {
         $("#autocomplete-list").empty();
         data.forEach(element => {
             $("#autocomplete-list").append(`
-                <div onclick="set_city('${element.capital[0]}')" class="ms-3 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
+                <div onclick="set_city('${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ms-3 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
             `);
 
             $("#autocomplete-list").css("display", "");
@@ -592,10 +592,12 @@ function search_for_capital(city) {
     })
 }
 
-function set_city(city) {
+function set_city(city, coordinates) {
     if(city) {
         $("#city").val(city);
         $("#autocomplete-list").empty();
+        $("#city_lat").val(coordinates.split(',')[0]);
+        $("#city_lng").val(coordinates.split(',')[1]);
     }
 }
 
@@ -607,6 +609,8 @@ function generate_itinerary() {
         const start_date = $("#start_date").attr("value");
         const end_date = $("#end_date").attr("value");
         const accessibility = $("#accessibility").prop("checked");
+        const city_lat = $("#city_lat").val();
+        const city_lng = $("#city_lng").val();
 
         let interested_in = []
         $("input[name='interested-in']:checked").each(function () {
@@ -649,7 +653,179 @@ function generate_itinerary() {
 
             return response.json();
         })
-        .then(data => window.location.href=`${URLS.itinerary}/itinerary/request/${data.response.request_id}`);
+        .then(data => window.location.href=`/itinerary/request/${data.response.request_id}?lat=${city_lat}&lng=${city_lng}`);
     }
 
+}
+
+function find_city_meta(city) {
+    fetch(
+        `${URLS.itinerary}/city-meta`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "name": city
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("error while retrieving city meta!");
+        }
+        if(response.status === 204) {
+            setTimeout(() => find_city_meta(city), 1000);
+            throw new Error("city meta not ready yet!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        $("#city_img").attr("src", data.response.image.urls.regular);
+        $("#city_img").attr("alt", data.response.image.alt_description);
+        $("h1#city_country").each(function() { $(this).text(`${data.response.country}, ${data.response.name}`) });
+        $("p#city_description").each(function() { $(this).text(data.response.description) });
+    });
+}
+
+function get_itinerary_request(id, map) {
+    fetch(
+        `${URLS.itinerary}/request/${id}`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("error while retrieving city meta!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        let stages_counter = 0;
+        let coordinates = [];
+        if(data.response.status === "PENDING") {
+            setTimeout(() => get_itinerary_request(id, map), 1000);
+        } else {
+            $("#actions_container").empty();
+            $("#actions_container").append(`
+            <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save-itinerary.svg" alt="save"></a>
+            `);
+            $("#save_itinerary").on("click", () => create_itinerary(`${data.response.id}`));
+        }
+
+        $("#details_container").empty();
+        data.response.details.forEach(detail => {
+            $("#details_container").append(`
+            <div class="accordion" id="accordionDay${detail.day}">
+              <div class="accordion-item border-0">
+                <h2 class="accordion-header">
+                  <button class="accordion-button accordion-flush border border-2 border-black bg-white rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${detail.day}" aria-expanded="true" aria-controls="collapse${detail.day}">
+                    <p class="lh-1 mb-0">
+                        <span class="d-none d-xl-block fw-medium fs-24">Day ${detail.day} </span>
+                        <span class="d-block d-lg-none fw-medium fs-20">Day ${detail.day} </span>
+                    </p>
+                  </button>
+                </h2>
+                <div id="collapse${detail.day}" class="accordion-collapse collapse show" data-bs-parent="#collapse${detail.day}">
+                  <div class="accordion-body">
+                    <div id="stages_container_${detail.day}" class="row"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            `);
+
+            detail.stages.forEach(stage => {
+                stages_counter++;
+                coordinates.push([stage.coordinates.lat, stage.coordinates.lng]);
+                $(`#stages_container_${detail.day}`).append(`
+                <div class="col-12">
+                    <div class="row gap-0 border border-black">
+                        <div class="col-12 p-2">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <div class="bg-black px-3 py-1">
+                                            <span class="fw-bold text-white">${stages_counter}</span>
+                                        </div>
+                                        <span class="fw-medium">${stage.title}</span>
+                                    </div>
+                                </div>
+                                <div class="d-none d-xl-block col">
+                                    <div class="d-flex justify-content-end">
+                                        <img src="../../../static/svg/clock.svg" alt="clock">
+                                        <span class="fs-12 ms-1">${stage.avg_duration}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-12">
+                                    <span class="text-muted fs-14">
+                                        ${stage.description}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="d-block d-xl-none">
+                                <div class="col">
+                                    <div class="d-flex justify-content-end">
+                                        <img src="../../../static/svg/clock.svg" alt="clock">
+                                        <span class="fs-12 ms-1">${stage.avg_duration}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `);
+
+                L.marker(
+                  [stage.coordinates.lat, stage.coordinates.lng],
+                  {
+                      title:stages_counter,
+                      icon: L.icon({
+                        iconUrl: `../../static/svg/pin-${stages_counter}.svg`,
+
+                        iconSize:     [38, 95], // size of the icon
+                        iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+                        popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+                      })
+                  }
+                ).addTo(map)
+                .bindPopup(
+                  `<p><b>${stage.title}</b></p>`
+                )
+                .on("mouseover", e => e.target.togglePopup())
+                .on("mouseout", e => e.target.togglePopup());
+            })
+        })
+
+        map.fitBounds(coordinates);
+    });
+}
+
+function create_itinerary(request_id) {
+    fetch(
+        `${URLS.itinerary}/create/${request_id}`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("error while creating itinerary!");
+        }
+
+        return response.json();
+    })
+    .then(data => window.location.href=`/itinerary/detail/${data.response.id}`);
 }

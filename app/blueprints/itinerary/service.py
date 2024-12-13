@@ -14,8 +14,8 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     Activity, Budget, TravellingWith, Itinerary, ShareWithRequest, PublishReqeust, ItineraryStatus, \
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
-    AssistantItineraryDocsResponse, CityDescriptionRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse, \
-    ItineraryDetail, ItineraryMetaDetail
+    AssistantItineraryDocsResponse, CityMetaRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse, \
+    ItineraryDetail, ItineraryMetaDetail, ItineraryRequestDetail
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 def find_city_meta(city: str):
-    city_meta = mongo.find_one(Collections.CITY_METAS, {"name": encode_city_name(city)})
+    city_meta = mongo.find_one(Collections.CITY_METAS, {"key": encode_city_name(city)})
 
     if not city_meta:
         return None
@@ -410,7 +410,7 @@ def duplicate(user_id: str, duplicate_req: DuplicateRequest) -> str:
 
     return str(result.inserted_id)
 
-def get_city_description_by_req(request: CityDescriptionRequest) -> CityDescription:
+def get_city_description_by_req(request: CityMetaRequest) -> CityDescription:
     return get_city_description(request.name)
 
 def get_city_description(name: str) -> CityDescription:
@@ -425,14 +425,14 @@ def get_city_description(name: str) -> CityDescription:
 
     return city_description
 
-def get_itinerary_request_by_id(request_id: str) -> ItineraryRequest:
+def get_itinerary_request_by_id(request_id: str) -> ItineraryRequestDetail:
     logger.info("retrieving itinerary request with id %s", request_id)
 
     itinerary_request = mongo.find_one(Collections.ITINERARY_REQUESTS, {"_id": ObjectId(request_id)})
     if not itinerary_request:
         raise ElementNotFoundException(f"no itinerary request found with id {request_id}")
 
-    return ItineraryRequest(**itinerary_request)
+    return ItineraryRequestDetail.from_req(ItineraryRequest(**itinerary_request))
 
 def handle_itinerary_request(user_id: str, itinerary_request: ItineraryRequest):
     itinerary_request.user_id = user_id
@@ -491,7 +491,7 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
     if itinerary_request.start_date < datetime.today():
         raise DateNotValidException("start date must be greater or equal to today")
 
-    request_id = mongo.insert_one(Collections.ITINERARY_REQUESTS, itinerary_request.model_dump()).inserted_id
+    request_id = mongo.insert_one(Collections.ITINERARY_REQUESTS, itinerary_request.model_dump(exclude={"id"})).inserted_id
     conversation = Conversation(AssistantItineraryResponse)
     conversation.add_message_from(ITINERARY_SYSTEM_INSTRUCTIONS)
     conversation.add_message_from(initial_user_prompt)

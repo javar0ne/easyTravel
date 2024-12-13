@@ -1,0 +1,146 @@
+{% extends "components/template.html" %}
+{% block title %}Itinerary request{% endblock %}
+{% block navbar %}
+{% endblock %}
+{% block content %}
+{% set stages_counter = namespace(value=0) %}
+<div class="row">
+    <div class="col-12 col-md-4 pe-md-1 pt-3">
+        <div class="row align-items-center">
+            <div class="col-6">
+                <div class="d-none d-lg-block w-100">
+                      <img width="150" src="../../static/image/logo/easyTravel-lg.png" alt="logo-lg">
+                  </div>
+                  <div class="d-block d-md-block d-lg-none w-100">
+                      <img width="100" src="../../static/image/logo/easyTravel-sm.png" alt="logo-md">
+                  </div>
+            </div>
+            <div class="col-6">
+                <div id="actions_container" class="d-flex gap-2 justify-content-end">
+                    {% if itinerary_request.status == "COMPLETED" %}
+                        <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save-itinerary.svg" alt="save"></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <img id="city_img" class="img-fluid object-fit-cover">
+                <h1 id="city_country" class="d-none d-xl-block fs-40 fw-bold mt-2"></h1>
+                <h1 id="city_country" class="d-none d-lg-block d-xl-none fs-32 fw-bold mt-2"></h1>
+                <h1 id="city_country" class="d-block d-lg-none fs-28 fw-bold mt-2"></h1>
+                <p id="city_description" class="d-none d-xl-block"></p>
+                <p id="city_description" class="d-none d-lg-block d-xl-none fs-14"></p>
+                <p id="city_description" class="d-block d-lg-none fs-12"></p>
+                <div class="row">
+                    <div class="d-none d-2xl-block">
+                        <div class="d-flex justify-content-between">
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "budget-" ~ itinerary_request.budget.lower(),
+                                    "budget-" ~ itinerary_request.budget.lower(),
+                                    "Estimated: " ~ itinerary_request.budget_min ~ " - " ~ itinerary_request.budget_max
+                                )
+                            }}
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "people-" ~ itinerary_request.travelling_with.lower(),
+                                    "people" ~ itinerary_request.travelling_with.lower(),
+                                    itinerary_request.travelling_with.lower().title()
+                                )
+                            }}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            {% for activity in itinerary_request.interested_in %}
+                                {{
+                                    itinerary_info.itinerary_info(
+                                        activity.lower().replace("_", "-"),
+                                        activity.lower().replace("_", "-"),
+                                        activity.lower().replace("_", " ").title()
+                                    )
+                                }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="d-block d-2xl-none">
+                        <div class="col-12">
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "budget-" ~ itinerary_request.budget.lower(),
+                                    "budget-" ~ itinerary_request.budget.lower(),
+                                    "Estimated: " ~ itinerary_request.budget_min ~ " - " ~ itinerary_request.budget_max
+                                )
+                            }}
+                            {{
+                                itinerary_info.itinerary_info(
+                                    "people-" ~ itinerary_request.travelling_with.lower(),
+                                    "people" ~ itinerary_request.travelling_with.lower(),
+                                    itinerary_request.travelling_with.lower().title()
+                                )
+                            }}
+                        </div>
+                    </div>
+                </div>
+                <h1 class="d-none d-xl-block fs-32 fw-medium mt-5">Itinerary</h1>
+                <h1 class="d-none d-lg-block d-xl-none fs-28 fw-medium mt-4">Itinerary</h1>
+                <h1 class="d-none d-md-block d-lg-none fs-26 fw-medium mt-3">Itinerary</h1>
+                <div id="details_container"></div>
+                    {#<div class="accordion" id="accordionDay{{ details.day }}">
+                      <div class="accordion-item border-0">
+                        <h2 class="accordion-header">
+                          <button class="accordion-button accordion-flush border border-2 border-black bg-white rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ details.day }}" aria-expanded="true" aria-controls="collapse{{ details.day }}">
+                            <p class="lh-1 mb-0">
+                                <span class="d-none d-xl-block fw-medium fs-24">Day {{ details.day }} </span>
+                                <span class="d-block d-lg-none fw-medium fs-20">Day {{ details.day }} </span>
+                            </p>
+                          </button>
+                        </h2>
+                        <div id="collapse{{ details.day }}" class="accordion-collapse collapse show" data-bs-parent="#collapse{{ details.day }}">
+                          <div class="accordion-body">
+                            <div class="row">
+
+                                {% for stage in details.stages %}
+                                    {% set stages_counter.value = stages_counter.value + 1 %}
+                                    <div class="col-12">
+                                        {{ itinerary_stage.itinerary_stage(stages_counter.value, stage.title, stage.avg_duration ~ " minutes", stage.description) }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>#}
+
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-8 pe-md-0 mt-3 mt-md-0">
+        <div id="map" class="position-fixed"></div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script>
+        var map = L.map('map');
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        $(this).on('load', () => {
+            find_city_meta("{{ itinerary_request.city }}", map)
+        })
+
+        map.on('load', () => {
+            get_itinerary_request("{{ itinerary_request.id }}", map)
+        })
+
+        {% if city_meta %}
+            map.setView([{{ city_meta.coordinates.lat }}, {{ city_meta.coordinates.lng }}], 12)
+        {% else %}
+            map.setView([{{ lat }}, {{ lng }}], 12);
+        {% endif %}
+    </script>
+{% endblock %}
