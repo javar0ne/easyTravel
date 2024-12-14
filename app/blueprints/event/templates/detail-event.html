@@ -4,22 +4,23 @@
     {% include "components/navbar.html" %}
 {% endblock %}
 {% block content %}
-    <div class="container mx-auto">
+    <div class="container mt-3 mt-md-0 mx-auto">
         <div class="d-flex justify-content-between align-items-center">
-            <h1 class="fs-40">Detail event</h1>
+            <h1 class="d-none d-md-block fs-40">Detail event</h1>
+            <h1 class="d-block d-md-none fs-28">Detail event</h1>
             <a src="#" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-title="Delete event"><img src="../../static/svg/trash.svg" alt="trash"></a>
         </div>
         <form class="mt-4">
         <div class="row">
-            <div class="col">
+            <div class="col-12 col-md">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" placeholder="Insert a title" class="form-control border-0 bg-grey" id="city">
             </div>
-            <div class="col">
+            <div class="col-12 col-md">
                 <label for="location" class="form-label">Location</label>
                 <input type="text" placeholder="Insert a city" class="form-control border-0 bg-grey" id="location">
             </div>
-            <div class="col">
+            <div class="col-12 col-md">
                 <label for="date" class="form-label">Date</label>
                 <input type="text" id="daterange" name="dates" class="form-control border-0 bg-grey" id="date" placeholder="Add date">
             </div>
@@ -37,11 +38,12 @@
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col-4">
-                <label for="avg_duration" class="form-label">Average duration</label>
+            <div class="col col-md-4">
+                <label for="avg_duration" class="d-none d-md-block form-label">Average duration</label>
+                <label for="avg_duration" class="d-block d-md-none form-label">Avg. duration</label>
                 <input type="text" placeholder="Insert a duration" class="form-control border-0 bg-grey" id="avg_duration">
             </div>
-            <div class="col-4">
+            <div class="col col-md-4">
                 <label for="cost" class="form-label">Cost</label>
                 <input type="text" placeholder="Insert cost" class="form-control border-0 bg-grey" id="cost">
             </div>
@@ -71,7 +73,7 @@
                     <img class="me-2" src="../../static/svg/accessibility.svg" alt="accessibility"/>Access for disabled people</label>
             </div>
         </div>
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end mt-5 mt-md-0">
             <button type="submit" class="btn btn-primary fw-medium">Create</button>
         </div>
         </form>
