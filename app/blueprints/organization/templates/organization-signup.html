@@ -1,13 +1,248 @@
 {% extends "components/template.html" %}
-{% block title %}Organization signup{% endblock %}
+{% block title %}Traveler signup{% endblock %}
 {% block navbar %}
-    {% include "components/navbar.html" %}
+    {% include "components/navbar-min.html" %}
 {% endblock %}
 {% block content %}
-    ORGANIZATION SIGNUP
+     <div class="container mx-auto">
+         <div class="row align-items-center">
+             <div class="col-md-12">
+                 <div class="row mt-3 mb-4">
+                     <div class="col-md-12 text-center">
+                         <span class="fs-32 font-weight-light">Sign up</span>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <div class="d-none d-lg-block col-md-12">
+                        <form class="w-50 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                          <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
+                                          <input type="text" id="email" name="email" class="form-control rounded-0 border-left-0 border-black" placeholder="Email*" aria-label="email" aria-describedby="email" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="organization_name-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <input type="text" id="organization_name" name="organization_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Organization name*" aria-label="organization_name" aria-describedby="organization_name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="website-prepend"><img width="24" src="../../../static/svg/publish.svg" alt="website"/></span>
+                                            <input  type="text" id="birth_date" name="birth_date" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="phone_number_prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="phone_number"/></span>
+                                            <input type="text" id="phone_number" name="phone_number" class="form-control rounded-0 border-left-0 border-black" placeholder="Phone number" aria-label="phone_number" aria-describedby="phone_number">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <input type="password" id="password" name="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password*" aria-label="password" aria-describedby="password" required>
+                                            <span class="input-group-text password-eye bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" role="button" alt="eye"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <input type="password" id="confirm_password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password*" aria-label="password" aria-describedby="confirm-password" required>
+                                            <span class="input-group-text confirm-password-eye bg-white rounded-0 border-left-0 border-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" role="button" alt="eye"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
+                            </div>
+                        </form>
+                     </div>
+                     <div class="d-none d-md-block d-lg-none col-md-12">
+                        <form class="w-75 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
+                                            <input type="text" id="email" name="email" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-12">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="organization_name-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <input type="text" id="organization_name" name="organization_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Organization name*" aria-label="organization_name" aria-describedby="organization_name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="website-prepend"><img width="24" src="../../../static/svg/publish.svg" alt="website"/></span>
+                                            <input type="text" id="website" name="website" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="phone-number-prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="phone_number"/></span>
+                                            <input type="text" id="phone_number" name="phone_number" class="form-control rounded-0 border-left-0 border-black" placeholder="Phone number" aria-label="phone_number" aria-describedby="phone_number">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <input type="password" id="password" name="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password*" aria-label="password" aria-describedby="password" required>
+                                            <span class="input-group-text password-eye bg-white rounded-0 border-left-0 border-black" role="button"><img class="toggle-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group input-group-lg mb-3">
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <input type="password" id="confirm_password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password*" aria-label="password" aria-describedby="confirm-password" required>
+                                            <span class="input-group-text confirm-password-eye bg-white rounded-0 border-left-0 border-black" role="button"><img class="toggle-confirm-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
+                            </div>
+                        </form>
+                     </div>
+                     <div class="d-block d-md-none col-md-12">
+                        <form class="w-75 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="19" src="../../../static/svg/email.svg" alt="mail"/></span>
+                                            <input type="text" id="email" name="email" class="form-control rounded-0 border-left-0 border-black" placeholder="Email*" aria-label="email" aria-describedby="email" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="organization_name-prepend"><img width="19" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                            <input type="text" id="organization_name" name="organization_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Organization name*" aria-label="organization_name" aria-describedby="organization_name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="website-prepend"><img width="19" src="../../../static/svg/publish.svg" alt="website"/></span>
+                                            <input  type="text" id="website" name="website" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group mb-3">
+                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="phone-number-prepend"><img width="19" src="../../../static/svg/telephone.svg" alt="phone_number"/></span>
+                                            <input type="text" id="phone_number" name="phone_number" class="form-control rounded-0 border-left-0 border-black" placeholder="Phone number" aria-label="phone_number" aria-describedby="phone_number">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group mb-3">
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <input type="password" id="password" name="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password*" aria-label="password" aria-describedby="password" required>
+                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group mb-3">
+                                        <div class="input-group mb-3">
+                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                            <input type="password" id="confirm_password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password*" aria-label="password" aria-describedby="confirm-password" required>
+                                            <span class="input-group-text confirm-password-eye bg-white rounded-0 border-left-0 border-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
+                            </div>
+                        </form>
+                     </div>
+                 </div>
+             </div>
+         </div>
+    </div>
 {% endblock %}
 {% block footer %}
     {% include "components/footer.html" %}
 {% endblock %}
 {% block script %}
+    <script>
+    $('.password-eye').on('click', function() {
+        const passwordField = $('.password');
+        const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+        passwordField.attr('type', type);
+        const icon = type === 'password' ? '../../static/svg/eye.svg' : '../../static/svg/eye-hide.svg';
+        $(".toggle-password").attr("src",icon);
+    });
+    $('.confirm-password-eye').on('click', function() {
+        const passwordField = $('.confirm-password');
+        const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+        passwordField.attr('type', type);
+        const icon = type === 'password' ? '../../static/svg/eye.svg' : '../../static/svg/eye-hide.svg';
+        $(".toggle-confirm-password").attr("src",icon);
+    });
+    </script>
 {% endblock %}
