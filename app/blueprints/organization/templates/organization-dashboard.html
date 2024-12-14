@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-ORGANIZATION DASHBOARD
-</body>
-</html>
+{% extends "components/template.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block navbar %}
+    {% include "components/navbar.html" %}
+{% endblock %}
+{% block content %}
+    {% include "organization-dashboard-section/heading.html" %}
+    <div class="row mt-4">
+    <div class="col-12 col-lg">{% include "organization-dashboard-section/stats.html" %}</div>
+    <div class="col-12 col-lg mt-5 mt-xxl-0">{% include "organization-dashboard-section/upcoming-events.html" %}</div>
+    <div class="col-12 col-lg mt-5 mt-xxl-0">{% include "organization-dashboard-section/event-carousel.html" %}</div>
+    </div>
+    <div class="row mt-5 mt-xxl-0">
+        <div class="col">
+            {% include "organization-dashboard-section/recent-events.html" %}
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}
