@@ -80,9 +80,15 @@ class ItinerarySearch(Paginated):
             raise ValueError(f'Invalid Budget name: {self["budget"]}')
 
         if "interested_in" in self:
-            for activity in self["interested_in"]:
-                if not is_valid_enum_name(Activity, activity):
-                    raise ValueError(f'Invalid Activity name: {activity}')
+            if isinstance(self["interested_in"], str):
+                if not is_valid_enum_name(Activity, self["interested_in"]):
+                    raise ValueError(f'Invalid Activity name: {self["interested_in"]}')
+                else:
+                    self["interested_in"] = [self["interested_in"]]
+            else:
+                for activity in self["interested_in"]:
+                    if not is_valid_enum_name(Activity, activity):
+                        raise ValueError(f'Invalid Activity name: {activity}')
 
         if "travelling_with" in self and not is_valid_enum_name(TravellingWith, self["travelling_with"]):
             raise ValueError(f'Invalid TravellingWith name: {self["travelling_with"]}')
@@ -100,6 +106,20 @@ class ItinerarySearch(Paginated):
             raise ValueError('No filter provided, at least one should not be empty!')
 
         return self
+
+    @staticmethod
+    def from_request(interested_in: str, city: str, travelling_with: str, budget: str):
+        values = {}
+        if interested_in and len(interested_in) > 0:
+            values["interested_in"] = interested_in
+        if city and len(city) > 0:
+            values["city"] = city
+        if travelling_with and len(travelling_with) > 0:
+            values["travelling_with"] = travelling_with
+        if budget and len(budget) > 0:
+            values["budget"] = budget
+
+        return ItinerarySearch(**values)
 
 class ItinerarySearchResponse(BaseModel):
     id: str

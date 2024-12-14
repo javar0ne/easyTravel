@@ -218,7 +218,7 @@ def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
     if Budget[itinerary_search.budget] != Budget.NONE:
         filters["budget"] = itinerary_search.budget
     if TravellingWith[itinerary_search.travelling_with] != TravellingWith.NONE:
-        filters["travelling_with"] = {"$in": {"$each": itinerary_search.travelling_with}}
+        filters["travelling_with"] = itinerary_search.travelling_with
     if itinerary_search.interested_in:
         filters["interested_in"] = {"$in": itinerary_search.interested_in}
 

@@ -566,7 +566,17 @@ function download_itinerary(itinerary_id) {
     )
 }
 
-function search_for_capital(city) {
+function handle_capital_search(event, autocomplete_element) {
+    const city = event.target.value;
+    if(city && city.length >= 2) {
+        search_for_capital(city, autocomplete_element, event.target.id)
+    } else {
+        $(`#${autocomplete_element}`).empty();
+        $(`#${autocomplete_element}`).css("z-index", "");
+    }
+}
+
+function search_for_capital(city, autocomplete_element, element_id) {
     if(!city) throw new Error("city is null!");
 
     fetch(
@@ -579,23 +589,24 @@ function search_for_capital(city) {
         return response.json();
     })
     .then(data => {
-        $("#autocomplete-list").empty();
+        $(`#${autocomplete_element}`).empty();
         data.forEach(element => {
-            $("#autocomplete-list").append(`
-                <div onclick="set_city('${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ms-3 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
+            $(`#${autocomplete_element}`).append(`
+                <div onclick="set_city('${autocomplete_element}', '${element_id}', '${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ms-3 px-1 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
             `);
 
-            $("#autocomplete-list").css("display", "");
+            $(`#${autocomplete_element}`).css("display", "");
         });
+        $(`#${autocomplete_element}`).css("z-index", "999");
     })
 }
 
-function set_city(city, coordinates) {
+function set_city(autocomplete_element, element_id, city, coordinates) {
     if(city) {
-        $("#city").val(city);
-        $("#autocomplete-list").empty();
-        $("#city_lat").val(coordinates.split(',')[0]);
-        $("#city_lng").val(coordinates.split(',')[1]);
+        $(`#${element_id}`).val(city);
+        $(`#${autocomplete_element}`).empty();
+        if($("#city_lat").length) $("#city_lat").val(coordinates.split(',')[0]);
+        if($("#city_lng").length) $("#city_lng").val(coordinates.split(',')[1]);
     }
 }
 
@@ -816,4 +827,26 @@ function create_itinerary(request_id) {
         return response.json();
     })
     .then(data => window.location.href=`/itinerary/detail/${data.response.id}`);
+}
+
+function search_itineraries() {
+    let city = $("#nav_city").val();
+    if(city && city.length > 0) {
+        window.location.href = `/itinerary/search?city=${city}`;
+    }
+}
+
+function check_search() {
+    let location = $("#location").val();
+    let people = $("#people").val();
+    let budget = $("#budget").val();
+    let activity = $("#activity").val();
+
+
+    if(!location && !people && !budget && !activity) {
+        show_error_toast("Select at least one filter");
+        return false;
+    }
+
+    return true;
 }
