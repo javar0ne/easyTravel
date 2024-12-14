@@ -64,7 +64,7 @@
         {% if itineraries.content|count > 0 %}
             {% for itinerary in itineraries.content %}
                 <div class="p-0 col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
-                    {{ itinerary_card.itinerary_card(itinerary.country,itinerary.city, itinerary.description, itinerary.interested_in,itinerary.image.alt_description,itinerary.image.urls.regular) }}
+                    {{ itinerary_card.itinerary_card(itinerary.id, itinerary.country,itinerary.city, itinerary.description, itinerary.interested_in,itinerary.image.alt_description,itinerary.image.urls.regular) }}
                 </div>
             {% endfor %}
         {% else %}

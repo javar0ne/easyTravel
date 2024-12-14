@@ -1,5 +1,5 @@
-{% macro itinerary_card(region,city,description,activities,alt,img) %}
-<div class="card border border-0 rounded-0 w-100" role="button">
+{% macro itinerary_card(id, region,city,description,activities,alt,img) %}
+<div onclick="go_to_itinerary('{{ id }}')" class="card border border-0 rounded-0 w-100" role="button">
   <img class="card-img-top rounded-0 w-100 object-fit-cover" height="381" src="{{ img }}" alt="{{ alt }}">
   <div class="card-body px-1 py-2 rounded-0">
     <h5 class="card-title fw-light fs-24">{{ region }}, <span class="fw-bold fs-24">{{ city }}</span></h5>
@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col">
             {% for activity in activities %}
-            <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">{{ activity }}</span>
+            <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">{{ activity.replace("_", " ").lower().title() }}</span>
             {% endfor %}
         </div>
     </div>
