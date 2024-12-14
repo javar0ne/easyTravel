@@ -1,0 +1,28 @@
+{% extends "components/template.html" %}
+{% block title %}My trips{% endblock %}
+{% block navbar %}
+    {% include "components/navbar.html" %}
+{% endblock %}
+{% block content %}
+<div class="row mt-4 mt-sm-0">
+    <div class="col col-md-10 mx-md-auto">
+        <h1 class="d-none d-md-block fs-40 fs-medium mb-5">Upcoming itineraries</h1>
+        <h1 class="d-block d-md-none fs-24 fs-medium mb-3">Upcoming itineraries</h1>
+        <div id="upcoming_container" class="row mb-5 mb-sm-3"></div>
+        <h1 class="d-none d-md-block fs-40 fs-medium mb-5">Previous trips</h1>
+        <h1 class="d-block d-md-none fs-24 fs-medium mb-3">Previous trips</h1>
+        <div id="past_container" class="d-flex justify-content-center justify-content-md-between px-0 px-xxl-3 px-2xl-5"></div>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}
+{% block script %}
+<script>
+    $(this).on('load', () => {
+        get_upcoming_itineraries()
+        get_past_itineraries()
+    })
+</script>
+{% endblock %}

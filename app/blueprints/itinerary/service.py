@@ -1,6 +1,6 @@
 import logging
 import threading
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date, time
 from io import BytesIO
 
 from bson import ObjectId
@@ -15,7 +15,7 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
     AssistantItineraryDocsResponse, CityMetaRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse, \
-    ItineraryDetail, ItineraryMetaDetail, ItineraryRequestDetail
+    ItineraryDetail, ItineraryMetaDetail, ItineraryRequestDetail, UpcomingItinerary, PastItinerary
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
@@ -690,3 +690,81 @@ def get_itinerary_meta_detail(user_id: str, itinerary_id: str):
         has_saved = True
 
     return ItineraryMetaDetail(is_owner=is_owner, has_saved=has_saved)
+
+def get_upcoming_itineraries(user_id: str):
+    logger.info({"user_id": user_id, "start_date": { "$gte": datetime.combine(date.today(), time.min, tzinfo=timezone.utc) }})
+    cursor = mongo.aggregate(
+        Collections.ITINERARIES,
+        {"user_id": user_id, "end_date": { "$gte": datetime.combine(date.today(), time.min, tzinfo=timezone.utc) }},
+        [
+            {
+                "$project": {
+                    "city": 1,
+                    "start_date": 1,
+                    "end_date": 1,
+                    "interested_in": 1,
+                    "travelling_with": 1,
+                    "budget": 1,
+                    "is_public": 1,
+                    "shared_with": 1
+                }
+            },
+            {"$sort": {"start_date": 1}}
+        ]
+    )
+    found_itineraries = []
+
+    for it in list(cursor):
+        city_meta = find_city_meta(it.get("city"))
+        found_itineraries.append(
+            UpcomingItinerary(
+                id=str(it.get("_id")),
+                city=city_meta.name,
+                country=city_meta.country,
+                description=city_meta.description,
+                image=city_meta.image,
+                interested_in=it.get("interested_in"),
+                travelling_with=it.get("travelling_with"),
+                budget=it.get("budget"),
+                start_date=it.get("start_date"),
+                end_date=it.get("end_date"),
+                shared_with=it.get("shared_with"),
+                is_public=it.get("is_public")
+            ).model_dump()
+        )
+
+    return found_itineraries
+
+def get_past_itineraries(user_id: str):
+    cursor = mongo.aggregate(
+        Collections.ITINERARIES,
+        {"user_id": user_id, "end_date": { "$lt": datetime.now(tz=timezone.utc) }},
+        [
+            {
+                "$project": {
+                    "city": 1,
+                    "start_date": 1,
+                    "end_date": 1,
+                    "shared_with": 1
+                }
+            },
+            {"$sort": {"start_date": -1}}
+        ]
+    )
+    found_itineraries = []
+
+    for it in list(cursor):
+        city_meta = find_city_meta(it.get("city"))
+        found_itineraries.append(
+            PastItinerary(
+                id=str(it.get("_id")),
+                city=city_meta.name,
+                country=city_meta.country,
+                image=city_meta.image,
+                start_date=it.get("start_date"),
+                end_date=it.get("end_date"),
+                shared_with=it.get("shared_with"),
+            ).model_dump()
+        )
+
+    return found_itineraries

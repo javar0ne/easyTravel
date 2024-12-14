@@ -850,3 +850,202 @@ function check_search() {
 
     return true;
 }
+
+function get_upcoming_itineraries() {
+    fetch(
+        `${URLS.itinerary}/upcoming`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("error while retrieving upcoming itineraries!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        data.response.forEach((itinerary, num) => {
+            $("#upcoming_container").append(`
+            <div class="col-12 px-md-5">
+                <div id="itinerary${num}" class="card border-0 shadow mb-3 w-full">
+                    <div class="row g-0">
+                        <div class="col-12 col-sm-6">
+                          <div class="card-body">
+                              <div class="row align-items-center">
+                                  <div class="col">
+                                      <h5 class="d-none d-xxl-block card-title fs-36 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
+                                      <h5 class="d-none d-xl-block d-xxl-none card-title fs-28 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
+                                      <h5 class="d-none d-md-block d-xl-none card-title fs-24 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
+                                      <h5 class="d-block d-md-none card-title fs-20 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
+                                  </div>
+                                  <div class="d-none d-lg-block col">
+                                      <div class="d-flex justify-content-end">
+                                          <span class="d-none d-xxl-block badge text-bg-dark lh-lg px-3 fs-14">${itinerary.days_from_start <= 0 ? "Ongoing" : `In ${itinerary.days_from_start} day${itinerary.days_from_start === 0 || itinerary.days_from_start > 1 ? "s" : ""}`}</span>
+                                          <span class="d-none d-lg-block d-xxl-none badge text-bg-dark lh-lg px-3 fs-12">${itinerary.days_from_start <= 0 ? "Ongoing" : `In ${itinerary.days_from_start} day${itinerary.days_from_start === 0 || itinerary.days_from_start > 1 ? "s" : ""}`}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                              <p class="d-none d-lg-block card-text fs-14">${moment(itinerary.start_date).format("D MMM YYYY")} - ${moment(itinerary.end_date).format("D MMM YYYY")}</p>
+                              <p class="d-block d-lg-none card-text fs-12">${moment(itinerary.start_date).format("D MMM YYYY")} - ${moment(itinerary.end_date).format("D MMM YYYY")}</p>
+                              <div class="row">
+                                  <div class="col-12">
+                                      <div class="d-flex mb-2 mb-xl-0">
+                                          <img src="../../../static/svg/calendar.svg" alt="calendar">
+                                          <span class="d-none d-xxl-block fs-20 px-2 py-1">${itinerary.duration} day${itinerary.duration > 1 ? "s" : ""}</span>
+                                          <span class="d-none d-xl-block d-xxl-none fs-18 px-2 py-1">${itinerary.duration} day${itinerary.duration > 1 ? "s" : ""}</span>
+                                          <span class="d-none d-lg-block d-xl-none fs-14 px-2 py-1">${itinerary.duration} day${itinerary.duration > 1 ? "s" : ""}</span>
+                                          <span class="d-block d-lg-none fs-12 px-2 py-1">${itinerary.duration} day${itinerary.duration > 1 ? "s" : ""}</span>
+                                      </div>
+                                      <div class="d-flex mb-2 mb-xl-0">
+                                          <img src="../../../static/svg/people-${itinerary.travelling_with.toLowerCase()}.svg" alt="people">
+                                          <span class="d-none d-xxl-block fs-20 px-2 py-1">${decode_travelling_with(itinerary.travelling_with)}</span>
+                                          <span class="d-none d-xl-block d-xxl-none fs-18 px-2 py-1">${decode_travelling_with(itinerary.travelling_with)}</span>
+                                          <span class="d-none d-lg-block d-xl-none fs-14 px-2 py-1">${decode_travelling_with(itinerary.travelling_with)}</span>
+                                          <span class="d-block d-lg-none fs-12 px-2 py-1">${decode_travelling_with(itinerary.travelling_with)}</span>
+                                      </div>
+                                      <div class="d-flex mb-2 mb-xl-0">
+                                          <img src="../../../static/svg/budget-${itinerary.budget.toLowerCase()}.svg" alt="budget">
+                                          <span class="d-none d-xxl-block fs-20 px-2 py-1">${decode_budget(itinerary.budget)}</span>
+                                          <span class="d-none d-xl-block d-xxl-none fs-18 px-2 py-1">${decode_budget(itinerary.budget)}</span>
+                                          <span class="d-none d-lg-block d-xl-none fs-14 px-2 py-1">${decode_budget(itinerary.budget)}</span>
+                                          <span class="d-block d-lg-none fs-12 px-2 py-1">${decode_budget(itinerary.budget)}</span>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="row mt-xl-4">
+                                  <div id="activity_container_xxl" class="col-12 d-none d-xxl-block">
+                                  </div>
+                                  <div id="activity_container_xl" class="col-12 d-none d-xl-block d-xxl-none">
+                                  </div>
+                              </div>
+                              <div class="d-none d-2xl-block">
+                                  <div class="d-flex justify-content-between mt-3">
+                                      <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                                      <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
+                                      <button class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                  </div>
+                              </div>
+                              <div class="d-none d-md-block d-2xl-none">
+                                  <div class="d-flex justify-content-between mt-2 mt-xl-4 mt-xxl-4">
+                                      <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                                      <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
+                                      <button class="d-none d-xxl-block px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button class="d-none d-xl-block d-xxl-none px-5 py-1 fs-18 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button class="d-none d-lg-block d-xl-none px-5 py-1 fs-16 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button class="d-block d-lg-none px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                  </div>
+                              </div>
+                              <div class="d-block d-md-none">
+                                  <div class="d-flex justify-content-between mt-3">
+                                      <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                                      <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
+                                      <button class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                  </div>
+                              </div>
+                          </div>
+                        </div>
+                        <div class="col-6 rounded-end" onclick="go_to_itinerary('${itinerary.id}')" style="background-image: url('${itinerary.image.urls.regular}'); background-size: cover; background-position: center; cursor: pointer"></div>
+                    </div>
+                </div>
+            </div>
+            `)
+
+            itinerary.interested_in.forEach(activity => {
+                $(`#itinerary${num} #activity_container_xxl`).append(`
+                  <span class="bg-white border border-1 border-black rounded-pill px-2 py-1">${decode_interested_in(activity)}</span>
+                `);
+
+                $(`#itinerary${num} #activity_container_xl`).append(`
+                  <span class="bg-white border border-1 border-black rounded-pill fs-14 px-2 py-1">${decode_interested_in(activity)}</span>
+                `);
+            });
+        })
+    })
+}
+
+function publish_itinerary(id, itinerary_element) {
+    let is_public = Boolean($(`#${itinerary_element} #is_public`).val());
+    is_public = !is_public;
+
+    fetch(
+        `${URLS.itinerary}/publish`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "id": id,
+                "is_public": is_public
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("error while retrieving upcoming itineraries!");
+        }
+
+        return response;
+    })
+    .then(response => {
+        if(!is_public) {
+            $(`#${itinerary_element} #img_publish`).attr("src", "../../static/svg/publish.svg");
+            show_success_toast("Itinerary unpublished successfully!");
+        } else {
+            $(`#${itinerary_element} #img_publish`).attr("src", "../../static/svg/published.svg");
+            show_success_toast("Itinerary published successfully!");
+        }
+        $(`#${itinerary_element} #is_public`).val(`${is_public ? is_public : ""}`);
+    })
+}
+
+function get_past_itineraries() {
+    fetch(
+        `${URLS.itinerary}/past`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("error while retrieving upcoming itineraries!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        data.response.forEach(itinerary => {
+            $("#past_container").append(`
+            <div class="card border-0 mb-3" onclick="go_to_itinerary('${itinerary.id}')" style="cursor:pointer;">
+              <div class="row g-3">
+                <div class="col-4">
+                  <img src="${itinerary.image.urls.small}" class="d-none d-sm-block object-fit-cover rounded" width="130" height="130" alt="${itinerary.image.alt_description}">
+                  <img src="${itinerary.image.urls.small}" class="d-block d-sm-none object-fit-cover rounded" width="80" height="80" alt="${itinerary.image.alt_description}">
+                </div>
+                <div class="col-8">
+                  <div class="d-none d-sm-block card-body">
+                    <h5 class="d-none d-sm-block card-title">${itinerary.country}, ${itinerary.city}</h5>
+                    <p class="card-text">
+                        <small class="d-none d-sm-block text-body-secondary">${moment(itinerary.start_date).format("D MMM YYYY")} - ${moment(itinerary.end_date).format("D MMM YYYY")}</small>
+                    </p>
+                  </div>
+                  <div class="d-block d-sm-none card-body py-1 px-0">
+                    <h5 class="card-title fs-14 mb-0">${itinerary.country}, ${itinerary.city}</h5>
+                    <p class="card-text mb-0">
+                        <small class="text-body-secondary fs-12">${moment(itinerary.start_date).format("D MMM YYYY")} - ${moment(itinerary.end_date).format("D MMM YYYY")}</small>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            `)
+        })
+    })
+}

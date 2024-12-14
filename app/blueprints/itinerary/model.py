@@ -317,6 +317,40 @@ class SpotlightItinerary(BaseModel):
     def duration(self) -> int:
         return (self.end_date - self.start_date).days + 1
 
+class UpcomingItinerary(BaseModel):
+    id: str
+    city: str
+    country: str
+    description: str
+    image: UnsplashImage
+    interested_in: list[str]
+    travelling_with: str
+    budget: str
+    start_date: datetime
+    end_date: datetime
+    shared_with: Optional[list[str]] = []
+    is_public: Optional[bool] = False
+
+
+    @computed_field
+    @property
+    def duration(self) -> int:
+        return (self.end_date - self.start_date).days + 1
+
+    @computed_field
+    @property
+    def days_from_start(self) -> int:
+        return (self.start_date - datetime.now()).days + 1
+
+class PastItinerary(BaseModel):
+    id: str
+    city: str
+    country: str
+    image: UnsplashImage
+    start_date: datetime
+    end_date: datetime
+    shared_with: Optional[list[str]] = []
+
 class CityMeta(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str
