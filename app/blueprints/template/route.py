@@ -92,11 +92,22 @@ def itinerary_detail(itinerary_id):
 @template.get('/itinerary/search')
 def itinerary_search():
     interested_in = request.args.get('interested_in')
+    city = request.args.get('city')
+    people = request.args.get('people')
+    budget = request.args.get('budget')
 
-    if not interested_in:
-        return render_template('itinerary-search.html')
+    if not interested_in and not city and not people and not budget:
+        return render_template('search-itinerary.html', itineraries=[])
 
-    search = ItinerarySearch(interested_in=[interested_in])
+    search = ItinerarySearch.from_request(interested_in, city, people, budget)
     itineraries = search_itineraries(search)
-    return render_template('itinerary-search.html', itineraries=itineraries)
+
+    return render_template(
+        'search-itinerary.html',
+        itineraries=itineraries,
+        searched_city=city,
+        searched_activity=interested_in,
+        searched_people=people,
+        searched_budget=budget
+    )
 

@@ -7,15 +7,17 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <form class="d-none d-lg-block w-25 ms-auto" role="search">
         <div class="input-group w-100">
-          <span class="input-group-text rounded-0 border-top-0 border-start-0 border-end-0 border-black bg-white" id="basic-addon1"><img width="24" src="../../../static/svg/search.svg" alt="search"/></span>
-          <input type="text" class="form-control rounded-0 border-top-0 border-end-0 border-start-0 border-black" placeholder="Search itineraries..." aria-label="search-itineraries" aria-describedby="search-itineraries">
+          <span class="input-group-text rounded-0 border-top-0 border-start-0 border-end-0 border-black bg-white" id="basic-addon1"><img width="24" src="../../../static/svg/search.svg" alt="search" onclick="search_itineraries()" style="cursor: pointer"/></span>
+          <input id="nav_city" type="text" onkeyup="handle_capital_search(event, 'nav-autocomplete-list')" onfocus="handle_capital_search(event, 'nav-autocomplete-list')" onfocusout="setTimeout(() => $('#nav-autocomplete-list').empty(), 100)" class="form-control rounded-0 border-top-0 border-end-0 border-start-0 border-black" placeholder="Search itineraries..." aria-label="search-itineraries" aria-describedby="search-itineraries">
         </div>
+        <div id="nav-autocomplete-list" class="autocomplete-list w-auto bg-white position-fixed" style="display: none; cursor: pointer;"></div>
       </form>
       <form class="d-block d-lg-none" role="search">
         <div class="input-group">
-          <span class="input-group-text rounded-0 border-top-0 border-start-0 border-end-0 border-black bg-white" id="basic-addon1"><img width="24" src="../../../static/svg/search.svg" alt="search"/></span>
-          <input type="text" class="form-control rounded-0 border-top-0 border-end-0 border-start-0 border-black" placeholder="Search itineraries..." aria-label="search-itineraries" aria-describedby="search-itineraries">
+          <span class="input-group-text rounded-0 border-top-0 border-start-0 border-end-0 border-black bg-white" id="basic-addon1"><img width="24" src="../../../static/svg/search.svg" alt="search" onclick="search_itineraries()" style="cursor: pointer"/></span>
+          <input id="nav_city" type="text" onkeyup="handle_capital_search(event, 'nav-autocomplete-list')" onfocus="handle_capital_search(event, 'nav-autocomplete-list')" onfocusout="setTimeout(() => $('#nav-autocomplete-list').empty(), 100)" class="form-control rounded-0 border-top-0 border-end-0 border-start-0 border-black" placeholder="Search itineraries..." aria-label="search-itineraries" aria-describedby="search-itineraries">
         </div>
+        <div id="nav-autocomplete-list" class="autocomplete-list w-auto position-fixed" style="display: none; cursor: pointer;"></div>
       </form>
       <ul class="navbar-nav mb-2 mb-lg-0">
         <li class="nav-item my-auto ms-lg-3">
