@@ -13,7 +13,7 @@ from app.blueprints.itinerary.service import get_city_description, get_itinerary
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary, delete_itinerary, \
     get_saved_itineraries, handle_itinerary_request, handle_event_itinerary_request, handle_save_itinerary, \
-    get_most_saved, get_itinerary_meta_detail, find_city_meta
+    get_most_saved, get_itinerary_meta_detail, find_city_meta, get_upcoming_itineraries, get_past_itineraries
 from app.exceptions import ElementNotFoundException
 from app.models import Paginated
 from app.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
@@ -174,6 +174,7 @@ def share_itinerary_with():
         return error_response()
 
 @itinerary.post('/publish')
+@roles_required([Role.TRAVELER.name])
 def publish_itinerary():
     try:
         publish(PublishReqeust(**request.json))
@@ -302,6 +303,26 @@ def itinerary_meta_detail(itinerary_id):
     try:
         meta_detail = get_itinerary_meta_detail(get_jwt_identity(), itinerary_id)
         return success_response(meta_detail.model_dump())
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.get('/upcoming')
+@roles_required([Role.TRAVELER.name])
+def upcoming_itineraries():
+    try:
+        itineraries = get_upcoming_itineraries(get_jwt_identity())
+        return success_response(itineraries)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.get('/past')
+@roles_required([Role.TRAVELER.name])
+def past_itineraries():
+    try:
+        itineraries = get_past_itineraries(get_jwt_identity())
+        return success_response(itineraries)
     except Exception as err:
         logger.error(str(err))
         return error_response()

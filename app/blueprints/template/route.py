@@ -111,3 +111,6 @@ def itinerary_search():
         searched_budget=budget
     )
 
+@template.get('/itinerary/upcoming')
+def itinerary_upcoming():
+    return render_template('itinerary-upcoming.html')
