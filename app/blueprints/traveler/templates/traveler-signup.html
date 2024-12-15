@@ -13,261 +13,94 @@
                      </div>
                  </div>
                  <div class="row">
-                     <div class="d-none d-lg-block col-md-12">
-                        <form class="w-50 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                          <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
-                                          <input type="text" id="email" name="email" class="form-control rounded-0 border-left-0 border-black" placeholder="Email*" aria-label="email" aria-describedby="email" required>
-                                        </div>
+                    <form class="w-md-75 w-lg-50 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-lg mb-3">
+                                      <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
+                                      <input type="text" id="email" name="email" class="form-control rounded-0 border-left-0 border-black" placeholder="Email*" aria-label="email" aria-describedby="email" required>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="firstname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
-                                            <input type="text" id="first_name" name="first_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Firstname*" aria-label="firstname" aria-describedby="firstname" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="lastname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
-                                            <input type="text" id="last_name" name="last_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Lastname*" aria-label="lastname" aria-describedby="lastname" required>
-                                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-lg mb-3">
+                                        <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="firstname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                        <input type="text" id="first_name" name="first_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Firstname*" aria-label="firstname" aria-describedby="firstname" required>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="birthdate-prepend"><img width="24" src="../../../static/svg/cake.svg" alt="cake"/></span>
-                                            <input  type="text" id="birth_date" name="birth_date" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Birth date*" aria-label="birthdate" aria-describedby="birthdate" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="currency-prepend"><img width="24" src="../../../static/svg/currency.svg" alt="currency"/></span>
-                                            <input  type="text" id="currency" name="currency" class="form-control rounded-0 border-left-0 border-black" placeholder="Currency*" aria-label="currency" aria-describedby="currency" required>
-                                        </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-lg mb-3">
+                                        <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="lastname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
+                                        <input type="text" id="last_name" name="last_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Lastname*" aria-label="lastname" aria-describedby="lastname" required>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="phone_number_prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="phone_number"/></span>
-                                            <input type="text" id="phone_number" name="phone_number" class="form-control rounded-0 border-left-0 border-black" placeholder="Phone number" aria-label="phone_number" aria-describedby="phone_number">
-                                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-lg mb-3">
+                                        <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="birthdate-prepend"><img width="24" src="../../../static/svg/cake.svg" alt="cake"/></span>
+                                        <input  type="text" id="birth_date" name="birth_date" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Birth date*" aria-label="birthdate" aria-describedby="birthdate" required>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
-                                            <input type="password" id="password" name="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password*" aria-label="password" aria-describedby="password" required>
-                                            <span class="input-group-text password-eye bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" role="button" alt="eye"/></span>
-                                        </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-lg mb-3">
+                                        <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="currency-prepend"><img width="24" src="../../../static/svg/currency.svg" alt="currency"/></span>
+                                        <select id="currency" name="currency" class="form-select rounded-0 border border-black" aria-label="Currency">
+                                          <option selected>Open this select menu</option>
+                                          <option value="EUR">Euro</option>
+                                          <option value="USD">Dollar</option>
+                                          <option value="GBP">Sterling</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
-                                            <input type="password" id="confirm_password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password*" aria-label="password" aria-describedby="confirm-password" required>
-                                            <span class="input-group-text confirm-password-eye bg-white rounded-0 border-left-0 border-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" role="button" alt="eye"/></span>
-                                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-lg mb-3">
+                                        <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="phone_number_prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="phone_number"/></span>
+                                        <input type="text" id="phone_number" name="phone_number" class="form-control rounded-0 border-left-0 border-black" placeholder="Phone number" aria-label="phone_number" aria-describedby="phone_number">
                                     </div>
                                 </div>
                             </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
-                            </div>
-                        </form>
-                     </div>
-                     <div class="d-none d-md-block d-lg-none col-md-12">
-                        <form class="w-75 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
-                                            <input type="text" id="email" name="email" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email" required>
-                                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-lg mb-3">
+                                        <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                        <input type="password" id="password" name="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password*" aria-label="password" aria-describedby="password" required>
+                                        <span class="input-group-text password-eye bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" role="button" alt="eye"/></span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="firstname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
-                                            <input type="text" id="first_name" name="first_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Firstname*" aria-label="firstname" aria-describedby="firstname" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="lastname-prepend"><img width="24" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
-                                            <input type="text" id="last_name" name="last_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Lastname*" aria-label="lastname" aria-describedby="lastname" required>
-                                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <div class="input-group input-group-lg mb-3">
+                                        <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
+                                        <input type="password" id="confirm_password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password*" aria-label="password" aria-describedby="confirm-password" required>
+                                        <span class="input-group-text confirm-password-eye bg-white rounded-0 border-left-0 border-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" role="button" alt="eye"/></span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="birthdate-prepend"><img width="24" src="../../../static/svg/cake.svg" alt="cake"/></span>
-                                            <input type="text" id="birth_date" name="birth_date" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Birth date*" aria-label="birthdate" aria-describedby="birthdate" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="currency-prepend"><img width="24" src="../../../static/svg/currency.svg" alt="currency"/></span>
-                                            <input type="text" id="currency" name="currency" class="form-control rounded-0 border-left-0 border-black" placeholder="Currency*" aria-label="currency" aria-describedby="currency" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="phone-number-prepend"><img width="24" src="../../../static/svg/telephone.svg" alt="phone_number"/></span>
-                                            <input type="text" id="phone_number" name="phone_number" class="form-control rounded-0 border-left-0 border-black" placeholder="Phone number" aria-label="phone_number" aria-describedby="phone_number">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
-                                            <input type="password" id="password" name="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password*" aria-label="password" aria-describedby="password" required>
-                                            <span class="input-group-text password-eye bg-white rounded-0 border-left-0 border-black" role="button"><img class="toggle-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group input-group-lg mb-3">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
-                                            <input type="password" id="confirm_password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password*" aria-label="password" aria-describedby="confirm-password" required>
-                                            <span class="input-group-text confirm-password-eye bg-white rounded-0 border-left-0 border-black" role="button"><img class="toggle-confirm-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
-                            </div>
-                        </form>
-                     </div>
-                     <div class="d-block d-md-none col-md-12">
-                        <form class="w-75 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="email-prepend"><img width="19" src="../../../static/svg/email.svg" alt="mail"/></span>
-                                            <input type="text" id="email" name="email" class="form-control rounded-0 border-left-0 border-black" placeholder="Email*" aria-label="email" aria-describedby="email" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="firstname-prepend"><img width="19" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
-                                            <input type="text" id="first_name" name="first_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Firstname*" aria-label="firstname" aria-describedby="firstname" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="lastname-prepend"><img width="19" src="../../../static/svg/pencil.svg" alt="pencil"/></span>
-                                            <input type="text" id="last_name" name="last_name" class="form-control rounded-0 border-left-0 border-black" placeholder="Lastname*" aria-label="lastname" aria-describedby="lastname" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="birthdate-prepend"><img width="19" src="../../../static/svg/cake.svg" alt="cake"/></span>
-                                            <input  type="text" id="birth_date" name="birth_date" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Birth date*" aria-label="birthdate" aria-describedby="birthdate" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="currency-prepend"><img width="19" src="../../../static/svg/currency.svg" alt="currency"/></span>
-                                            <input  type="text" id="currency" name="currency" class="form-control rounded-0 border-left-0 border-black" placeholder="Currency*" aria-label="currency" aria-describedby="currency" required>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="phone-number-prepend"><img width="19" src="../../../static/svg/telephone.svg" alt="phone_number"/></span>
-                                            <input type="text" id="phone_number" name="phone_number" class="form-control rounded-0 border-left-0 border-black" placeholder="Phone number" aria-label="phone_number" aria-describedby="phone_number">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group mb-3">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
-                                            <input type="password" id="password" name="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password*" aria-label="password" aria-describedby="password" required>
-                                            <span class="input-group-text bg-white rounded-0 border-left-0 border-black"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group mb-3">
-                                        <div class="input-group mb-3">
-                                            <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
-                                            <input type="password" id="confirm_password" class="form-control rounded-0 border-left-0 border-right-0 border-black confirm-password" placeholder="Confirm password*" aria-label="password" aria-describedby="confirm-password" required>
-                                            <span class="input-group-text confirm-password-eye bg-white rounded-0 border-left-0 border-black"><img class="toggle-confirm-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
-                            </div>
-                        </form>
-                     </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
+                        </div>
+                    </form>
                  </div>
              </div>
          </div>
