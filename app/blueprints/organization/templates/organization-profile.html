@@ -54,5 +54,31 @@
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+
+    $(this).on('load', () => {
+        get_organization()
+            .then(response => {
+                if(!response.ok && response.status === 401) {
+                    go_to_login();
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                $("#organization_name").val(data.response.organization_name);
+                $("#organization_name").data("defaultValue", data.response.organization_name);
+                $("#email").val(data.response.email);
+                $("#email").data("defaultValue", data.response.email);
+                $("#phone_number").val(data.response.phone_number);
+                $("#phone_number").data("defaultValue", data.response.phone_number);
+                $("#website").val(data.response.website);
+                $("#website").data("defaultValue", data.response.website);
+            })
+    })
+
+    $("#organization_name").on('focusout', () => update_organization());
+    $("#email").on('focusout', () => update_organization())
+    $("#phone_number").on('focusout', () => update_organization())
+    $("#website").on('focusout', () => update_organization())
 </script>
 {% endblock %}

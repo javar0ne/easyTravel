@@ -17,6 +17,7 @@ from app.role import roles_required, Role
 logger = logging.getLogger(__name__)
 
 @traveler.get('/<traveler_id>')
+@roles_required([Role.TRAVELER.name])
 def get_traveler(traveler_id):
     try:
         traveler = get_traveler_by_id(traveler_id)
@@ -55,6 +56,7 @@ def get_logged_traveler():
         return error_response()
 
 @traveler.post('')
+@roles_required([Role.TRAVELER.name])
 def create():
     try:
         logger.debug("parsing request body to traveler..")

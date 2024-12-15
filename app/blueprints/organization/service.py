@@ -5,8 +5,8 @@ from bson import ObjectId
 
 from app.blueprints.organization.model import CreateOrganizationRequest, Organization, \
     UpdateOrganizationRequest, \
-    OrganizationStatus
-from app.blueprints.user.service import create_user
+    OrganizationStatus, OrganizationFull
+from app.blueprints.user.service import create_user, get_user_by_id, update_user_email
 from app.exceptions import ElementNotFoundException
 from app.extensions import mongo
 from app.models import Paginated, PaginatedResponse, Collections
@@ -40,6 +40,19 @@ def get_organization_by_id(organization_id: str) -> Organization:
     logger.info("found organization with id %s", organization_id)
     return Organization(**organization_document)
 
+def get_full_organization_by_id(organization_id: str) -> OrganizationFull:
+    logger.info("retrieving organization with id %s", organization_id)
+    organization_document = mongo.find_one(Collections.ORGANIZATIONS, {'user_id': organization_id})
+
+    if organization_document is None:
+        raise ElementNotFoundException("no organization found with id {organization_id}")
+
+    user = get_user_by_id(organization_id)
+    organization = Organization(**organization_document)
+
+    logger.info("found organization with id %s", organization_id)
+    return OrganizationFull.from_sources(organization, user)
+
 def create_organization(organization_create_req: CreateOrganizationRequest) -> str:
     logger.info("storing organization..")
 
@@ -53,16 +66,19 @@ def create_organization(organization_create_req: CreateOrganizationRequest) -> s
 
     return str(stored_organization.inserted_id)
 
-def update_organization(id: str, updated_organization: UpdateOrganizationRequest):
-    logger.info("updating organization with id %s..", id)
-    stored_organization = get_organization_by_id(id)
+def update_organization(user_id: str, updated_organization: UpdateOrganizationRequest):
+    logger.info("updating organization with id %s..", user_id)
+    stored_organization = get_organization_by_id(user_id)
     if not stored_organization:
-        raise ElementNotFoundException(f"no traveler found with id: {id}")
+        raise ElementNotFoundException(f"no traveler found with id: {user_id}")
+
+    if updated_organization.email:
+        update_user_email(user_id, updated_organization.email)
 
     stored_organization.update_by(updated_organization)
     stored_organization.update_at = datetime.now(timezone.utc)
-    mongo.update_one(Collections.ORGANIZATIONS, {'_id': ObjectId(id)}, {'$set': stored_organization.model_dump(exclude={'id'})})
-    logger.info("organization with id %s updated successfully", id)
+    mongo.update_one(Collections.ORGANIZATIONS, {'user_id': user_id}, {'$set': stored_organization.model_dump(exclude={'id', 'email'})})
+    logger.info("organization with id %s updated successfully", user_id)
 
 def get_pending_organizations(paginated: Paginated) -> PaginatedResponse:
     found_organizations = []
