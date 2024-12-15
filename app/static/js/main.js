@@ -310,12 +310,22 @@ function get_traveler() {
     return fetch(
         URLS.traveler,
         {
-            // "headers": {"Content-Type": "application/json"}
             "method": "GET",
             "headers": {"Authorization": `Bearer ${get_access_token()}`}
         }
     )
 }
+
+function get_full_traveler() {
+    return fetch(
+        `${URLS.traveler}/full`,
+        {
+            "method": "GET",
+            "headers": {"Authorization": `Bearer ${get_access_token()}`}
+        }
+    )
+}
+
 function get_most_saved_itineraries() {
     const access_token = get_access_token();
     return fetch(
@@ -1048,4 +1058,123 @@ function get_past_itineraries() {
             `)
         })
     })
+}
+
+function update_traveler() {
+    const name = $("#name").val();
+    const old_name = $("#name").data("defaultValue");
+    const surname = $("#surname").val();
+    const old_surname = $("#surname").data("defaultValue");
+    const email = $("#email").val();
+    const old_email = $("#email").data("defaultValue");
+    const date_of_birth = $("#date_of_birth").val();
+    const old_date_of_birth = $("#date_of_birth").data("defaultValue");
+    const currency = $("#currency").val();
+    const old_currency = $("#currency").data("defaultValue");
+
+    if(!name || !surname || !email || !validate_email(email) || !date_of_birth || !currency) {
+        show_error_toast("Cannot update, all data are required!");
+        return;
+    }
+
+    if(
+        name === old_name &&
+        surname === old_surname &&
+        email === old_email &&
+        date_of_birth === old_date_of_birth &&
+        currency === old_currency
+    ) {
+        show_success_toast("No data to update!");
+        return;
+    }
+
+    fetch(
+        `${URLS.traveler}`,
+        {
+            "method": "put",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "email": email,
+                "currency": currency,
+                "first_name": name,
+                "last_name": surname,
+                "birth_date": date_of_birth,
+                "interested_in": [],
+                "phone_number": ""
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            go_to_login();
+        }
+
+        $("#name").data("defaultValue", name);
+        $("#surname").data("defaultValue", surname);
+        $("#email").data("defaultValue", email);
+        $("#date_of_birth").data("defaultValue", date_of_birth);
+        $("#currency").data("defaultValue", currency);
+
+        show_success_toast("Successfully updated traveler!");
+    })
+}
+
+function get_saved_itineraries() {
+    fetch(
+        `${URLS.itinerary}/saved`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "page_size": 10,
+                "page_number": 0
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            go_to_login()
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        data.response.content.forEach((itinerary, num) => {
+            $("#itineraries_container").append(`
+            <div class="col-12 col-sm-6 col-md-6 col-xl-4 col-xxl-3 mb-5">
+                <div class="card border border-0 rounded-0">
+                    <img class="card-img-top rounded-0 w-100 object-fit-cover" height="336" src="${itinerary.image.urls.regular}"
+                         alt="${itinerary.image.alt_description}" onclick="go_to_itinerary('${itinerary.id}')" style="cursor: pointer"/>
+                    <div class="card-body px-1 py-2 rounded-0">
+                        <h5 class="card-title fw-light m-0 fs-24">${itinerary.country}, <span class="fw-bold fs-24">${itinerary.city}</span></h5>
+                        <p class="card-text text-muted fs-14">${moment(itinerary.start_date).format("D MMM YYYY")} - ${moment(itinerary.end_date).format("D MMM YYYY")}</p>
+                        <span id="itinerary${num}_activities"></span>
+                        <hr class="my-2"/>
+                        <div class="d-flex" id="save_itinerary">
+                            <a href="#" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img src="../../../static/svg/saved.svg" onclick="save_itinerary_and_update('${itinerary.id}')"/></a>
+                        </div>
+                    </div>
+                </div>
+            </div>    
+            `)
+
+            itinerary.interested_in.forEach(activity =>
+                $(`#itinerary${num}_activities`).append(`
+                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">${decode_interested_in(activity)}</span>
+                `)
+            )
+        })
+    })
+}
+
+function save_itinerary_and_update(id) {
+    save_itinerary(id);
+    $("#itineraries_container").empty();
+    get_saved_itineraries();
 }

@@ -43,9 +43,18 @@
                       </div>
                     </div>
                     <div class="mt-3">
-                      <label for="activity" class="form-label fw-light">Activity</label>
+                      <label for="activities" class="form-label fw-light">Activity</label>
                       <div class="input-group">
-                        <input type="text" placeholder="Insert activity" class="form-control rounded-0 border-top-0 border-start-0 border-end-0 bg-white" id="activity" aria-describedby="basic-addon3 basic-addon4">
+                        <select id="activities" data-placeholder="Choose at least one activity">
+                            <option value="BEACH">Beach</option>
+                            <option value="CITY_SIGHTSEEING">City sightseeing</option>
+                            <option value="FESTIVAL">Festival</option>
+                            <option value="FOOD_EXPLORATION">Food exploration</option>
+                            <option value="OUTDOOR_ADVENTURES">Outdoor adventures</option>
+                            <option value="NIGHTLIFE">Nightlife</option>
+                            <option value="SHOPPING">Shopping</option>
+                            <option value="SPA_WELLNESS">Spa & wellness</option>
+                        </select>
                         <span class="input-group-text rounded-0 border-top-0 border-start-0 border-end-0 bg-white text-muted fw-light" id="basic-addon3" role="button">edit</span>
                       </div>
                     </div>
@@ -61,26 +70,44 @@
         </div>
         <div class="col-12 col-md-7">
             <h3 class="fs-24 mt-5 mt-md-0 mb-4">Saved itineraries</h3>
-            <div class="row justify-content-start">
-                <div class="col-12 col-sm-6 col-md-6 col-xl-4 col-xxl-3 mb-5">
-                    {{ your_itinerary_card.your_itinerary_card("Portugal","Lisbona","20 Dec 2024","22 Dec 2024",["Spa","Shopping","Nightlife","Festival","Beach"],"lisbona_img","https://images.unsplash.com/photo-1536663815808-535e2280d2c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
-                </div>
-                <div class="col-12 col-sm-6 col-md-6 col-xl-4 col-xxl-3 mb-5">
-                    {{ your_itinerary_card.your_itinerary_card("Portugal","Lisbona","20 Dec 2024","22 Dec 2024",["Spa","Shopping","Nightlife","Festival","Beach"],"lisbona_img","https://images.unsplash.com/photo-1536663815808-535e2280d2c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
-                </div>
-                <div class="col-12 col-sm-6 col-md-6 col-xl-4 col-xxl-3 mb-5">
-                    {{ your_itinerary_card.your_itinerary_card("Portugal","Lisbona","20 Dec 2024","22 Dec 2024",["Spa","Shopping","Nightlife","Festival","Beach"],"lisbona_img","https://images.unsplash.com/photo-1536663815808-535e2280d2c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
-                </div>
-                <div class="col-12 col-sm-6 col-md-6 col-xl-4 col-xxl-3 mb-5">
-                    {{ your_itinerary_card.your_itinerary_card("Portugal","Lisbona","20 Dec 2024","22 Dec 2024",["Spa","Shopping","Nightlife","Festival","Beach"],"lisbona_img","https://images.unsplash.com/photo-1536663815808-535e2280d2c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
-                </div>
-                <div class="col-12 col-sm-6 col-md-6 col-xl-4 col-xxl-3 mb-5">
-                    {{ your_itinerary_card.your_itinerary_card("Portugal","Lisbona","20 Dec 2024","22 Dec 2024",["Spa","Shopping","Nightlife","Festival","Beach"],"lisbona_img","https://images.unsplash.com/photo-1536663815808-535e2280d2c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") }}
-                </div>
-            </div>
+            <div id="itineraries_container" class="row justify-content-start"></div>
         </div>
     </div>
 {% endblock %}
 {% block footer %}
     {% include "components/footer.html" %}
+{% endblock %}
+{% block script %}
+<script>
+    $(this).on('load', () => {
+        get_full_traveler()
+            .then(response => {
+                if(!response.ok && response.status === 401) {
+                    go_to_login();
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                $("#name").val(data.response.first_name);
+                $("#name").data("defaultValue", data.response.first_name);
+                $("#surname").val(data.response.last_name);
+                $("#surname").data("defaultValue", data.response.last_name);
+                $("#email").val(data.response.email);
+                $("#email").data("defaultValue", data.response.email);
+                $("#date_of_birth").val(moment(data.response.birth_date).format("YYYY-MM-DD"));
+                $("#date_of_birth").data("defaultValue", moment(data.response.birth_date).format("YYYY-MM-DD"));
+                $("#currency").val(data.response.currency);
+                $("#currency").data("defaultValue", data.response.currency);
+            })
+        get_saved_itineraries();
+    });
+
+
+    $("#name").on('focusout', () => update_traveler());
+    $("#surname").on('focusout', () => update_traveler())
+    $("#email").on('focusout', () => update_traveler())
+    $("#date_of_birth").on('focusout', () => update_traveler())
+    $("#currency").on('focusout', () => update_traveler())
+</script>
 {% endblock %}

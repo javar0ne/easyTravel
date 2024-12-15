@@ -7,8 +7,8 @@ from flask import url_for
 
 from app.blueprints.traveler.mail import send_traveler_signup_mail
 from app.blueprints.traveler.model import CreateTravelerRequest, UpdateTravelerRequest, Traveler, \
-    ConfirmTravelerSignupRequest, TravelerSignupConfirmationNotFoundException
-from app.blueprints.user.service import create_user
+    ConfirmTravelerSignupRequest, TravelerSignupConfirmationNotFoundException, TravelerFull
+from app.blueprints.user.service import create_user, get_user_by_id, update_user_email
 from app.exceptions import ElementNotFoundException
 from app.extensions import mongo
 from app.models import Collections
@@ -28,6 +28,19 @@ def get_traveler_by_id(traveler_id: str) -> Traveler:
 
     logger.info("found traveler with id %s", traveler_id)
     return Traveler(**traveler_document)
+
+def get_full_traveler_by_id(user_id: str) -> Traveler:
+    logger.info("retrieving traveler with user id %s", user_id)
+    user = get_user_by_id(user_id)
+    traveler_document = mongo.find_one(Collections.TRAVELERS, {'user_id': user.id})
+
+    if traveler_document is None:
+        raise ElementNotFoundException(f"no traveler found with id: {user.id}")
+
+    traveler = Traveler(**traveler_document)
+
+    logger.info("found traveler with id %s", user.id)
+    return TravelerFull.from_sources(traveler, user)
 
 def get_traveler_by_user_id(user_id: str) -> Traveler:
     logger.info("retrieving traveler with user id %s", user_id)
@@ -69,20 +82,23 @@ def create_traveler(request: CreateTravelerRequest) -> str:
 
     return str(stored_traveler.inserted_id)
 
-def update_traveler(traveler_id: str, updated_traveler: UpdateTravelerRequest):
-    logger.info("updating traveler with id %s..", traveler_id)
-    stored_traveler = get_traveler_by_id(traveler_id)
+def update_traveler(user_id: str, updated_traveler: UpdateTravelerRequest):
+    logger.info("updating traveler with id %s..", user_id)
+    stored_traveler = get_traveler_by_user_id(user_id)
     if not stored_traveler:
-        raise ElementNotFoundException(f"no traveler found with id: {traveler_id}")
+        raise ElementNotFoundException(f"no traveler found with id: {user_id}")
+
+    if updated_traveler.email:
+        update_user_email(user_id, updated_traveler.email)
 
     stored_traveler.update_by(updated_traveler)
     stored_traveler.updated_at = datetime.now(timezone.utc)
     mongo.update_one(
         Collections.TRAVELERS,
-        {'_id': ObjectId(traveler_id)},
+        {'user_id': user_id},
         {'$set': stored_traveler.model_dump(exclude={"id"})}
     )
-    logger.info("traveler with id %s updated successfully", traveler_id)
+    logger.info("traveler with id %s updated successfully", user_id)
 
 def handle_signup_confirmation(request: ConfirmTravelerSignupRequest):
     logger.info("confirming traveler signup..")
