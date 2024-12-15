@@ -89,5 +89,11 @@
             const icon = type === 'password' ? '../../static/svg/eye.svg' : '../../static/svg/eye-hide.svg';
             $(".toggle-password").attr("src",icon);
         });
+
+        $("input#password").each(function() {
+            $(this).on('keyup', function(e) {
+                if(e.keyCode === 13) { login() }
+            })
+        })
     </script>
 {% endblock %}
