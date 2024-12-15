@@ -127,4 +127,4 @@ def itinerary_search():
 
 @template.get('/itinerary/upcoming')
 def itinerary_upcoming():
-    return render_template('itinerary-upcoming.html')
+    return render_template('my-itinerary.html')
