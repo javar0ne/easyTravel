@@ -6,6 +6,7 @@ const URLS = {
 }
 
 const CITY_DESCRIPTION_MAX_LENGTH = 300;
+const BY_ACTIVITIES_CITY_DESCRIPTION_MAX_LENGTH = 250;
 const CAROUSEL_MAX_NUM_ACTIVITY = 3;
 
 const ACCESS_TOKEN = "access_token";
@@ -508,8 +509,8 @@ function get_itinerary_by_activity(activity, activity_selector) {
                     <div class="card border border-0 rounded-0 w-100" role="button" onclick="go_to_itinerary('${itinerary.id}')">
                       <img class="card-img-top rounded-0 w-100 object-fit-cover" height="381" src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}">
                       <div class="card-body px-1 py-2 rounded-0">
-                        <h5 class="card-title fw-light fs-24">${itinerary.country}, <span class="fw-bold">${itinerary.city}</span></h5>
-                        <p class="card-text">${itinerary.description.length > CITY_DESCRIPTION_MAX_LENGTH ? itinerary.description.substring(0, CITY_DESCRIPTION_MAX_LENGTH - 1) + "..." : itinerary.description}</p>
+                        <p class="card-title fw-light fs-24">${itinerary.country}, <span class="fw-bold">${itinerary.city}</span></p>
+                        <p class="card-text">${itinerary.description.length > BY_ACTIVITIES_CITY_DESCRIPTION_MAX_LENGTH ? itinerary.description.substring(0, BY_ACTIVITIES_CITY_DESCRIPTION_MAX_LENGTH - 1) + "..." : itinerary.description}</p>
                         <div class="row">
                             <div id="interested_in_itinerary_carousel_${num}" class="col"></div>
                         </div>
@@ -519,13 +520,18 @@ function get_itinerary_by_activity(activity, activity_selector) {
                 `
             );
 
-            itinerary.interested_in.forEach((interested_in) => {
-                $(`#${activity_selector}-section #interested_in_itinerary_carousel_${num}`).append(
-                    `
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">${decode_interested_in(interested_in)}</span>
-                    `
-                )
+            itinerary.interested_in.forEach((interested_in,activity_num) => {
+                if(activity_num < CAROUSEL_MAX_NUM_ACTIVITY){
+                    $(`#${activity_selector}-section #interested_in_itinerary_carousel_${num}`).append(
+                        `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14 me-2">${decode_interested_in(interested_in)}</span>`
+                    )
+                }
             })
+            if(itinerary.interested_in.length > CAROUSEL_MAX_NUM_ACTIVITY){
+                 $(`#${activity_selector}-section #interested_in_itinerary_carousel_${num}`).append(
+                     `<span class="fs-14">+ ${itinerary.interested_in.length - CAROUSEL_MAX_NUM_ACTIVITY} activity</span>`
+                 );
+            }
         });
     })
 }
