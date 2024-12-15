@@ -1,0 +1,8 @@
+{% macro itinerary_activity_info(image,alt,text) %}
+    <span class="d-none d-xl-inline-block badge rounded-0 text-white bg-black fw-normal mb-2 me-2 fs-20">
+    <img class="me-2" src="../../static/svg/{{ image }}.svg" alt="{{ alt }}">
+    {{ text }}</span>
+    <span class="d-none d-lg-inline-block d-xl-none badge rounded-0 text-white bg-black fw-normal mb-2 me-2 fs-14">
+    <img class="me-2" src="../../static/svg/{{ image }}.svg" alt="{{ alt }}">
+    {{ text }}</span>
+{% endmacro %}
