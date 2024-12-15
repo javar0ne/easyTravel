@@ -1,34 +1,47 @@
 {% extends "components/template.html" %}
-{% block title %}Detail event{% endblock %}
+{% block title %}{{ "Detail" if event else "Create" }} event{% endblock %}
 {% block navbar %}
     {% include "components/navbar.html" %}
 {% endblock %}
 {% block content %}
     <div class="container mt-3 mt-md-0 mx-auto">
         <div class="d-flex justify-content-between align-items-center">
-            <h1 class="d-none d-md-block fs-40">Detail event</h1>
-            <h1 class="d-block d-md-none fs-28">Detail event</h1>
-            <a src="#" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-title="Delete event"><img src="../../static/svg/trash.svg" alt="trash"></a>
+            <h1 class="d-none d-md-block fs-40">{{ "Detail" if event else "Create" }} event</h1>
+            <h1 class="d-block d-md-none fs-28">{{ "Detail" if event else "Create" }} event</h1>
+            {% if event %}
+                <a src="#" data-bs-placement="top" data-bs-toggle="tooltip" data-bs-title="Delete event" id="delete_btn"><img src="../../static/svg/trash.svg" alt="trash" onclick="delete_event('{{ event.id }}')" style="cursor:pointer;"></a>
+            {% endif %}
         </div>
-        <form class="mt-4">
         <div class="row">
             <div class="col-12 col-md">
                 <label for="title" class="form-label">Title</label>
-                <input type="text" placeholder="Insert a title" class="form-control border-0 bg-grey" id="city">
+                <input type="text" placeholder="Insert a title" class="form-control border-0 bg-grey" id="title"
+                       value="{{ event.title if event and event.title else "" }}">
             </div>
             <div class="col-12 col-md">
-                <label for="location" class="form-label">Location</label>
-                <input type="text" placeholder="Insert a city" class="form-control border-0 bg-grey" id="location">
+                <label for="location" class="form-label">City</label>
+                <input type="text" onkeyup="handle_capital_search(event, 'event-autocomplete-list')"
+                       onfocus="handle_capital_search(event, 'event-autocomplete-list')"
+                       onfocusout="setTimeout(() => $('#event-autocomplete-list').empty(), 100)"
+                       placeholder="Insert a city" class="form-control border-0 bg-grey" id="location"
+                       value="{{ event.city if event and event.city else "" }}"
+                >
+                <div id="event-autocomplete-list" class="autocomplete-list w-auto position-fixed bg-grey"
+                     style="display: none; cursor: pointer;"></div>
             </div>
             <div class="col-12 col-md">
                 <label for="date" class="form-label">Date</label>
-                <input type="text" id="daterange" name="dates" class="form-control border-0 bg-grey" id="date" placeholder="Add date">
+                <input type="text" id="daterange" name="dates" class="form-control border-0 bg-grey" id="date"
+                       placeholder="Add date">
+                <input type="hidden" id="start_date" name="start_date">
+                <input type="hidden" id="end_date" name="end_date">
             </div>
         </div>
         <div class="row mt-2">
             <div class="col">
                 <label for="description">Description</label>
-                <textarea class="form-control border-0 bg-grey" placeholder="Insert a description here" id="description"></textarea>
+                <textarea class="form-control border-0 bg-grey" placeholder="Insert a description here"
+                          id="description">{{ event.description if event and event.description else "" }}</textarea>
             </div>
         </div>
         <div class="row mt-2">
@@ -41,11 +54,14 @@
             <div class="col col-md-4">
                 <label for="avg_duration" class="d-none d-md-block form-label">Average duration</label>
                 <label for="avg_duration" class="d-block d-md-none form-label">Avg. duration</label>
-                <input type="text" placeholder="Insert a duration" class="form-control border-0 bg-grey" id="avg_duration">
+                <input type="text" placeholder="Insert a duration (in minutes)" class="form-control border-0 bg-grey"
+                       id="avg_duration" value="{{ event.avg_duration if event and event.avg_duration else "" }}"
+                >
             </div>
             <div class="col col-md-4">
                 <label for="cost" class="form-label">Cost</label>
-                <input type="text" placeholder="Insert cost" class="form-control border-0 bg-grey" id="cost">
+                <input type="text" placeholder="Insert cost" class="form-control border-0 bg-grey" id="cost"
+                       value="{{ event.cost if event and event.cost else "" }}">
             </div>
         </div>
         <div class="row mt-2">
@@ -68,15 +84,23 @@
         <div class="row mt-2">
             <div class="col">
                 <p class="form-label">Advanced option</p>
-                <input type="checkbox" class="btn-check" name="accessibility" id="accessibility" autocomplete="off">
-                <label class="btn rounded-0 border-black" for="accessibility">
-                    <img class="me-2" src="../../static/svg/accessibility.svg" alt="accessibility"/>Access for disabled people</label>
+                <div id="optional" class="btn-group" role="group">
+                    <input type="checkbox" class="btn-check" name="accessibility" id="accessibility" autocomplete="off">
+                    <label class="btn rounded-0 border-black" for="accessibility">
+                        <img class="me-2" src="../../static/svg/accessibility.svg" alt="accessibility"/>
+                        Access for disabled people</label>
+                </div>
             </div>
         </div>
-        <div class="d-flex justify-content-end mt-5 mt-md-0">
-            <button type="submit" class="btn btn-primary fw-medium">Create</button>
+        <div id="save_btn" class="d-flex justify-content-end mt-5 mt-md-0">
+            {% if not event %}
+                <button type="submit" class="btn btn-primary fw-medium" onclick="create_event()">Create</button>
+            {% else %}
+                <button type="submit" class="btn btn-primary fw-medium" onclick="update_event('{{ event.id }}')">
+                    Update
+                </button>
+            {% endif %}
         </div>
-        </form>
     </div>
 {% endblock %}
 {% block footer %}
@@ -84,14 +108,49 @@
 {% endblock %}
 {% block script %}
     <script>
-    var map = L.map('map').setView([51.505, -0.09], 13);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+        var map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
 
-    $('#daterange').daterangepicker({
-        minDate: moment()
-    });
+        $(this).on('load', () => {
+            get_organization()
+                .then(response => {
+                    if (!response.ok && response.status === 401) {
+                        go_to_login();
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    {% if event %}
+                    if(
+                        data.response.user_id !== '{{ event.user_id }}' ||
+                        moment('{{ event.start_date }}').isSameOrBefore(moment())
+                    ) {
+                        $("#save_btn").empty();
+                        $("#delete_btn").remove();
+                    }
+                    {% endif %}
+                })
+
+            {% if event %}
+                {% for activity in event.related_activities %}
+                    $("input[value={{ activity }}]").prop('checked', true);
+                {% endfor %}
+
+                {% if event.accessible %}
+                    $("#accessibility").prop('checked', true);
+                {% endif %}
+
+                $('#daterange').data('daterangepicker').setStartDate(moment('{{ event.start_date }}'));
+                $('#daterange').data('daterangepicker').setEndDate(moment('{{ event.end_date }}'));
+            {% endif %}
+        })
+
+        $('#daterange').daterangepicker({
+            minDate: moment()
+        });
     </script>
 {% endblock %}
