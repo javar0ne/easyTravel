@@ -63,10 +63,17 @@ textarea {
         margin-top:6.25rem!important;
     }
 }
-/* vp-lg */
+/* vp-md */
 @media (min-width: 768px) {
     .position-md-fixed{
         position:fixed!important;
+    }
+    .input-group-md-lg{
+        position: relative!important;
+        display: flex!important;
+        flex-wrap: wrap!important;
+        align-items: stretch!important;
+        width: 100%!important;
     }
 }
 /* overwrite color */
