@@ -1436,3 +1436,20 @@ function update_organization() {
         show_success_toast("Successfully updated organization!");
     })
 }
+
+function validate_organization_signup() {
+    const email = $("#email").val();
+    const organization_name = $("#organization_name").val();
+    const password = $("#password").val();
+    const confirm_password = $("#confirm_password").val();
+
+    const is_email_valid = validate_email(email);
+    const is_organization_name_valid = organization_name && organization_name.length > 0;
+    const is_password_valid = validate_password(password, confirm_password)
+
+    if(!is_email_valid) show_error_toast("Email has not a valid format!");
+    if(!is_organization_name_valid) show_error_toast("Organization name is required!");
+    if(!is_password_valid) show_error_toast("Passwords do not match!");
+
+    return is_email_valid && is_organization_name_valid && is_password_valid;
+}
