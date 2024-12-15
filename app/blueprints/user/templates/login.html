@@ -41,7 +41,7 @@
                             </div>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
+                            <button id="login_btn" type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
                         </div>
                      </div>
                      <div class="d-block d-md-none col-md-12">
@@ -60,7 +60,7 @@
                             <small class="text-right"><a href="/forgot-password" class="text-decoration-none text-muted">Forgot password?</a></small>
                         </div>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign in</button>
+                            <button id="login_btn" type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
                         </div>
                      </div>
                  </div>
@@ -89,5 +89,11 @@
             const icon = type === 'password' ? '../../static/svg/eye.svg' : '../../static/svg/eye-hide.svg';
             $(".toggle-password").attr("src",icon);
         });
+
+        $("input#password").each(function() {
+            $(this).on('keyup', function(e) {
+                if(e.keyCode === 13) { login() }
+            })
+        })
     </script>
 {% endblock %}

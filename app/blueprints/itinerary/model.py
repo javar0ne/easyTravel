@@ -351,6 +351,15 @@ class PastItinerary(BaseModel):
     end_date: datetime
     shared_with: Optional[list[str]] = []
 
+class SavedItinerary(BaseModel):
+    id: str
+    city: str
+    country: str
+    image: UnsplashImage
+    start_date: datetime
+    end_date: datetime
+    interested_in: list[str]
+
 class CityMeta(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str

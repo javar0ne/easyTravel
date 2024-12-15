@@ -15,7 +15,7 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
     AssistantItineraryDocsResponse, CityMetaRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse, \
-    ItineraryDetail, ItineraryMetaDetail, ItineraryRequestDetail, UpcomingItinerary, PastItinerary
+    ItineraryDetail, ItineraryMetaDetail, ItineraryRequestDetail, UpcomingItinerary, PastItinerary, SavedItinerary
 from app.blueprints.traveler.service import get_traveler_by_user_id
 from app.blueprints.user.service import get_user_by_id
 from app.exceptions import ElementNotFoundException
@@ -295,18 +295,32 @@ def get_saved_itineraries(user_id: str, paginated: Paginated) -> PaginatedRespon
     saved_itineraries = [ObjectId(it["itinerary_id"]) for it in list(cursor)]
 
     filters = {"_id": {"$in": saved_itineraries}}
+
+    logger.info(filters)
+
     cursor = mongo.aggregate(
         Collections.ITINERARIES,
         filters,
         [{"$sort": {"created_at": -1}},
-        {"$project": {"details": 0, "docs": 0}},
+        {"$project": {"city": 1, "start_date": 1, "end_date": 1, "interested_in": 1}},
         {"$skip": paginated.elements_to_skip},
         {"$limit": paginated.page_size}]
     )
     total_itineraries = mongo.count_documents(Collections.ITINERARIES, filters)
 
     for it in list(cursor):
-        found_itineraries.append(Itinerary(**it).model_dump())
+        city_meta = find_city_meta(it["city"])
+        found_itineraries.append(
+            SavedItinerary(
+                id=str(it["_id"]),
+                city=city_meta.name,
+                country=city_meta.country,
+                image=city_meta.image,
+                start_date=it.get("start_date"),
+                end_date=it.get("end_date"),
+                interested_in=it.get("interested_in")
+            ).model_dump()
+        )
 
     logger.info("found %d itineraries saved by user with id %s!", len(found_itineraries), user_id)
 

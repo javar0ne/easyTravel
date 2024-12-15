@@ -162,3 +162,10 @@ def is_token_not_valid(user_id: str, iat: int, jti) -> bool:
     issued_at = datetime.fromtimestamp(iat, timezone.utc)
 
     return issued_at < last_password_update or redis_auth.get_client().exists(jti)
+
+def update_user_email(user_id: str, email: str):
+    logger.info("updating user %s email to %s", user_id, email)
+
+    mongo.update_one(Collections.USERS, {"_id": ObjectId(user_id)}, {"$set": { "email": email}})
+
+    logger.info("user %s email updated!", user_id)
