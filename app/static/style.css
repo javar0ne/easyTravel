@@ -63,7 +63,12 @@ textarea {
         margin-top:6.25rem!important;
     }
 }
-
+/* vp-lg */
+@media (min-width: 768px) {
+    .position-md-fixed{
+        position:fixed!important;
+    }
+}
 /* overwrite color */
 .bg-primary{
     background-color: #EE7674!important;
