@@ -96,7 +96,7 @@ def update_traveler(user_id: str, updated_traveler: UpdateTravelerRequest):
     mongo.update_one(
         Collections.TRAVELERS,
         {'user_id': user_id},
-        {'$set': stored_traveler.model_dump(exclude={"id"})}
+        {'$set': stored_traveler.model_dump(exclude={"id", "email"})}
     )
     logger.info("traveler with id %s updated successfully", user_id)
 

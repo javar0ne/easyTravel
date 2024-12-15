@@ -75,6 +75,10 @@ def organization_dashboard():
 def organization_signup():
     return render_template("organization-signup.html")
 
+@template.get('/organization/profile')
+def organization_profile():
+    return render_template("organization-profile.html")
+
 # event
 @template.route('/event', defaults={'event_id': None})
 @template.route('/event/<event_id>')

@@ -7,7 +7,7 @@ from pydantic import ValidationError
 from app.blueprints.organization import organization
 from app.blueprints.organization.model import CreateOrganizationRequest, UpdateOrganizationRequest
 from app.blueprints.organization.service import create_organization, get_organization_by_id, update_organization, \
-    get_pending_organizations, handle_active_organization
+    get_pending_organizations, handle_active_organization, get_full_organization_by_id
 from app.exceptions import ElementAlreadyExistsException, ElementNotFoundException
 from app.models import Paginated
 from app.response_wrapper import bad_request_response, success_response, conflict_response, not_found_response, \
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 @roles_required([Role.ORGANIZATION.name])
 def get():
     try:
-        organization = get_organization_by_id(get_jwt_identity())
+        organization = get_full_organization_by_id(get_jwt_identity())
         return success_response(organization.model_dump())
     except ElementNotFoundException as err:
         logger.warning(str(err))
@@ -47,13 +47,14 @@ def create():
         logger.error(str(e))
         return error_response()
 
-@organization.put('/<organization_id>')
-def update(organization_id):
+@organization.put('')
+@roles_required([Role.ORGANIZATION.name])
+def update():
     try:
         logger.debug("parsing request body to organization..")
         organization_data = UpdateOrganizationRequest(**request.json)
 
-        update_organization(organization_id, organization_data)
+        update_organization(get_jwt_identity(), organization_data)
         return no_content_response()
     except ValidationError as err:
         logger.error("validation error while parsing organization request", err)
