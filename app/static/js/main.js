@@ -354,7 +354,7 @@ function handle_most_saved_itinerary(data) {
     $("div#interested_in_container").each(function() {
         data.interested_in.forEach((activity, idx) => {
             $(this).append(
-                `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${idx === 0 ? "" : "ms-2"}">${decode_interested_in(activity)}</span>`
+                `<span class="bg-white border border-1 border-black rounded-pill d-inline-block mb-2 px-2 py-1 me-2">${decode_interested_in(activity)}</span>`
             );
         })
     })
