@@ -6,7 +6,8 @@ from pydantic import ValidationError
 
 from app.blueprints.event import event
 from app.blueprints.event.model import UpdateEventRequest, CreateEventRequest
-from app.blueprints.event.service import create_event, update_event, delete_event, search_events
+from app.blueprints.event.service import create_event, update_event, delete_event, search_events, \
+    get_event_by_user_and_id
 from app.exceptions import ElementNotFoundException, OrganizationNotActiveException
 from app.models import Paginated
 from app.response_wrapper import bad_request_response, error_response, success_response, no_content_response, \
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 @roles_required([Role.ORGANIZATION.name])
 def get(event_id):
     try:
-        event = get_event_by_id_and_user(get_jwt_identity(), event_id)
+        event = get_event_by_user_and_id(get_jwt_identity(), event_id)
         return success_response(event.model_dump())
     except ElementNotFoundException as err:
         logger.warning(str(err))
@@ -42,7 +43,7 @@ def create():
         logger.error("validation error while parsing event request", err)
         return bad_request_response(err.errors())
     except OrganizationNotActiveException as err:
-        return forbidden_response(err.message)
+        return forbidden_response()
     except Exception as err:
         logger.error(str(err))
         return error_response()

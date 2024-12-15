@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect
 
-from app import itinerary
-from app.blueprints.itinerary.model import ItinerarySearch, ItineraryRequest
+from app.blueprints.event.service import get_event_by_id
+from app.blueprints.itinerary.model import ItinerarySearch
 from app.blueprints.itinerary.service import search_itineraries, get_itinerary_detail, get_itinerary_request_by_id, \
     find_city_meta
 from app.blueprints.template import template
@@ -74,6 +74,16 @@ def organization_dashboard():
 @template.get('/organization/signup')
 def organization_signup():
     return render_template("organization-signup.html")
+
+# event
+@template.route('/event', defaults={'event_id': None})
+@template.route('/event/<event_id>')
+def event_detail(event_id):
+    if not event_id:
+        return render_template("detail-event.html", event=None)
+
+    event = get_event_by_id(event_id)
+    return render_template("detail-event.html", event=event)
 
 # itinerary
 @template.get("/itinerary/generate")

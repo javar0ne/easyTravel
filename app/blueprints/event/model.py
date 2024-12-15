@@ -31,7 +31,6 @@ class EventBaseModel(BaseModel):
         return self
 
 class UpdateEventRequest(EventBaseModel):
-    period: str
     city: str
     title: str
     description: str
@@ -43,7 +42,6 @@ class UpdateEventRequest(EventBaseModel):
     end_date: datetime
 
 class CreateEventRequest(EventBaseModel):
-    period: str
     city: str
     title: str
     description: str
@@ -56,7 +54,6 @@ class CreateEventRequest(EventBaseModel):
 
 class Event(EventBaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    period: str
     city: str
     title: str
     description: str

@@ -32,7 +32,7 @@ def get_organization_by_user_id(user_id: str) -> Organization:
 
 def get_organization_by_id(organization_id: str) -> Organization:
     logger.info("retrieving organization with id %s", organization_id)
-    organization_document = mongo.find_one(Collections.ORGANIZATIONS, {'_id': ObjectId(organization_id)})
+    organization_document = mongo.find_one(Collections.ORGANIZATIONS, {'user_id': organization_id})
 
     if organization_document is None:
         raise ElementNotFoundException("no organization found with id {organization_id}")
