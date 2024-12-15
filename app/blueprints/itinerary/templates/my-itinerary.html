@@ -1,0 +1,60 @@
+{% extends "components/template.html" %}
+{% block title %}My trips{% endblock %}
+{% block navbar %}
+    {% include "components/navbar-traveler.html" %}
+{% endblock %}
+{% block content %}
+<div class="row mt-4 mt-sm-0">
+    <div class="col col-md-10 mx-md-auto">
+        <h1 class="d-none d-md-block fs-40 fs-medium mb-5">Upcoming itineraries</h1>
+        <h1 class="d-block d-md-none fs-24 fs-medium mb-3">Upcoming itineraries</h1>
+        <div id="upcoming_container" class="row mb-5 mb-sm-3"></div>
+        <h1 class="d-none d-md-block fs-40 fs-medium mb-5">Previous trips</h1>
+        <h1 class="d-block d-md-none fs-24 fs-medium mb-3">Previous trips</h1>
+        <div id="past_container" class="d-flex justify-content-center justify-content-md-between px-0 px-xxl-3 px-2xl-5"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="inviteTravelersModal" tabindex="-1" aria-labelledby="inviteTravelersModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="inviteTravelersModalLabel">Invite your friends</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Invite people with whom you would like to share your journey.<br>
+            <span class="fw-medium">People you shared with:</span></p>
+        <span class="bg-white border border-1 border-black rounded-pill px-3 py-1 d-inline-block">
+            Giorgio<a href="#" class="ms-3 mb-2 my-auto"><img src="../../../static/svg/cross.svg" alt="close"></a></span>
+        <div class="input-group mt-5">
+          <input type="text" class="form-control" placeholder="Invite travelers" aria-label="Invite travelers" aria-describedby="button-invite">
+          <button class="btn btn-secondary" type="button" id="button-invite">Send</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn bg-white border border-black" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block footer %}
+    {% include "components/footer.html" %}
+{% endblock %}
+{% block script %}
+<script>
+    $(this).on('load', () => {
+        get_traveler()
+        .then(response => {
+            if(!response.ok && response.status === 401) {
+                go_to_login();
+            }
+
+            return response.json();
+        })
+        get_upcoming_itineraries()
+        get_past_itineraries()
+    })
+</script>
+{% endblock %}

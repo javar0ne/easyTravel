@@ -970,24 +970,24 @@ function get_upcoming_itineraries() {
                                   <div class="d-flex justify-content-between mt-3">
                                       <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
                                       <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
-                                      <button class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
                                   </div>
                               </div>
                               <div class="d-none d-md-block d-2xl-none">
                                   <div class="d-flex justify-content-between mt-2 mt-xl-4 mt-xxl-4">
                                       <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
                                       <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
-                                      <button class="d-none d-xxl-block px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                      <button class="d-none d-xl-block d-xxl-none px-5 py-1 fs-18 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                      <button class="d-none d-lg-block d-xl-none px-5 py-1 fs-16 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                      <button class="d-block d-lg-none px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="d-none d-xxl-block px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="d-none d-xl-block d-xxl-none px-5 py-1 fs-18 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="d-none d-lg-block d-xl-none px-5 py-1 fs-16 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="d-block d-lg-none px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
                                   </div>
                               </div>
                               <div class="d-block d-md-none">
                                   <div class="d-flex justify-content-between mt-3">
                                       <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
                                       <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
-                                      <button class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
                                   </div>
                               </div>
                           </div>
