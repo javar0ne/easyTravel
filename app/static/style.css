@@ -14,6 +14,18 @@ textarea {
   box-shadow: none!important;
 }
 
+/* vp-3xl */
+@media (min-width: 1800px) {
+    .d-3xl-block {
+        display: block !important;
+    }
+    .d-3xl-none {
+        display: none !important;
+    }
+    .mt-3xl-0{
+        margin-top: 0!important;
+    }
+}
 /* vp-2xl */
 @media (min-width: 1600px) {
     .d-2xl-block {
@@ -31,6 +43,9 @@ textarea {
     }
     .mt-2xl-0 {
         margin-top: 0!important;
+    }
+    .mt-2xl-2{
+        margin-top: .5rem!important;
     }
     .mt-2xl-3 {
         margin-top: 1rem!important;
