@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
+from app.blueprints.user.model import User
 from app.encoders import PyObjectId
 from app.models import Activity
 from app.utils import is_valid_enum_name
@@ -39,6 +40,7 @@ class ConfirmTravelerSignupRequest(TravelerBaseModel):
     token: str
 
 class UpdateTravelerRequest(TravelerBaseModel):
+    email: str
     currency: str
     first_name: str
     last_name: str
@@ -77,3 +79,28 @@ class Traveler(TravelerBaseModel):
         self.last_name = update_traveler_req.last_name
         self.birth_date = update_traveler_req.birth_date
         self.interested_in = update_traveler_req.interested_in
+
+class TravelerFull(TravelerBaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    email: str
+    currency: str
+    first_name: str
+    last_name: str
+    birth_date: datetime
+    user_id: str
+    interested_in: Optional[list[str]] = []
+    phone_number: Optional[str] = None
+
+    @staticmethod
+    def from_sources(traveler: Traveler, user: User):
+        return TravelerFull(
+            id=traveler.id,
+            email=user.email,
+            currency=traveler.currency,
+            first_name=traveler.first_name,
+            last_name=traveler.last_name,
+            birth_date=traveler.birth_date,
+            user_id=traveler.user_id,
+            interested_in=traveler.interested_in,
+            phone_number=traveler.phone_number
+        )

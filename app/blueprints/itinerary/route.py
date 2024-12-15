@@ -130,7 +130,7 @@ def save_itinerary(itinerary_id):
         logger.error(str(err))
         return error_response()
 
-@itinerary.get('/saved')
+@itinerary.post('/saved')
 @roles_required([Role.TRAVELER.name])
 def saved_itineraries():
     try:

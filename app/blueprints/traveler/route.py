@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, render_template
+from flask import request
 from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 
@@ -8,7 +8,7 @@ from app.blueprints.traveler import traveler
 from app.blueprints.traveler.model import CreateTravelerRequest, UpdateTravelerRequest, ConfirmTravelerSignupRequest, \
     TravelerSignupConfirmationNotFoundException
 from app.blueprints.traveler.service import create_traveler, get_traveler_by_id, update_traveler, \
-    handle_signup_confirmation, get_traveler_by_user_id
+    handle_signup_confirmation, get_traveler_by_user_id, get_full_traveler_by_id
 from app.exceptions import ElementAlreadyExistsException, ElementNotFoundException
 from app.response_wrapper import bad_request_response, conflict_response, success_response, not_found_response, \
     error_response, no_content_response
@@ -20,6 +20,19 @@ logger = logging.getLogger(__name__)
 def get_traveler(traveler_id):
     try:
         traveler = get_traveler_by_id(traveler_id)
+        return success_response(traveler.model_dump())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@traveler.get('/full')
+@roles_required([Role.TRAVELER.name])
+def get_full_traveler():
+    try:
+        traveler = get_full_traveler_by_id(get_jwt_identity())
         return success_response(traveler.model_dump())
     except ElementNotFoundException as err:
         logger.warning(str(err))
@@ -59,13 +72,14 @@ def create():
         logger.error(str(err))
         return error_response()
 
-@traveler.put('/<traveler_id>')
-def update(traveler_id):
+@traveler.put('')
+@roles_required([Role.TRAVELER.name])
+def update():
     try:
         logger.debug("parsing request body to traveler..")
         traveler_data = UpdateTravelerRequest(**request.json)
 
-        update_traveler(traveler_id, traveler_data)
+        update_traveler(get_jwt_identity(), traveler_data)
         return no_content_response()
     except ValidationError as err:
         logger.error("validation error while parsing traveler request", err)

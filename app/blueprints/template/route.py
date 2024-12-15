@@ -62,6 +62,10 @@ def traveler_signup_confirmation_post():
 def traveler_dashboard():
     return render_template('traveler-dashboard.html')
 
+@template.get('/traveler/profile')
+def traveler_profile():
+    return render_template('traveler-profile.html')
+
 # organization
 @template.get('/organization/dashboard')
 def organization_dashboard():
