@@ -1,6 +1,7 @@
 import logging
 
 from flask import request
+from flask_jwt_extended import get_jwt_identity
 from pydantic import ValidationError
 
 from app.blueprints.organization import organization
@@ -15,10 +16,11 @@ from app.role import roles_required, Role
 
 logger = logging.getLogger(__name__)
 
-@organization.get('/<organization_id>')
-def get(organization_id):
+@organization.get('')
+@roles_required([Role.ORGANIZATION.name])
+def get():
     try:
-        organization = get_organization_by_id(organization_id)
+        organization = get_organization_by_id(get_jwt_identity())
         return success_response(organization.model_dump())
     except ElementNotFoundException as err:
         logger.warning(str(err))

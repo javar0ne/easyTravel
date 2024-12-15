@@ -2,6 +2,8 @@ const URLS = {
     "user": "/v1/user",
     "traveler": "/v1/traveler",
     "itinerary": "/v1/itinerary",
+    "organization": "/v1/organization",
+    "event": "/v1/event",
     "rest_countries": "https://restcountries.com/v3.1"
 }
 
@@ -320,6 +322,16 @@ function get_traveler() {
     )
 }
 
+function get_organization() {
+    return fetch(
+        URLS.organization,
+        {
+            "method": "GET",
+            "headers": {"Authorization": `Bearer ${get_access_token()}`}
+        }
+    )
+}
+
 function get_full_traveler() {
     return fetch(
         `${URLS.traveler}/full`,
@@ -624,7 +636,7 @@ function search_for_capital(city, autocomplete_element, element_id) {
         $(`#${autocomplete_element}`).empty();
         data.forEach(element => {
             $(`#${autocomplete_element}`).append(`
-                <div onclick="set_city('${autocomplete_element}', '${element_id}', '${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ms-3 px-1 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
+                <div onclick="set_city('${autocomplete_element}', '${element_id}', '${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ps-3 px-1 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
             `);
 
             $(`#${autocomplete_element}`).css("display", "");
@@ -1199,4 +1211,172 @@ function save_itinerary_and_update(id) {
     save_itinerary(id);
     $("#itineraries_container").empty();
     get_saved_itineraries();
+}
+
+function validate_create_event() {
+    const city = $("#location").val();
+    const title = $("#title").val();
+    const start_date = $('#daterange').data('daterangepicker').startDate;
+    const end_date = $('#daterange').data('daterangepicker').endDate;
+    const description = $("#description").val();
+    const avg_duration = $("#avg_duration").val();
+    const cost = $("#cost").val();
+
+    let interested_in = []
+    $("input[name='interested-in']:checked").each(function () {
+      interested_in.push($(this).attr("value"));
+    })
+
+    if(!city) {
+        show_error_toast("City required!")
+        return false;
+    }
+    if(!title) {
+        show_error_toast("Title required!")
+        return false;
+    }
+
+    if(!start_date || !end_date) {
+        show_error_toast("Start date and end date must not be empty!");
+        return false;
+    } else {
+        $('#start_date').attr("value", start_date.format('YYYY-MM-DD'));
+        $('#end_date').attr("value", end_date.format('YYYY-MM-DD'));
+    }
+
+    if(!description) {
+        show_error_toast("Description required!")
+        return false;
+    }
+    if(!avg_duration) {
+        show_error_toast("Average duration required!")
+        return false;
+    }
+    if(!cost) {
+        show_error_toast("Cost required!")
+        return false;
+    }
+
+    if(interested_in.length === 0) {
+        show_error_toast("Activities required!")
+        return false;
+    }
+
+    return true;
+}
+
+function create_event() {
+    if(validate_create_event()) {
+        const city = $("#location").val();
+        const title = $("#title").val();
+        const start_date = $('#start_date').attr("value");
+        const end_date = $('#end_date').attr("value");
+        const description = $("#description").val();
+        const avg_duration = $("#avg_duration").val();
+        const cost = $("#cost").val();
+        const accessibility = $("#accessibility").prop("checked");
+
+        let interested_in = []
+        $("input[name='interested-in']:checked").each(function () {
+            interested_in.push($(this).attr("value"));
+        })
+
+        fetch(
+            `${URLS.event}`,
+            {
+                "method": "post",
+                "headers": {
+                    "Authorization": `Bearer ${get_access_token()}`,
+                    "Content-Type": "application/json"
+                },
+                "body": JSON.stringify({
+                    "city": city,
+                    "title": title,
+                    "description": description,
+                    "cost": cost,
+                    "avg_duration": avg_duration,
+                    "accessible": accessibility,
+                    "related_activities": interested_in,
+                    "start_date": start_date,
+                    "end_date": end_date
+                })
+            }
+        )
+        .then(response => {
+            if(!response.ok && response.status === 401) {
+                go_to_login();
+            }
+
+            return response.json();
+        })
+        .then(data => window.location.href=`/event/${data.response.id}`)
+    }
+}
+
+function update_event(id) {
+    if(validate_create_event()) {
+        const city = $("#location").val();
+        const title = $("#title").val();
+        const start_date = $('#start_date').attr("value");
+        const end_date = $('#end_date').attr("value");
+        const description = $("#description").val();
+        const avg_duration = $("#avg_duration").val();
+        const cost = $("#cost").val();
+        const accessibility = $("#accessibility").prop("checked");
+
+        let interested_in = []
+        $("input[name='interested-in']:checked").each(function () {
+            interested_in.push($(this).attr("value"));
+        })
+
+        fetch(
+            `${URLS.event}/${id}`,
+            {
+                "method": "put",
+                "headers": {
+                    "Authorization": `Bearer ${get_access_token()}`,
+                    "Content-Type": "application/json"
+                },
+                "body": JSON.stringify({
+                    "city": city,
+                    "title": title,
+                    "description": description,
+                    "cost": cost,
+                    "avg_duration": avg_duration,
+                    "accessible": accessibility,
+                    "related_activities": interested_in,
+                    "start_date": start_date,
+                    "end_date": end_date
+                })
+            }
+        )
+        .then(response => {
+            if(!response.ok && response.status === 401) {
+                go_to_login();
+            }
+
+            return response.json();
+        })
+        .then(data => window.location.href=`/event/${data.response.id}`)
+    }
+}
+
+function delete_event(id) {
+    fetch(
+        `${URLS.event}/${id}`,
+        {
+            "method": "delete",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            go_to_login();
+        }
+
+        return response.json();
+    })
+    .then(data => window.location.href='/organization/dashboard')
 }

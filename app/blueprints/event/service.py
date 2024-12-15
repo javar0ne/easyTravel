@@ -54,7 +54,7 @@ def create_event(user_id: str, request: CreateEventRequest):
 
 def update_event(user_id: str, event_id: str, update_event_req: UpdateEventRequest):
     logger.info("updating event with id %s..", event_id)
-    stored_event = get_event_by_id_and_user(user_id, event_id)
+    stored_event = get_event_by_user_and_id(user_id, event_id)
 
     if not stored_event:
         raise ElementNotFoundException(f"no event found with id {event_id}")
@@ -62,13 +62,12 @@ def update_event(user_id: str, event_id: str, update_event_req: UpdateEventReque
     stored_event.update_by(update_event_req)
     stored_event.updated_at = datetime.now(timezone.utc)
 
-    mongo.update_one(
-        Collections.EVENTS,
-        {'_id': ObjectId(event_id)},
-        {"$set": stored_event.model_dump(exclude={'id'})}
-    )
+    mongo.update_one(Collections.EVENTS, {'_id': ObjectId(event_id)},
+                           {"$set": stored_event.model_dump(exclude={'id'})})
 
     logger.info("updated event with id %s", event_id)
+
+    return stored_event.id
 
 def delete_event(user_id: str, event_id: str):
     logger.info("deleting event with id %s", event_id)

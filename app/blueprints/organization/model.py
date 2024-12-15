@@ -54,6 +54,6 @@ class Organization(BaseModel):
             organization_name=organization.organization_name,
             coordinates=organization.coordinates,
             website=organization.website,
-            status=OrganizationStatus.PENDING.name,
+            status=OrganizationStatus.ACTIVE.name,
             user_id=organization.user_id
         )
