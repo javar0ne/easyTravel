@@ -4,6 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from app.blueprints.user.model import User
 from app.encoders import PyObjectId
 from app.models import Coordinates
 
@@ -16,14 +17,15 @@ class OrganizationStatus(Enum):
 class CreateOrganizationRequest(BaseModel):
     email: str
     password: str
-    phone_number: str
     organization_name: str
     coordinates: Coordinates
-    website: str
+    website: Optional[str] = None
+    phone_number: Optional[str] = None
     status: str = OrganizationStatus.PENDING.name
     user_id: Optional[str] = None
 
 class UpdateOrganizationRequest(BaseModel):
+    email: str
     phone_number: str
     organization_name: str
     coordinates: Coordinates
@@ -50,6 +52,28 @@ class Organization(BaseModel):
     @staticmethod
     def from_create_req(organization: CreateOrganizationRequest):
         return Organization(
+            phone_number=organization.phone_number,
+            organization_name=organization.organization_name,
+            coordinates=organization.coordinates,
+            website=organization.website,
+            status=OrganizationStatus.ACTIVE.name,
+            user_id=organization.user_id
+        )
+
+class OrganizationFull(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    phone_number: str
+    organization_name: str
+    coordinates: Coordinates
+    website: str
+    status: str
+    email: str
+
+    @staticmethod
+    def from_sources(organization: Organization, user: User):
+        return OrganizationFull(
+            id=organization.id,
+            email=user.email,
             phone_number=organization.phone_number,
             organization_name=organization.organization_name,
             coordinates=organization.coordinates,

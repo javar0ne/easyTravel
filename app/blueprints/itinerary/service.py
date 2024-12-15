@@ -709,7 +709,13 @@ def get_upcoming_itineraries(user_id: str):
     logger.info({"user_id": user_id, "start_date": { "$gte": datetime.combine(date.today(), time.min, tzinfo=timezone.utc) }})
     cursor = mongo.aggregate(
         Collections.ITINERARIES,
-        {"user_id": user_id, "end_date": { "$gte": datetime.combine(date.today(), time.min, tzinfo=timezone.utc) }},
+        {
+            "$or": [
+                {"user_id": user_id},
+                {"shared_with": user_id}
+            ],
+            "end_date": { "$gte": datetime.combine(date.today(), time.min, tzinfo=timezone.utc) }
+        },
         [
             {
                 "$project": {
@@ -752,7 +758,13 @@ def get_upcoming_itineraries(user_id: str):
 def get_past_itineraries(user_id: str):
     cursor = mongo.aggregate(
         Collections.ITINERARIES,
-        {"user_id": user_id, "end_date": { "$lt": datetime.now(tz=timezone.utc) }},
+        {
+            "$or": [
+                {"user_id": user_id},
+                {"shared_with": user_id}
+            ],
+            "end_date": { "$lt": datetime.now(tz=timezone.utc) }
+        },
         [
             {
                 "$project": {

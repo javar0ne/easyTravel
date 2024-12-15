@@ -1380,3 +1380,76 @@ function delete_event(id) {
     })
     .then(data => window.location.href='/organization/dashboard')
 }
+
+function update_organization() {
+    const organization_name = $("#organization_name").val();
+    const old_organization_name = $("#organization_name").data("defaultValue");
+    const email = $("#email").val();
+    const old_email = $("#email").data("defaultValue");
+    const phone_number = $("#phone_number").val();
+    const old_phone_number = $("#phone_number").data("defaultValue");
+    const website = $("#website").val();
+    const old_website = $("#website").data("defaultValue");
+
+    if(!organization_name || !email || !validate_email(email) || !phone_number || !website) {
+        show_error_toast("Cannot update, all data are required!");
+        return;
+    }
+
+    if(
+        organization_name === old_organization_name &&
+        email === old_email &&
+        phone_number === old_phone_number &&
+        website === old_website
+    ) {
+        show_success_toast("No data to update!");
+        return;
+    }
+
+    fetch(
+        `${URLS.organization}`,
+        {
+            "method": "put",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "email": email,
+                "organization_name": organization_name,
+                "phone_number": phone_number,
+                "website": website,
+                "coordinates": { "lat": "51.505", "lng": "-0.09"}
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            go_to_login();
+        }
+
+        $("#organization_name").data("defaultValue", organization_name);
+        $("#email").data("defaultValue", email);
+        $("#phone_number").data("defaultValue", phone_number);
+        $("#website").data("defaultValue", website);
+
+        show_success_toast("Successfully updated organization!");
+    })
+}
+
+function validate_organization_signup() {
+    const email = $("#email").val();
+    const organization_name = $("#organization_name").val();
+    const password = $("#password").val();
+    const confirm_password = $("#confirm_password").val();
+
+    const is_email_valid = validate_email(email);
+    const is_organization_name_valid = organization_name && organization_name.length > 0;
+    const is_password_valid = validate_password(password, confirm_password)
+
+    if(!is_email_valid) show_error_toast("Email has not a valid format!");
+    if(!is_organization_name_valid) show_error_toast("Organization name is required!");
+    if(!is_password_valid) show_error_toast("Passwords do not match!");
+
+    return is_email_valid && is_organization_name_valid && is_password_valid;
+}
