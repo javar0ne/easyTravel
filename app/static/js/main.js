@@ -7,7 +7,9 @@ const URLS = {
     "rest_countries": "https://restcountries.com/v3.1"
 }
 
-const CITY_DESCRIPTION_MAX_LENGTH = 250;
+const CITY_DESCRIPTION_MAX_LENGTH = 300;
+const BY_ACTIVITIES_CITY_DESCRIPTION_MAX_LENGTH = 250;
+const CAROUSEL_MAX_NUM_ACTIVITY = 3;
 
 const ACCESS_TOKEN = "access_token";
 const REFRESH_TOKEN = "refresh_token";
@@ -374,11 +376,14 @@ function handle_most_saved_itinerary(data) {
         $(this).attr("src", data.image.urls.regular);
         $(this).attr("alt", data.image.alt_description);
     });
+    $("div#main_top_itinerary_img").each(function () {
+        $(this).attr("style",`background-image: url('${data.image.urls.regular}'); background-size: cover; background-position: center;`)
+    });
 
     $("div#interested_in_container").each(function() {
         data.interested_in.forEach((activity, idx) => {
             $(this).append(
-                `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${idx === 0 ? "" : "ms-2"}">${decode_interested_in(activity)}</span>`
+                `<span class="bg-white border border-1 border-black rounded-pill d-inline-block mb-2 px-2 py-1 me-2">${decode_interested_in(activity)}</span>`
             );
         })
     })
@@ -396,7 +401,7 @@ function handle_itinerary_carousel(data) {
                     `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 1 ? "active": ""} pb-1" data-title="${country_city}" onclick="go_to_itinerary('${itinerary.id}')" style="cursor:pointer;">
                         <img class="d-none d-2xl-block w-100 object-fit-cover" height="290"
                              src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
-                        <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="215"
+                        <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="250"
                              src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
                         <img class="d-block d-xxl-none w-100 object-fit-cover" height="390"
                              src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
@@ -426,9 +431,9 @@ function handle_itinerary_carousel(data) {
                         </div>
                         <div class="row mt-2">
                             <div class="col-12">
-                                <div id="itinerary_carousel_activity_2xl_${itinerary_num}" class="d-none d-sm-block d-xl-none d-2xl-block">
+                                <div id="itinerary_carousel_activity_2xl_${itinerary_num}" class="d-none d-sm-block d-xxl-none d-2xl-block my-2">
                                 </div>
-                                <div id="itinerary_carousel_activity_xxl_${itinerary_num}" class="d-none d-xxl-block d-2xl-none">
+                                <div id="itinerary_carousel_activity_xxl_${itinerary_num}" class="d-none d-xxl-block d-2xl-none my-2">
                                 </div>
                             </div>
                         </div>
@@ -436,18 +441,28 @@ function handle_itinerary_carousel(data) {
                 );
 
                 itinerary.interested_in.forEach((activity, activity_num) => {
-                    const decoded_activity = decode_interested_in(activity);
-                    $('div#itinerary_carousel_activity_2xl_' + itinerary_num).each(function () {
-                        $(this).append(
-                            `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 ${activity_num > 0 ? "ms-1" : ""}">${decoded_activity}</span>`
-                        );
-                    })
-                    $('div#itinerary_carousel_activity_xxl_' + itinerary_num).each(function () {
-                        $(this).append(
-                            `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 fs-14 ${activity_num > 0 ? "ms-1" : ""}">${decoded_activity}</span>`
-                        );
-                    })
+                    if(activity_num < CAROUSEL_MAX_NUM_ACTIVITY){
+                        const decoded_activity = decode_interested_in(activity);
+                        $('div#itinerary_carousel_activity_2xl_' + itinerary_num).each(function () {
+                            $(this).append(
+                                `<span class="bg-white border border-1 border-black rounded-pill d-inline-block px-2 py-1 me-2">${decoded_activity}</span>`
+                            );
+                        })
+                        $('div#itinerary_carousel_activity_xxl_' + itinerary_num).each(function () {
+                            $(this).append(
+                                `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block fs-14 me-2">${decoded_activity}</span>`
+                            );
+                        })
+                    }
                 });
+                if(itinerary.interested_in.length > CAROUSEL_MAX_NUM_ACTIVITY){
+                     $('div#itinerary_carousel_activity_2xl_' + itinerary_num).append(
+                         `<span class="fs-14">+ ${itinerary.interested_in.length - CAROUSEL_MAX_NUM_ACTIVITY} activity</span>`
+                     );
+                     $('div#itinerary_carousel_activity_xxl_' + itinerary_num).append(
+                         `<span class="fs-14">+ ${itinerary.interested_in.length - CAROUSEL_MAX_NUM_ACTIVITY} activity</span>`
+                     );
+                }
             });
         }
     });
@@ -506,8 +521,8 @@ function get_itinerary_by_activity(activity, activity_selector) {
                     <div class="card border border-0 rounded-0 w-100" role="button" onclick="go_to_itinerary('${itinerary.id}')">
                       <img class="card-img-top rounded-0 w-100 object-fit-cover" height="381" src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}">
                       <div class="card-body px-1 py-2 rounded-0">
-                        <h5 class="card-title fw-light fs-24">${itinerary.country}, <span class="fw-bold">${itinerary.city}</span></h5>
-                        <p class="card-text">${itinerary.description.length > CITY_DESCRIPTION_MAX_LENGTH ? itinerary.description.substring(0, CITY_DESCRIPTION_MAX_LENGTH - 1) + "..." : itinerary.description}</p>
+                        <p class="card-title fw-light fs-24">${itinerary.country}, <span class="fw-bold">${itinerary.city}</span></p>
+                        <p class="card-text">${itinerary.description.length > BY_ACTIVITIES_CITY_DESCRIPTION_MAX_LENGTH ? itinerary.description.substring(0, BY_ACTIVITIES_CITY_DESCRIPTION_MAX_LENGTH - 1) + "..." : itinerary.description}</p>
                         <div class="row">
                             <div id="interested_in_itinerary_carousel_${num}" class="col"></div>
                         </div>
@@ -517,13 +532,18 @@ function get_itinerary_by_activity(activity, activity_selector) {
                 `
             );
 
-            itinerary.interested_in.forEach((interested_in) => {
-                $(`#${activity_selector}-section #interested_in_itinerary_carousel_${num}`).append(
-                    `
-                    <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">${decode_interested_in(interested_in)}</span>
-                    `
-                )
+            itinerary.interested_in.forEach((interested_in,activity_num) => {
+                if(activity_num < CAROUSEL_MAX_NUM_ACTIVITY){
+                    $(`#${activity_selector}-section #interested_in_itinerary_carousel_${num}`).append(
+                        `<span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14 me-2">${decode_interested_in(interested_in)}</span>`
+                    )
+                }
             })
+            if(itinerary.interested_in.length > CAROUSEL_MAX_NUM_ACTIVITY){
+                 $(`#${activity_selector}-section #interested_in_itinerary_carousel_${num}`).append(
+                     `<span class="fs-14">+ ${itinerary.interested_in.length - CAROUSEL_MAX_NUM_ACTIVITY} activity</span>`
+                 );
+            }
         });
     })
 }
