@@ -14,7 +14,7 @@
                  </div>
                  <div class="row">
                      <div class="d-none d-lg-block col-md-12">
-                        <form class="w-50 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
+                        <form class="w-50 mx-auto" action="/organization/signup" method="POST" onsubmit="return validate_organization_signup()">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group mb-3">
@@ -40,7 +40,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                             <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="website-prepend"><img width="24" src="../../../static/svg/publish.svg" alt="website"/></span>
-                                            <input  type="text" id="birth_date" name="birth_date" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website" required>
+                                            <input type="text" id="website" name="website" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website">
                                         </div>
                                     </div>
                                 </div>
@@ -77,13 +77,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <input type="hidden" name="lat" value="51.505">
+                            <input type="hidden" name="lng" value="-0.09">
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
                             </div>
                         </form>
                      </div>
                      <div class="d-none d-md-block d-lg-none col-md-12">
-                        <form class="w-75 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
+                        <form class="w-75 mx-auto" action="/organization/signup" method="POST" onsubmit="return validate_organization_signup()">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group mb-3">
@@ -109,7 +111,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group input-group-lg mb-3">
                                             <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="website-prepend"><img width="24" src="../../../static/svg/publish.svg" alt="website"/></span>
-                                            <input type="text" id="website" name="website" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website" required>
+                                            <input type="text" id="website" name="website" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website">
                                         </div>
                                     </div>
                                 </div>
@@ -146,13 +148,15 @@
                                     </div>
                                 </div>
                             </div>
+                            <input type="hidden" name="lat" value="51.505">
+                            <input type="hidden" name="lng" value="-0.09">
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
                             </div>
                         </form>
                      </div>
                      <div class="d-block d-md-none col-md-12">
-                        <form class="w-75 mx-auto" action="/traveler/signup" method="POST" onsubmit="return validate_traveler_signup()">
+                        <form class="w-75 mx-auto" action="/organization/signup" method="POST" onsubmit="return validate_organization_signup()">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group mb-3">
@@ -178,7 +182,7 @@
                                     <div class="form-group mb-3">
                                         <div class="input-group mb-3">
                                             <span class="input-group-text bg-white rounded-0 border-right-0 border-black" id="website-prepend"><img width="19" src="../../../static/svg/publish.svg" alt="website"/></span>
-                                            <input  type="text" id="website" name="website" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website" required>
+                                            <input type="text" id="website" name="website" class="form-control rounded-0 border-left-0 border-black" placeholder="Website" aria-label="website" aria-describedby="website">
                                         </div>
                                     </div>
                                 </div>
@@ -215,6 +219,8 @@
                                     </div>
                                 </div>
                             </div>
+                            <input type="hidden" name="lat" value="51.505">
+                            <input type="hidden" name="lng" value="-0.09">
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary btn-block font-weight-bold">Sign up</button>
                             </div>

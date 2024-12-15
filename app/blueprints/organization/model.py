@@ -17,10 +17,10 @@ class OrganizationStatus(Enum):
 class CreateOrganizationRequest(BaseModel):
     email: str
     password: str
-    phone_number: str
     organization_name: str
     coordinates: Coordinates
-    website: str
+    website: Optional[str] = None
+    phone_number: Optional[str] = None
     status: str = OrganizationStatus.PENDING.name
     user_id: Optional[str] = None
 

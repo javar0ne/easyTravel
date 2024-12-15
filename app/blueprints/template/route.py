@@ -4,10 +4,13 @@ from app.blueprints.event.service import get_event_by_id
 from app.blueprints.itinerary.model import ItinerarySearch
 from app.blueprints.itinerary.service import search_itineraries, get_itinerary_detail, get_itinerary_request_by_id, \
     find_city_meta
+from app.blueprints.organization.model import CreateOrganizationRequest
+from app.blueprints.organization.service import create_organization
 from app.blueprints.template import template
 from app.blueprints.traveler.model import CreateTravelerRequest, ConfirmTravelerSignupRequest
 from app.blueprints.traveler.service import create_traveler, signup_request_exists, \
     handle_signup_confirmation
+from app.models import Coordinates
 
 
 # user
@@ -71,9 +74,22 @@ def traveler_profile():
 def organization_dashboard():
     return render_template('organization-dashboard.html')
 
-@template.get('/organization/signup')
+@template.route('/organization/signup', methods=['GET', 'POST'])
 def organization_signup():
-    return render_template("organization-signup.html")
+    if request.method == "GET":
+        return render_template("organization-signup.html")
+
+    organization_request = CreateOrganizationRequest(
+        email=request.form.get('email'),
+        password=request.form.get('password'),
+        organization_name=request.form.get('organization_name'),
+        coordinates=Coordinates(lat=request.form.get('lat'), lng=request.form.get('lng')),
+        website=request.form.get('website'),
+        phone_number=request.form.get('phone_number')
+    )
+    create_organization(organization_request)
+
+    return redirect('/login')
 
 @template.get('/organization/profile')
 def organization_profile():
