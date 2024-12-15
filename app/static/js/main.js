@@ -184,6 +184,7 @@ function login() {
     let password = document.getElementById("password").value;
 
     if(email && validate_email(email) && password) {
+        $("#login_btn").attr("disabled", true);
         fetch(
             `${URLS.user}/login`,
             {
@@ -211,8 +212,9 @@ function login() {
         .then(data => {
             set_tokens(data);
             go_to_dashboard();
+            $("#login_btn").removeAttr("disabled");
         })
-        .catch(console.log);
+        .catch(err => $("#login_btn").removeAttr("disabled"));
     } else {
         show_error_toast("Insert username and password!");
     }
