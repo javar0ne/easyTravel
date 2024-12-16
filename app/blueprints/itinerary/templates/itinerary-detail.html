@@ -28,12 +28,13 @@
         <div class="row mt-3">
             <div class="col-12">
                 <img class="w-100 object-fit-cover" height="300" src="{{ itinerary.image.urls.regular }}" alt="{{ itinerary.image.alt_description }}">
-                <h1 class="d-none d-xl-block fs-40 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
-                <h1 class="d-none d-lg-block d-xl-none fs-32 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
-                <h1 class="d-block d-lg-none fs-28 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
-                <p class="d-none d-xl-block">{{ itinerary.description }}</p>
-                <p class="d-none d-lg-block d-xl-none fs-14">{{ itinerary.description }}</p>
-                <p class="d-block d-lg-none fs-12">{{ itinerary.description }}</p>
+                <h1 class="d-none d-xl-block fs-40 fw-bold mb-0 mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
+                <h1 class="d-none d-lg-block d-xl-none fs-32 fw-bold mb-0 mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
+                <h1 class="d-block d-lg-none fs-28 fw-bold mb-0 mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
+                <span class="text-muted">{{ itinerary.start_date.strftime('%Y-%m-%d') }} - {{ itinerary.end_date.strftime('%Y-%m-%d') }}</span>
+                <p class="d-none d-xl-block mt-2">{{ itinerary.description }}</p>
+                <p class="d-none d-lg-block d-xl-none fs-14 mt-2">{{ itinerary.description }}</p>
+                <p class="d-block d-lg-none fs-12 mt-2">{{ itinerary.description }}</p>
                 <div class="row">
                     <div class="d-none d-2xl-block">
                         <div class="col-12">

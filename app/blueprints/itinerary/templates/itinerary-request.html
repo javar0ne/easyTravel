@@ -26,12 +26,13 @@
         <div class="row mt-3">
             <div class="col-12">
                 <img id="city_img" class="w-100 object-fit-cover" height="300">
-                <h1 id="city_country" class="d-none d-xl-block fs-40 fw-bold mt-2 placeholder-wave"><span class="placeholder col-8"></span></h1>
-                <h1 id="city_country" class="d-none d-lg-block d-xl-none fs-32 fw-bold mt-2 placeholder-wave"><span class="placeholder col-8"></span></h1>
-                <h1 id="city_country" class="d-block d-lg-none fs-28 fw-bold mt-2 placeholder-wave"><span class="placeholder col-8"></span></h1>
-                <p id="city_description" class="d-none d-xl-block placeholder-wave"><span class="placeholder col-5"></span><span class="placeholder col-8"></span><span class="placeholder col-3"></span></p>
-                <p id="city_description" class="d-none d-lg-block d-xl-none fs-14 placeholder-wave"><span class="placeholder col-5"></span><span class="placeholder col-8"></span><span class="placeholder col-3"></span></p>
-                <p id="city_description" class="d-block d-lg-none fs-12 placeholder-wave"><span class="placeholder col-5"></span><span class="placeholder col-8"></span><span class="placeholder col-3"></span></p>
+                <h1 id="city_country" class="d-none d-xl-block fs-40 fw-bold mt-2 mb-0 placeholder-wave"><span class="placeholder col-8"></span></h1>
+                <h1 id="city_country" class="d-none d-lg-block d-xl-none fs-32 fw-bold mt-2 mb-0 placeholder-wave"><span class="placeholder col-8"></span></h1>
+                <h1 id="city_country" class="d-block d-lg-none fs-28 fw-bold mt-2 mb-0 placeholder-wave"><span class="placeholder col-8"></span></h1>
+                <span id="itinerary_date" class="text-muted"></span>
+                <p id="city_description" class="d-none d-xl-block mt-2 placeholder-wave"><span class="placeholder col-5"></span><span class="placeholder col-8"></span><span class="placeholder col-3"></span></p>
+                <p id="city_description" class="d-none d-lg-block d-xl-none fs-14 mt-2 placeholder-wave"><span class="placeholder col-5"></span><span class="placeholder col-8"></span><span class="placeholder col-3"></span></p>
+                <p id="city_description" class="d-block d-lg-none fs-12 mt-2 placeholder-wave"><span class="placeholder col-5"></span><span class="placeholder col-8"></span><span class="placeholder col-3"></span></p>
                 <div class="row">
                     <div class="d-none d-2xl-block">
                         <div class="d-flex justify-content-start">
@@ -89,11 +90,22 @@
                 <div id="details_container"></div>
                 <div id="details-container-placeholder" class="row">
                     <div class="col-12 my-4 placeholder-wave">
-                        <span class="placeholder placeholder-lg col-10"></span>
-                        <span class="placeholder col-8"></span><span class="placeholder col-4"></span>
-                        <span class="placeholder col-5"></span><span class="placeholder col-2"></span>
-                        <span class="placeholder col-3"></span><span class="placeholder col-6"></span>
-                        <span class="placeholder col-3"></span>
+                        <div class="d-flex border border-2 border-black p-3">
+                            <span class="placeholder placeholder-lg col-10"></span>
+                        </div>
+                        <div class="border border-black mt-3 p-3">
+                            <div class="d-flex">
+                                <div class="bg-black px-3 py-1">
+                                    <span class="fw-bold text-white"><span class="placeholder bg-white w-100"></span></span>
+                                </div><span class="placeholder ms-2 w-50"></span>
+                            </div>
+                            <div class="flex">
+                                <span class="placeholder w-50"></span>
+                            </div>
+                            <div class="flex">
+                                <span class="placeholder w-25"></span><span class="placeholder ms-2 w-50"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

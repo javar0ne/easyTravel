@@ -762,6 +762,8 @@ function get_itinerary_request(id, map) {
             `);
             $("#save_itinerary").on("click", () => create_itinerary(`${data.response.id}`));
             $("#details-container-placeholder").remove();
+            $("#itinerary_date").text(moment(data.response.start_date).format("D MMM YYYY") + "-" + moment(data.response.end_date).format("D MMM YYYY"))
+            window.scrollTo(0, 0);
         }
 
         $("#details_container").empty();
