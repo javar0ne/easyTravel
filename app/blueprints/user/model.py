@@ -2,9 +2,13 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator, ValidationError
+from typing_extensions import Self
 
 from app.encoders import PyObjectId
+from app.models import Paginated
+from app.role import Role
+from app.utils import is_valid_enum_name
 
 COLLECTION_NAME = "users"
 
@@ -23,6 +27,32 @@ class RefreshTokenRevoked(Exception):
 class ForgotPasswordTokenStatus(Enum):
     CREATED = "created"
     USED = "used"
+
+class SearchUserRequest(BaseModel):
+    email: Optional[str] = None
+    role: Optional[str] = None
+
+    @model_validator(mode='before')
+    def validate_before(self) -> Self:
+        if self["role"] and not is_valid_enum_name(Role, self["role"]):
+            raise ValidationError(f"{self['role']} is not a valid Role!")
+
+        return self
+
+    @model_validator(mode='after')
+    def validate_after(self) -> Self:
+        if not self.role and not self.email:
+            raise ValidationError("At least one filter should be provided!")
+
+        return self
+
+class SearchUserResponse(BaseModel):
+    id: str
+    email: Optional[str] = None
+
+class UserEmailResponse(BaseModel):
+    id: str
+    email: Optional[str] = None
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str

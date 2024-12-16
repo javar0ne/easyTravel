@@ -7,9 +7,9 @@ from pydantic import ValidationError
 from app.blueprints.user import user
 from app.blueprints.user.model import ForgotPasswordRequest, ResetPasswordRequest, LoginRequest, WrongPasswordException, \
     LogoutRequest, \
-    RefreshTokenRequest, RefreshTokenRevoked
+    RefreshTokenRequest, RefreshTokenRevoked, SearchUserRequest
 from app.blueprints.user.service import handle_login, handle_logout, \
-    handle_refresh_token, handle_forgot_password, handle_reset_password
+    handle_refresh_token, handle_forgot_password, handle_reset_password, handle_search_user
 from app.exceptions import ElementNotFoundException
 from app.response_wrapper import success_response, bad_request_response, error_response, no_content_response, \
     not_found_response, unauthorized_response
@@ -115,3 +115,18 @@ def dashboard():
     else:
         logger.warning(f"no dashboard url found for user {get_jwt_identity()}")
         return not_found_response(f"no dashboard url found for user {get_jwt_identity()}")
+
+@user.post('/search')
+@jwt_required()
+def search_user():
+    try:
+        search = SearchUserRequest(**request.json)
+        users = handle_search_user(get_jwt_identity(), search)
+
+        return success_response(users)
+    except ValidationError as err:
+        logger.error("validation error while parsing search user request", err)
+        return bad_request_response(err.errors(include_context=False))
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()

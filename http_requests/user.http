@@ -40,3 +40,13 @@ Content-Type: application/json
 ### Dashboard
 GET http://localhost:5000/v1/user/dashboard
 Authorization: Bearer {{bearer_token}}
+
+### Search
+POST http://localhost:5000/v1/user/search
+Authorization: Bearer {{bearer_token}}
+Content-Type: application/json
+
+{
+  "role": "TRAVELER",
+  "email": "gius"
+}

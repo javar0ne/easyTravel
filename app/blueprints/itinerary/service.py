@@ -15,9 +15,11 @@ from app.blueprints.itinerary.model import CityDescription, AssistantItineraryRe
     DuplicateRequest, ItinerarySearch, ItineraryMeta, DateNotValidException, CityDescriptionNotFoundException, \
     UpdateItineraryRequest, CannotUpdateItineraryException, ItineraryGenerationDisabledException, DocsNotFoundException, \
     AssistantItineraryDocsResponse, CityMetaRequest, CityMeta, SpotlightItinerary, ItinerarySearchResponse, \
-    ItineraryDetail, ItineraryMetaDetail, ItineraryRequestDetail, UpcomingItinerary, PastItinerary, SavedItinerary
+    ItineraryDetail, ItineraryMetaDetail, ItineraryRequestDetail, UpcomingItinerary, PastItinerary, SavedItinerary, \
+    SharedWithResponse
 from app.blueprints.traveler.service import get_traveler_by_user_id
-from app.blueprints.user.service import get_user_by_id
+from app.blueprints.user.service import get_user_by_id, find_users_emails_by_ids, get_user_by_email, \
+    find_users_ids_by_emails
 from app.exceptions import ElementNotFoundException
 from app.extensions import mongo, assistant, ITINERARY_RETRIEVE_DOCS_PROMPT, unsplash, redis_itinerary, \
     CITY_DESCRIPTION_SYSTEM_INSTRUCTIONS, CITY_DESCRIPTION_USER_PROMPT, ITINERARY_USER_PROMPT, \
@@ -128,14 +130,17 @@ def create_itinerary(itinerary_request_id: str) -> str:
     itinerary.created_at = datetime.now(timezone.utc)
     result = mongo.insert_one(Collections.ITINERARIES, itinerary.model_dump(exclude={'id'}))
 
-    itinerary_meta = ItineraryMeta(itinerary_id=result.inserted_id)
-    mongo.insert_one(Collections.ITINERARY_METAS, itinerary_meta.model_dump(exclude={'id'}))
+    save_itinerary_meta(result.inserted_id)
 
     mongo.delete_one(Collections.ITINERARY_REQUESTS, {'_id': ObjectId(itinerary_request_id)})
     logger.info("itinerary stored successfully with id %s", result.inserted_id)
 
     threading.Thread(target=ask_itinerary_docs, args=(itinerary.city, result.inserted_id, itinerary.user_id, itinerary.start_date)).start()
     return str(result.inserted_id)
+
+def save_itinerary_meta(itinerary_id):
+    itinerary_meta = ItineraryMeta(itinerary_id=itinerary_id)
+    mongo.insert_one(Collections.ITINERARY_METAS, itinerary_meta.model_dump(exclude={'id'}))
 
 def ask_itinerary_docs(city: str,
                        itinerary_id: id,
@@ -359,13 +364,14 @@ def get_shared_itineraries(user_id: str, paginated: Paginated) -> PaginatedRespo
         page_number=paginated.page_number
     )
 
-def share_with(share_with_req: ShareWithRequest):
+def share_with(user_id, share_with_req: ShareWithRequest):
     logger.info("sharing itinerary %s with users %s", share_with_req.id, ','.join(share_with_req.users))
+    user_ids = find_users_ids_by_emails(share_with_req.users)
 
     result = mongo.update_one(
         Collections.ITINERARIES,
-        {"_id": ObjectId(share_with_req.id)},
-        {"$push": {"shared_with": {"$each": share_with_req.users}}}
+        {"_id": ObjectId(share_with_req.id), "user_id": user_id},
+        {"$push": {"shared_with": {"$each": user_ids}}},
     )
 
     if result.matched_count == 0:
@@ -406,7 +412,7 @@ def duplicate(user_id: str, duplicate_req: DuplicateRequest) -> str:
 
     itinerary = get_itinerary_by_id(duplicate_req.id)
     duration_in_days = (itinerary.end_date - itinerary.start_date).days
-    itinerary.start_date = datetime.now(timezone.utc) + timedelta(days=1)
+    itinerary.start_date = duplicate_req.start_date
     itinerary.end_date = itinerary.start_date + timedelta(days=duration_in_days)
     itinerary.user_id = user_id
     itinerary.shared_with = []
@@ -419,6 +425,7 @@ def duplicate(user_id: str, duplicate_req: DuplicateRequest) -> str:
     itinerary.deleted_at = None
 
     result = mongo.insert_one(Collections.ITINERARIES, itinerary.model_dump(exclude={'id'}))
+    save_itinerary_meta(result.inserted_id)
 
     logger.info("duplicated itinerary %s for user with id!", duplicate_req.id, user_id)
 
@@ -726,7 +733,8 @@ def get_upcoming_itineraries(user_id: str):
                     "travelling_with": 1,
                     "budget": 1,
                     "is_public": 1,
-                    "shared_with": 1
+                    "shared_with": 1,
+                    "user_id": 1
                 }
             },
             {"$sort": {"start_date": 1}}
@@ -749,7 +757,8 @@ def get_upcoming_itineraries(user_id: str):
                 start_date=it.get("start_date"),
                 end_date=it.get("end_date"),
                 shared_with=it.get("shared_with"),
-                is_public=it.get("is_public")
+                is_public=it.get("is_public"),
+                is_owner=it.get("user_id") == user_id
             ).model_dump()
         )
 
@@ -794,3 +803,22 @@ def get_past_itineraries(user_id: str):
         )
 
     return found_itineraries
+
+def get_shared_with(user_id: str, itinerary_id: str):
+    itinerary = mongo.find_one(Collections.ITINERARIES, {'_id': ObjectId(itinerary_id), 'user_id': user_id}, {"shared_with": 1})
+    return find_users_emails_by_ids(itinerary.get("shared_with"))
+
+def remove_shared_with(user_id: str, request: ShareWithRequest):
+    logger.info("removing itinerary %s share from users %s", request.id, ','.join(request.users))
+
+    result = mongo.update_one(
+        Collections.ITINERARIES,
+        {"_id": ObjectId(request.id), "user_id": user_id},
+        {"$pull": {"shared_with": {"$in": request.users}}}
+    )
+
+    if result.matched_count == 0:
+        raise ElementNotFoundException(f"no itinerary found with id {request.id}")
+
+    logger.info("remove itinerary %s share from users %s!", request.id, ','.join(request.users))
+
