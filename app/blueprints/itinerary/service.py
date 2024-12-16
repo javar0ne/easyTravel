@@ -509,7 +509,7 @@ def generate_itinerary_request(itinerary_request: ItineraryRequest, initial_user
     if not can_generate_itinerary():
         raise ItineraryGenerationDisabledException()
 
-    if itinerary_request.start_date < datetime.today():
+    if itinerary_request.start_date < datetime.combine(date.today(), time.min):
         raise DateNotValidException("start date must be greater or equal to today")
 
     request_id = mongo.insert_one(Collections.ITINERARY_REQUESTS, itinerary_request.model_dump(exclude={"id"})).inserted_id
