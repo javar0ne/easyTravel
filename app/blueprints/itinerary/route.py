@@ -1,6 +1,6 @@
 import logging
 
-from flask import request, send_file, render_template
+from flask import request, send_file
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from openai import APIStatusError
 from pydantic import ValidationError
@@ -8,12 +8,13 @@ from pydantic import ValidationError
 from app.blueprints.itinerary import itinerary
 from app.blueprints.itinerary.model import ItineraryRequest, ShareWithRequest, PublishReqeust, DuplicateRequest, \
     ItinerarySearch, DateNotValidException, UpdateItineraryRequest, CannotUpdateItineraryException, \
-    ItineraryGenerationDisabledException, CityMetaRequest
-from app.blueprints.itinerary.service import get_city_description, get_itinerary_request_by_id, \
+    ItineraryGenerationDisabledException, CityMetaRequest, SharedWithResponse
+from app.blueprints.itinerary.service import get_itinerary_request_by_id, \
     get_itinerary_by_id, create_itinerary, share_with, publish, completed, duplicate, update_itinerary, \
     search_itineraries, get_completed_itineraries, get_shared_itineraries, download_itinerary, delete_itinerary, \
     get_saved_itineraries, handle_itinerary_request, handle_event_itinerary_request, handle_save_itinerary, \
-    get_most_saved, get_itinerary_meta_detail, find_city_meta, get_upcoming_itineraries, get_past_itineraries
+    get_most_saved, get_itinerary_meta_detail, find_city_meta, get_upcoming_itineraries, get_past_itineraries, \
+    get_shared_with, remove_shared_with
 from app.exceptions import ElementNotFoundException
 from app.models import Paginated
 from app.response_wrapper import success_response, bad_gateway_response, error_response, bad_request_response, \
@@ -157,11 +158,44 @@ def shared_itineraries():
         return error_response()
 
 @itinerary.post('/share-with')
+@roles_required([Role.TRAVELER.name])
 def share_itinerary_with():
     try:
         users = ShareWithRequest(**request.json)
-        share_with(users)
+        share_with(get_jwt_identity(), users)
 
+        return no_content_response()
+    except ValidationError as err:
+        logger.error("validation error while parsing share itinerary with reqeust", err)
+        return bad_request_response(err.errors(include_context=False))
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.get('/shared-with/<itinerary_id>')
+@roles_required([Role.TRAVELER.name])
+def shared_with(itinerary_id):
+    try:
+        shared_with_res = get_shared_with(get_jwt_identity(), itinerary_id)
+        return success_response({"shared_with": shared_with_res})
+    except ValidationError as err:
+        logger.error("validation error while parsing share itinerary with reqeust", err)
+        return bad_request_response(err.errors(include_context=False))
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@itinerary.post('/remove/shared-with')
+@roles_required([Role.TRAVELER.name])
+def rem_shared_with():
+    try:
+        remove_shared_with(get_jwt_identity(), ShareWithRequest(**request.json))
         return no_content_response()
     except ValidationError as err:
         logger.error("validation error while parsing share itinerary with reqeust", err)

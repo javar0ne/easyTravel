@@ -16,7 +16,13 @@
                   </div>
             </div>
             <div class="col-6">
-                <div id="actions_container" class="d-flex gap-2 justify-content-end"></div>
+                <div id="actions_container" class="d-flex gap-2 justify-content-end">
+                    <a id="save_itinerary" style="display: none" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="" alt="save"></a>
+                    <a id="download_itinerary" style="display: none" href="/v1/itinerary/download/{{ itinerary.id }}"  target="_blank" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Download itinerary"><img class="img-fluid" src="../../static/svg/download.svg" alt="download"></a>
+                    <a id="duplicate_itinerary" data-bs-toggle="modal" data-bs-target="#duplicateItineraryModal" style="display: none" href="#">
+                        <img class="img-fluid" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Duplicate itinerary" src="../../static/svg/copy.svg" alt="copy">
+                    </a>
+                </div>
             </div>
         </div>
         <div class="row mt-3">
@@ -123,6 +129,25 @@
         <div id="map" class="position-fixed"></div>
     </div>
 </div>
+<div class="modal fade" id="duplicateItineraryModal" tabindex="-1" aria-labelledby="duplicateItineraryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="duplicateItineraryModalLabel">Duplicate itinerary</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>When are you going to leave?</p>
+                <input  type="text" id="start_date" name="start_date" onfocus="(this.type='date')" onblur="(this.type='text')" class="form-control rounded-0 border-left-0 border-black" placeholder="Start date*" aria-label="startdate" aria-describedby="startdate">
+                <input type="hidden" id="itinerary_id">
+            </div>
+            <div class="modal-footer">
+                <button onclick="duplicate_itinerary('{{ itinerary.id }}')" class="btn btn-secondary" type="button" id="button-duplicate">Duplicate</button>
+                <button type="button" class="btn bg-white border border-black" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {#{% block footer %}
     {% include "components/footer.html" %}
@@ -146,17 +171,12 @@
                 })
                 .then(data => {
                     if(!data.response.is_owner) {
-                        $("#actions_container").append(`
-                            <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="${data.response.has_saved ? "../../static/svg/saved.svg" : "../../static/svg/save.svg"}" alt="save"></a>
-                        `)
-
+                        $("#save_itinerary").css("display", "")
+                        $("#save_itinerary img").attr("src", `${data.response.has_saved ? "../../static/svg/saved.svg" : "../../static/svg/save.svg"}`)
                         $("#save_itinerary").on("click", () => save_itinerary("{{ itinerary.id }}"))
+                        $("#duplicate_itinerary").css("display", "");
                     }
-
-                    $("#actions_container").append(`
-                        <a id="download_itinerary" href="${URLS.itinerary}/download/{{ itinerary.id }}"  target="_blank" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Download itinerary"><img class="img-fluid" src="../../static/svg/download.svg" alt="download"></a>
-                        <a id="duplicate_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Duplicate itinerary"><img class="img-fluid" src="../../static/svg/copy.svg" alt="copy"></a>
-                    `);
+                    $("#download_itinerary").css("display", "");
                 });
         })
 

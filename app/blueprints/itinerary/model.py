@@ -138,9 +138,12 @@ class ItinerarySearchResponse(BaseModel):
     def duration(self) -> int:
         return (self.end_date - self.start_date).days + 1
 
+class SharedWithResponse(BaseModel):
+    shared_with: list[str]
 
 class DuplicateRequest(BaseModel):
     id: PyObjectId
+    start_date: datetime
 
 class PublishReqeust(BaseModel):
     id: PyObjectId
@@ -328,9 +331,9 @@ class UpcomingItinerary(BaseModel):
     budget: str
     start_date: datetime
     end_date: datetime
+    is_owner: bool = False
     shared_with: Optional[list[str]] = []
     is_public: Optional[bool] = False
-
 
     @computed_field
     @property

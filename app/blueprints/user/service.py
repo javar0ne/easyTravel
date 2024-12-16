@@ -11,7 +11,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.blueprints.user.mail import send_forgot_password_mail
 from app.blueprints.user.model import User, Token, ForgotPasswordRequest, ResetPasswordRequest, \
     LoginRequest, \
-    WrongPasswordException, LogoutRequest, RefreshTokenRequest, RefreshTokenRevoked
+    WrongPasswordException, LogoutRequest, RefreshTokenRevoked, SearchUserRequest, \
+    SearchUserResponse, UserEmailResponse
 from app.exceptions import ElementAlreadyExistsException, ElementNotFoundException
 from app.extensions import mongo, redis_auth
 from app.models import Collections
@@ -169,3 +170,35 @@ def update_user_email(user_id: str, email: str):
     mongo.update_one(Collections.USERS, {"_id": ObjectId(user_id)}, {"$set": { "email": email}})
 
     logger.info("user %s email updated!", user_id)
+
+def handle_search_user(user_id: str, search: SearchUserRequest):
+    filters = {"_id": {"$ne": ObjectId(user_id)}}
+    found_users = []
+    if search.role:
+        filters["roles"] = search.role
+    if search.email:
+        filters["email"] = { "$regex": f"^{search.email}", "$options": "i" }
+
+    users = mongo.find(Collections.USERS, filters, {"email": 1})
+    for user in users:
+        found_users.append(SearchUserResponse(id=str(user.get("_id")), email=user.get("email")).model_dump())
+
+    return found_users
+
+def find_users_emails_by_ids(ids: list[str]):
+    users = mongo.find(Collections.USERS, {'_id': {"$in": [ObjectId(id) for id in ids]}}, {"email": 1})
+    found_users = []
+
+    for user in users:
+        found_users.append(UserEmailResponse(id=str(user.get("_id")), email=user.get("email")).model_dump())
+
+    return found_users
+
+def find_users_ids_by_emails(emails: list[str]):
+    users = mongo.find(Collections.USERS, {'email': {"$in": emails}}, {"_id": 1})
+    found_users = []
+
+    for user in users:
+        found_users.append(str(user.get("_id")))
+
+    return found_users

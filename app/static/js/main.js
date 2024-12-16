@@ -913,6 +913,32 @@ function get_upcoming_itineraries() {
     })
     .then(data => {
         data.response.forEach((itinerary, num) => {
+            const owner_components = itinerary.is_owner
+                ? `<div class="d-none d-2xl-block">
+                      <div class="d-flex justify-content-between mt-3">
+                          <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                          <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
+                          <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                      </div>
+                  </div>
+                  <div class="d-none d-md-block d-2xl-none">
+                      <div class="d-flex justify-content-between mt-2 mt-xl-4 mt-xxl-4">
+                          <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                          <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
+                          <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-itinerary-id="${itinerary.id}" class="d-none d-xxl-block px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                          <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-itinerary-id="${itinerary.id}" class="d-none d-xl-block d-xxl-none px-5 py-1 fs-18 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                          <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-itinerary-id="${itinerary.id}" class="d-none d-lg-block d-xl-none px-5 py-1 fs-16 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                          <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-itinerary-id="${itinerary.id}" class="d-block d-lg-none px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                      </div>
+                  </div>
+                  <div class="d-block d-md-none">
+                      <div class="d-flex justify-content-between mt-3">
+                          <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                          <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
+                          <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-id="${itinerary.id}" class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                      </div>
+                  </div>`
+                : "";
             $("#upcoming_container").append(`
             <div class="col-12 px-md-5">
                 <div id="itinerary${num}" class="card border-0 shadow mb-3 w-full">
@@ -966,30 +992,7 @@ function get_upcoming_itineraries() {
                                   <div id="activity_container_xl" class="col-12 d-none d-xl-block d-xxl-none">
                                   </div>
                               </div>
-                              <div class="d-none d-2xl-block">
-                                  <div class="d-flex justify-content-between mt-3">
-                                      <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
-                                      <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
-                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                  </div>
-                              </div>
-                              <div class="d-none d-md-block d-2xl-none">
-                                  <div class="d-flex justify-content-between mt-2 mt-xl-4 mt-xxl-4">
-                                      <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
-                                      <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
-                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="d-none d-xxl-block px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="d-none d-xl-block d-xxl-none px-5 py-1 fs-18 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="d-none d-lg-block d-xl-none px-5 py-1 fs-16 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="d-block d-lg-none px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                  </div>
-                              </div>
-                              <div class="d-block d-md-none">
-                                  <div class="d-flex justify-content-between mt-3">
-                                      <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
-                                      <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
-                                      <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
-                                  </div>
-                              </div>
+                              ${owner_components}
                           </div>
                         </div>
                         <div class="col-6 rounded-end" onclick="go_to_itinerary('${itinerary.id}')" style="background-image: url('${itinerary.image.urls.regular}'); background-size: cover; background-position: center; cursor: pointer"></div>
@@ -1007,6 +1010,14 @@ function get_upcoming_itineraries() {
                   <span class="bg-white border border-1 border-black rounded-pill fs-14 px-2 py-1">${decode_interested_in(activity)}</span>
                 `);
             });
+
+            $(`button#invite_traveler_btn${num}`).each(function () {
+                $(this).on('click', () => {
+                    const itinerary_id = $(this).data('itinerary-id');
+                    $("#inviteTravelersModal #itinerary_id").val(itinerary_id);
+                    get_shared_with(itinerary_id);
+                });
+            })
         })
     })
 }
@@ -1452,4 +1463,160 @@ function validate_organization_signup() {
     if(!is_password_valid) show_error_toast("Passwords do not match!");
 
     return is_email_valid && is_organization_name_valid && is_password_valid;
+}
+
+function find_travelers_by_email(email) {
+    if(!email) {
+        throw new Error('email format not correct!')
+    }
+
+    fetch(
+        `${URLS.user}/search`,
+        {
+            "method": "POST",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "role": "TRAVELER",
+                "email": email,
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!")
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        $("#travelers_autocomplete").empty();
+
+        data.response.forEach(user => {
+            $("#travelers_autocomplete").append(`
+            <span onclick="set_user_id('${user.id}', 'email_search')">${user.email}</span>
+            `)
+        })
+    })
+}
+
+function set_user_id(id, element_id) {
+    $(`#${element_id}`).val(id);
+}
+
+function share_itinerary(itinerary_id, email) {
+    if(!itinerary_id || !email || !validate_email(email)) throw new Error('invalid params!');
+
+    fetch(
+        `${URLS.itinerary}/share-with`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "id": itinerary_id,
+                "users": [email]
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        get_shared_with(itinerary_id)
+        $("#traveler_email").val("")
+    })
+}
+
+function get_shared_with(itinerary_id) {
+    if(!itinerary_id) {
+        throw new Error("invalid itinerary id!");
+    }
+
+    fetch(
+        `${URLS.itinerary}/shared-with/${itinerary_id}`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        data.response.shared_with.forEach(user => {
+            $("#shared_with_container").append(`
+            <span class="bg-white border border-1 border-black rounded-pill px-3 py-1 d-inline-block">
+                ${user.email}<a href="#" class="ms-3 mb-2 my-auto"><img src="../../../static/svg/cross.svg"alt="close" onclick="remove_shared_with('${itinerary_id}', '${user.id}')"></a>
+            </span>
+            `)
+        })
+    })
+}
+
+function remove_shared_with(itinerary_id, user_id) {
+    if(!itinerary_id || !user_id) throw new Error('invalid params!');
+
+    fetch(
+        `${URLS.itinerary}/remove/shared-with`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "id": itinerary_id,
+                "users": [user_id]
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        $("#shared_with_container").empty();
+        get_shared_with(itinerary_id);
+    })
+}
+
+function duplicate_itinerary(itinerary_id) {
+    if(!itinerary_id) throw new Error("invalid itinerary id!");
+
+    const start_date = $("#start_date").val();
+    if(!start_date) throw new Error("invalid start_date!");
+
+    fetch(
+        `${URLS.itinerary}/duplicate`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "id": itinerary_id,
+                "start_date": start_date
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        return response.json();
+    })
+    .then(data => go_to_itinerary(data.response.id))
 }
