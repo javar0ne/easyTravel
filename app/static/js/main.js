@@ -761,6 +761,7 @@ function get_itinerary_request(id, map) {
             <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save-itinerary.svg" alt="save"></a>
             `);
             $("#save_itinerary").on("click", () => create_itinerary(`${data.response.id}`));
+            $("#details-container-placeholder").remove();
         }
 
         $("#details_container").empty();
@@ -848,7 +849,7 @@ function get_itinerary_request(id, map) {
                 .on("mouseout", e => e.target.togglePopup());
             })
         })
-
+        window.scrollTo(0, document.body.scrollHeight);
         map.fitBounds(coordinates);
     });
 }

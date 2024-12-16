@@ -4,7 +4,7 @@
     {% include "components/navbar-min.html" %}
 {% endblock %}
 {% block content %}
-     <div class="container mx-auto">
+     <div class="container mx-md-auto">
          <div class="row align-items-center">
              <div class="col-md-12">
                  <div class="row d-none d-lg-block mt-30 mb-4">
@@ -23,15 +23,15 @@
                      </div>
                  </div>
                  <div class="row">
-                     <div class="d-none d-md-block col-md-12">
+                     <div class="col-md-12">
                         <div class="form-group mb-3">
-                            <div class="input-group input-group-lg mb-3">
+                            <div class="input-group mb-3">
                                 <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="24" src="../../../static/svg/email.svg" alt="email"/></span>
                                 <input type="text" class="form-control rounded-0 border-left-0 border-black" id="email" placeholder="Email" aria-label="email" aria-describedby="email" >
                             </div>
                         </div>
                         <div class="form-group mb-3">
-                            <div class="input-group input-group-lg mb-3">
+                            <div class="input-group mb-3">
                                 <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="24" src="../../../static/svg/lock.svg" alt="lock"/></span>
                                 <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" id="password" placeholder="Password" aria-label="password" aria-describedby="password" >
                                 <span class="password-eye input-group-text bg-white rounded-0 border-left-0 border-black text-black" role="button"><img class="toggle-password" width="24" src="../../../static/svg/eye.svg" alt="eye"/></span>
@@ -39,25 +39,6 @@
                             <div class="form-text text-right">
                                 <a href="/forgot-password" class="text-decoration-none text-muted">Forgot password?</a>
                             </div>
-                        </div>
-                        <div class="d-grid">
-                            <button id="login_btn" type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
-                        </div>
-                     </div>
-                     <div class="d-block d-md-none col-md-12">
-                        <div class="form-group mb-3">
-                            <div class="input-group mb-3">
-                                <span class="input-group-text bg-white rounded-0 border-right-0 border-black text-black" id="email-prepend"><img width="19" src="../../../static/svg/email.svg" alt="email"/></span>
-                                <input type="text" class="form-control rounded-0 border-left-0 border-black" placeholder="Email" aria-label="email" aria-describedby="email" >
-                            </div>
-                        </div>
-                        <div class="form-group mb-3">
-                            <div class="input-group mb-3">
-                                <span id="password-icon" class="input-group-text bg-white rounded-0 border-right-0 border-black text-black"><img width="19" src="../../../static/svg/lock.svg" alt="lock"/></span>
-                                <input type="password" class="form-control rounded-0 border-left-0 border-right-0 border-black password" placeholder="Password" aria-label="password" aria-describedby="password" >
-                                <span class="input-group-text password-eye bg-white rounded-0 border-left-0 border-black text-black" role="button"><img class="toggle-password" width="19" src="../../../static/svg/eye.svg" alt="eye"/></span>
-                            </div>
-                            <small class="text-right"><a href="/forgot-password" class="text-decoration-none text-muted">Forgot password?</a></small>
                         </div>
                         <div class="d-grid">
                             <button id="login_btn" type="submit" class="btn btn-primary btn-block font-weight-bold" onclick="login()">Sign in</button>
