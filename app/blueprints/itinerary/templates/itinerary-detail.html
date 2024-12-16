@@ -21,7 +21,7 @@
         </div>
         <div class="row mt-3">
             <div class="col-12">
-                <img class="img-fluid object-fit-cover" src="{{ itinerary.image.urls.regular }}" alt="{{ itinerary.image.alt_description }}">
+                <img class="w-100 object-fit-cover" height="300" src="{{ itinerary.image.urls.regular }}" alt="{{ itinerary.image.alt_description }}">
                 <h1 class="d-none d-xl-block fs-40 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
                 <h1 class="d-none d-lg-block d-xl-none fs-32 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
                 <h1 class="d-block d-lg-none fs-28 fw-bold mt-2">{{ itinerary.country }}, {{ itinerary.city }}</h1>
@@ -47,7 +47,7 @@
                                     )
                                 }}
                             </div>
-                            <div class="row mt-4">
+                            <div class="row mt-2">
                                 <div class="col-12">
                                     {% for activity in itinerary.interested_in %}
                                         {{
@@ -128,9 +128,6 @@
     </div>
 </div>
 {% endblock %}
-{#{% block footer %}
-    {% include "components/footer.html" %}
-{% endblock %}#}
 {% block script %}
     <script>
         var map = L.map('map');
