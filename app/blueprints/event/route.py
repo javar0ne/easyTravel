@@ -7,7 +7,8 @@ from pydantic import ValidationError
 from app.blueprints.event import event
 from app.blueprints.event.model import UpdateEventRequest, CreateEventRequest
 from app.blueprints.event.service import create_event, update_event, delete_event, search_events, \
-    get_event_by_user_and_id
+    get_event_by_user_and_id, get_upcoming_events, get_other_events, get_past_events, get_events_stats
+from app.blueprints.itinerary.service import get_past_itineraries
 from app.exceptions import ElementNotFoundException, OrganizationNotActiveException
 from app.models import Paginated
 from app.response_wrapper import bad_request_response, error_response, success_response, no_content_response, \
@@ -95,6 +96,62 @@ def search():
     except ValidationError as err:
         logger.error("validation error while parsing search events request", err)
         return bad_request_response(err.errors())
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@event.post('/upcoming')
+@roles_required([Role.ORGANIZATION.name])
+def upcoming():
+    try:
+        paginated = Paginated(**request.json)
+        events = get_upcoming_events(get_jwt_identity(), paginated)
+
+        return success_response(events.model_dump())
+    except ValidationError as err:
+        logger.error("validation error while parsing upcoming events request", err)
+        return bad_request_response(err.errors())
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@event.get('/other')
+@roles_required([Role.ORGANIZATION.name])
+def other():
+    try:
+        events = get_other_events(get_jwt_identity())
+        return success_response(events)
+    except ValidationError as err:
+        logger.error("validation error while parsing upcoming events request", err)
+        return bad_request_response(err.errors())
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@event.get('/past')
+@roles_required([Role.ORGANIZATION.name])
+def past():
+    try:
+        events = get_past_events(get_jwt_identity())
+        return success_response(events)
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@event.get("/stats")
+@roles_required([Role.ORGANIZATION.name])
+def stats():
+    try:
+        event_stats = get_events_stats(get_jwt_identity())
+        return success_response(event_stats.model_dump())
     except OrganizationNotActiveException as err:
         return forbidden_response(err.message)
     except Exception as err:
