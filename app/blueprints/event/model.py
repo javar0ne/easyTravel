@@ -95,3 +95,31 @@ class Event(EventBaseModel):
         self.related_activities = update_event_req.related_activities
         self.start_date = update_event_req.start_date
         self.end_date = update_event_req.end_date
+
+class UpcomingEvent(BaseModel):
+    id: str
+    title: str
+    start_date: datetime
+    end_date: datetime
+
+class OtherEvent(BaseModel):
+    id: str
+    title: str
+    start_date: datetime
+    end_date: datetime
+    related_activities: list[str]
+
+class PastEvent(BaseModel):
+    id: str
+    title: str
+    start_date: datetime
+    end_date: datetime
+    avg_duration: int
+    cost: str
+
+class EventStats(BaseModel):
+    most_used_city: str
+    last_event_created_at: Optional[datetime]
+    events_created: int
+    active_events: int
+

@@ -19,7 +19,6 @@ let scheduled_refresh = null;
 const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
 const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
 
-
 function set_tokens(data) {
     localStorage.setItem(ACCESS_TOKEN, data.response.access_token);
     localStorage.setItem(REFRESH_TOKEN, data.response.refresh_token);
@@ -95,6 +94,10 @@ function go_to_login() {
 
 function go_to_itinerary(id) {
     window.location.href=`/itinerary/detail/${id}`;
+}
+
+function go_to_event(id) {
+    window.location.href=`/event/${id}`;
 }
 
 function show_error_toast(message) {
@@ -398,7 +401,7 @@ function handle_itinerary_carousel(data) {
             $('div#itinerary_carousel_container').each(function() {
                 const country_city = `${itinerary.country}, ${itinerary.city}`;
                 $(this).append(
-                    `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 1 ? "active": ""} pb-1" data-title="${country_city}" onclick="go_to_itinerary('${itinerary.id}')" style="cursor:pointer;">
+                    `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 0 ? "active": ""} pb-1" data-title="${country_city}" onclick="go_to_itinerary('${itinerary.id}')" style="cursor:pointer;">
                         <img class="d-none d-2xl-block w-100 object-fit-cover" height="290"
                              src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
                         <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="250"
@@ -1620,4 +1623,224 @@ function duplicate_itinerary(itinerary_id) {
         return response.json();
     })
     .then(data => go_to_itinerary(data.response.id))
+}
+
+function get_upcoming_events() {
+    fetch(
+        `${URLS.event}/upcoming`,
+        {
+            "method": "post",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "page_size": 10,
+                "page_number": 0
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        data.response.content.forEach(event => {
+            $("#upcoming_events_2xl").append(`
+            <div class="col-12">
+                <div class="d-flex justify-content-between px-3" onclick="go_to_event('${event.id}')" style="cursor: pointer">
+                    <span class="text-muted">${moment(event.start_date).format("D MMM YYYY")} - ${moment(event.end_date).format("D MMM YYYY")}</span>
+                    <span class="fw-medium">${event.title}</span>
+                </div>
+                <hr>
+            </div>
+            `);
+            $("#upcoming_events_xxl").append(`
+            <div class="col-12">
+                <div class="d-flex justify-content-between px-3" onclick="go_to_event('${event.id}')" style="cursor: pointer">
+                    <span class="text-muted">${moment(event.start_date).format("D MMM YYYY")} - ${moment(event.end_date).format("D MMM YYYY")}</span>
+                    <span class="fw-medium">${event.title}</span>
+                </div>
+                <hr>
+            </div>
+            `);
+            $("#upcoming_events_xl").append(`
+            <div class="col-12">
+                <div class="d-flex justify-content-between px-3" onclick="go_to_event('${event.id}')" style="cursor: pointer">
+                    <span class="text-muted">${moment(event.start_date).format("D MMM YYYY")} - ${moment(event.end_date).format("D MMM YYYY")}</span>
+                    <span class="fw-medium">${event.title}</span>
+                </div>
+                <hr>
+            </div>
+            `);
+            $("#upcoming_events_lg").append(`
+            <div class="col-12">
+                <div class="d-flex justify-content-between px-3" onclick="go_to_event('${event.id}')" style="cursor: pointer">
+                    <span class="text-muted fs-14">${moment(event.start_date).format("D MMM YYYY")} - <br>${moment(event.end_date).format("D MMM YYYY")}</span>
+                    <span class="fw-medium fs-14">${event.title}</span>
+                </div>
+                <hr>
+            </div>
+            `);
+            $("#upcoming_events_md").append(`
+            <div class="col-12">
+                <div class="d-flex justify-content-between px-3" onclick="go_to_event('${event.id}')" style="cursor: pointer">
+                    <span class="text-muted fs-14">${moment(event.start_date).format("D MMM YYYY")} - <br>${moment(event.end_date).format("D MMM YYYY")}</span>
+                    <span class="fw-medium fs-14">${event.title}</span>
+                </div>
+                <hr>
+            </div>
+            `);
+            $("#upcoming_events").append(`
+            <div class="col-12">
+                <div class="d-flex justify-content-between px-3" onclick="go_to_event('${event.id}')" style="cursor: pointer">
+                    <span class="text-muted fs-12">${moment(event.start_date).format("D MMM YYYY")} - <br>${moment(event.end_date).format("D MMM YYYY")}</span>
+                    <span class="fw-medium fs-12">${event.title}</span>
+                </div>
+                <hr>
+            </div>
+            `);
+        })
+    })
+}
+
+function get_other_events() {
+    return fetch(
+        `${URLS.event}/other`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        const carousel_events_img = [
+            "https://images.unsplash.com/photo-1536663815808-535e2280d2c2?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://plus.unsplash.com/premium_photo-1697730214411-90916c40f30d?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1511527661048-7fe73d85e9a4?q=80&w=1965&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://plus.unsplash.com/premium_photo-1675975706513-9daba0ec12a8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1448906654166-444d494666b3?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        ]
+        data.response.forEach((event, event_num) => {
+            event.related_activities.forEach(activity => {
+
+                $("#event_carousel_container").append(`
+            <div id="event_carousel_${event_num}" class="carousel-item ${event_num === 0 ? "active" : ""} pb-1" data-title="${event.title}" onclick="go_to_event('${event.id}')" style="cursor:pointer;">
+                <div class="row">
+                    <div class="col">
+                        <img class="d-none d-2xl-block object-fit-cover w-100" height="250" alt="event_img" src="${carousel_events_img[event_num]}">
+                        <img class="d-none d-xxl-block d-2xl-none object-fit-cover w-100" height="200" alt="event_img" src="${carousel_events_img[event_num]}">
+                        <img class="d-none d-xl-block d-xxl-none object-fit-cover w-100" height="180" alt="event_img" src="${carousel_events_img[event_num]}">
+                        <img class="d-block d-xl-none object-fit-cover w-100" height="140" alt="event_img" src="${carousel_events_img[event_num]}">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <h1 class="fs-32 fw-medium m-0">${event.title}</h1>
+                        <span class="text-muted fw-thin">${moment(event.start_date).format("D MMM YYYY")} - ${moment(event.end_date).format("D MMM YYYY")}</span>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col" id="event_related_activities_${event_num}"></div>
+                </div>
+            </div>
+            `)
+                $(`#event_related_activities_${event_num}`).append(`
+                <span class="bg-white border border-1 border-black rounded-pill px-2 py-1 d-inline-block mb-1 fs-14">${decode_interested_in(activity)}</span>
+                `)
+            })
+        })
+    })
+}
+
+function get_past_events() {
+    fetch(
+        `${URLS.event}/past`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        const past_events_img = [
+            "https://images.unsplash.com/photo-1522093007474-d86e9bf7ba6f?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://plus.unsplash.com/premium_photo-1661887237533-b38811c27add?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1513326738677-b964603b136d?q=80&w=1949&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1510154328089-bdd27fc4ff66?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1448317971280-6c74e016e49c?q=80&w=2132&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        ]
+        data.response.forEach((event, event_num) => {
+            $("#recent_events_container").append(`
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2">
+                <div class="card border border-0 rounded-0 w-100" role="button" onclick="go_to_event('${event.id}')">
+                  <img class="card-img-top rounded-0 w-100 object-fit-cover" height="381" src="${past_events_img[event_num]}" alt="event_img">
+                  <div class="card-body px-1 py-2 rounded-0">
+                    <h5 class="card-title fw-bold fs-24">${event.title}</h5>
+                    <p class="text-muted fs-14">${moment(event.start_date).format("D MMM YYYY")} - ${moment(event.start_date).format("D MMM YYYY")}</p>
+                    <div class="d-flex justify-content-between mt-2">
+                        <div>
+                            <img src="../../../static/svg/clock.svg" alt="clock_img" class="me-2">
+                            <span class="fs-14">${event.avg_duration}min</span>
+                        </div>
+                        <div>
+                            <img src="../../../static/svg/money.svg" alt="money_img" class="me-2">
+                            <span class="fs-14">${event.cost}</span>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            `)
+        })
+    })
+}
+
+function get_events_stats() {
+    fetch(
+        `${URLS.event}/stats`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        return response.json();
+    })
+    .then(data => {
+        $("span#live_events").each(function() {
+            $(this).text(data.response.active_events);
+        })
+        $("span#most_chosen_city").each(function() {
+            $(this).text(data.response.most_used_city);
+        })
+        $("span#last_event_created_at").each(function() {
+            $(this).text(moment(data.response.last_event_created_at).format("D MMM YYYY"));
+        })
+        $("span#events_created").each(function() {
+            $(this).text(data.response.events_created);
+        })
+    })
 }
