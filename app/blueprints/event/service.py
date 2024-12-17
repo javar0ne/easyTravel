@@ -203,8 +203,9 @@ def get_past_events(user_id: str):
         Collections.EVENTS,
         filters,
         [
-            {"$sort": {"created_at": -1}},
-            {"$project": { "title": 1, "start_date": 1, "end_date": 1, "avg_duration": 1, "cost": 1 }}
+            {"$sort": {"end_date": -1}},
+            {"$project": { "title": 1, "start_date": 1, "end_date": 1, "avg_duration": 1, "cost": 1 }},
+            {"$limit": 5}
         ]
     )
 
