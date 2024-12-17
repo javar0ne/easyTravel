@@ -149,11 +149,11 @@ function decode_interested_in(activity) {
 }
 
 function decode_saved_by(saved_by) {
-    if(saved_by < 100) return saved_by;
+    if(saved_by <= 100) return saved_by;
     else if(saved_by > 100 && saved_by <= 999) return "100+";
     else if (saved_by > 1_000 && saved_by <= 9_999) return "1k+";
-    else if(data.saved_by > 10_000 && data.saved_by <= 99_999) return "10k+";
-    else if (data.saved_by > 100_000 && data.saved_by <= 999_999) return "100k+";
+    else if(saved_by > 10_000 && saved_by <= 99_999) return "10k+";
+    else if (saved_by > 100_000 && saved_by <= 999_999) return "100k+";
 
     return "1M+";
 }
