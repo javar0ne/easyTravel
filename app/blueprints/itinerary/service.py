@@ -490,7 +490,6 @@ def handle_event_itinerary_request(traveler_id: str, itinerary_request: Itinerar
             min_budget=budget.min,
             max_budget=budget.max,
             interested_in=interested_in,
-            event_period=event.period,
             event_title=event.title,
             event_description=event.description,
             event_cost=event.cost,

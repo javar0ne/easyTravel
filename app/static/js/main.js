@@ -623,10 +623,8 @@ function handle_capital_search(event, autocomplete_element) {
     }
 }
 
-function search_for_capital(city, autocomplete_element, element_id) {
-    if(!city) throw new Error("city is null!");
-
-    fetch(
+function call_rest_countries(city) {
+    return fetch(
         `${URLS.rest_countries}/capital/${encodeURIComponent(city)}?fields=capital,name,capitalInfo`
     ).then(response => {
         if(!response.ok) {
@@ -635,17 +633,22 @@ function search_for_capital(city, autocomplete_element, element_id) {
 
         return response.json();
     })
-    .then(data => {
-        $(`#${autocomplete_element}`).empty();
-        data.forEach(element => {
-            $(`#${autocomplete_element}`).append(`
-                <div onclick="set_city('${autocomplete_element}', '${element_id}', '${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ps-3 px-1 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
-            `);
+}
 
-            $(`#${autocomplete_element}`).css("display", "");
+function search_for_capital(city, autocomplete_element, element_id) {
+    if(!city) throw new Error("city is null!");
+    call_rest_countries(city)
+        .then(data => {
+            $(`#${autocomplete_element}`).empty();
+            data.forEach(element => {
+                $(`#${autocomplete_element}`).append(`
+                    <div onclick="set_city('${autocomplete_element}', '${element_id}', '${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ps-3 px-1 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
+                `);
+
+                $(`#${autocomplete_element}`).css("display", "");
+            });
+            $(`#${autocomplete_element}`).css("z-index", "999");
         });
-        $(`#${autocomplete_element}`).css("z-index", "999");
-    })
 }
 
 function set_city(autocomplete_element, element_id, city, coordinates) {
@@ -657,7 +660,7 @@ function set_city(autocomplete_element, element_id, city, coordinates) {
     }
 }
 
-function generate_itinerary() {
+function generate_itinerary(event_id) {
     if(validate_generate_itinerary()) {
         const city = $("#city").val();
         const budget = $("input[name='budget']:checked").attr("value");
@@ -674,7 +677,7 @@ function generate_itinerary() {
         })
 
         fetch(
-            `${URLS.itinerary}/request`,
+            `${URLS.itinerary}/request${ event_id ? `/event/${event_id}` : ''}`,
             {
                 "method": "post",
                 "headers": {
@@ -701,7 +704,6 @@ function generate_itinerary() {
         })
         .then(data => window.location.href=`/itinerary/request/${data.response.request_id}?lat=${city_lat}&lng=${city_lng}`);
     }
-
 }
 
 function find_city_meta(city) {
@@ -1843,4 +1845,23 @@ function get_events_stats() {
             $(this).text(data.response.events_created);
         })
     })
+}
+
+function get_event_by_id(event_id) {
+    if(!event_id) throw new Error("invalid event id!");
+    return fetch(
+        `${URLS.event}/itinerary/${event_id}`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        return response.json();
+    });
 }
