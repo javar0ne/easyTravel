@@ -19,3 +19,45 @@
 {% block footer %}
     {% include "components/footer.html" %}
 {% endblock %}
+{% block script %}
+<script>
+    $(this).on('load', () => {
+        get_organization()
+            .then(response => {
+                if(!response.ok && response.status == 401) {
+                    go_to_login();
+                }
+            })
+        get_events_stats();
+        get_upcoming_events();
+        get_other_events()
+            .then(() => {
+
+                const $carousel = $('#eventCarousel');
+                const $currentSlideInfo = $('#currentSlideInfo');
+                const $nextSlideTitle = $('#nextSlideTitle');
+                const $slides = $carousel.find('.carousel-item');
+                const totalSlides = $slides.length;
+
+                function updateSlideInfo(event) {
+                    const currentIndex = event.from;
+                    const nextIndex = event.to;
+                    const nextTitle = $slides.eq((nextIndex + 1) % totalSlides).data('title');
+
+                    $currentSlideInfo.text(`${nextIndex + 1} / ${totalSlides}`);
+                    $nextSlideTitle.text(`Next: ${nextTitle}`);
+                }
+
+                $carousel.on('slide.bs.carousel', function (event) {
+                    updateSlideInfo(event);
+                });
+
+                // Initialize with first slide's next info
+                const nextTitle = $slides.eq(1 % totalSlides).data('title');
+                $currentSlideInfo.text(`1 / ${totalSlides}`);
+                $nextSlideTitle.text(`Next: ${nextTitle}`);
+            });
+        get_past_events();
+    })
+</script>
+{% endblock %}
