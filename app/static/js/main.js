@@ -1164,6 +1164,9 @@ function update_traveler() {
     const currency = $("#currency").val();
     const old_currency = $("#currency").data("defaultValue");
 
+    const interested_in = [];
+    $("input#interested_in").each(function () { interested_in.push($(this).val()) });
+
     if(!name || !surname || !email || !validate_email(email) || !date_of_birth || !currency) {
         show_error_toast("Cannot update, all data are required!");
         return;
@@ -1194,7 +1197,7 @@ function update_traveler() {
                 "first_name": name,
                 "last_name": surname,
                 "birth_date": date_of_birth,
-                "interested_in": [],
+                "interested_in": interested_in,
                 "phone_number": ""
             })
         }
