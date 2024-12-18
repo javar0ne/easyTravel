@@ -54,9 +54,6 @@ textarea {
     .mt-2xl-3 {
         margin-top: 1rem!important;
     }
-}
-/* vp-xxl */
-@media (min-width: 1400px) {
     .container{
         max-width: 1920px!important;
     }
