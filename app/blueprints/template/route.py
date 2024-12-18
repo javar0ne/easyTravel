@@ -107,9 +107,11 @@ def event_detail(event_id):
     return render_template("detail-event.html", event=event)
 
 # itinerary
-@template.get("/itinerary/generate")
-def generate_itinerary():
-    return render_template("generate-itinerary.html")
+@template.get("/itinerary/generate/<event_id>")
+@template.get("/itinerary/generate", defaults={'event_id': None})
+def generate_itinerary(event_id):
+    return render_template("generate-itinerary.html", event_id=event_id)
+
 
 @template.get("/itinerary/request/<itinerary_request_id>")
 def itinerary_request(itinerary_request_id):
