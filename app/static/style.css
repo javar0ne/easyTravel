@@ -16,6 +16,10 @@ textarea {
 
 /* vp-3xl */
 @media (min-width: 1800px) {
+    .mx-3xl-auto{
+        margin-right: auto !important;
+        margin-left: auto !important;
+    }
     .d-3xl-block {
         display: block !important;
     }
@@ -49,6 +53,12 @@ textarea {
     }
     .mt-2xl-3 {
         margin-top: 1rem!important;
+    }
+}
+/* vp-xxl */
+@media (min-width: 1400px) {
+    .container{
+        max-width: 1920px!important;
     }
 }
 /* vp-xl */
