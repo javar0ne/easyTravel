@@ -10,6 +10,7 @@ from app.blueprints.template import template
 from app.blueprints.traveler.model import CreateTravelerRequest, ConfirmTravelerSignupRequest
 from app.blueprints.traveler.service import create_traveler, signup_request_exists, \
     handle_signup_confirmation
+from app.exceptions import ElementNotFoundException
 from app.models import Coordinates
 
 
@@ -122,8 +123,12 @@ def itinerary_request(itinerary_request_id):
 
 @template.get("/itinerary/detail/<itinerary_id>")
 def itinerary_detail(itinerary_id):
-    itinerary = get_itinerary_detail(itinerary_id)
-    return render_template("itinerary-detail.html", itinerary=itinerary)
+    try:
+        itinerary = get_itinerary_detail(itinerary_id)
+        return render_template("itinerary-detail.html", itinerary=itinerary)
+    except ElementNotFoundException as err:
+        return redirect('/traveler/dashboard')
+
 
 @template.get('/itinerary/search')
 def itinerary_search():
