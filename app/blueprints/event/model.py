@@ -40,6 +40,7 @@ class UpdateEventRequest(EventBaseModel):
     related_activities: list[str]
     start_date: datetime
     end_date: datetime
+    coordinates: Coordinates
 
 class CreateEventRequest(EventBaseModel):
     city: str
@@ -51,6 +52,7 @@ class CreateEventRequest(EventBaseModel):
     related_activities: list[str]
     start_date: datetime
     end_date: datetime
+    coordinates: Coordinates
 
 class Event(EventBaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
@@ -70,7 +72,7 @@ class Event(EventBaseModel):
     deleted_at: Optional[datetime] = None
 
     @staticmethod
-    def from_create_req(request: CreateEventRequest, user_id: str, coordinates: Coordinates):
+    def from_create_req(request: CreateEventRequest, user_id: str):
         return Event(
             city=request.city,
             title=request.title,
@@ -81,7 +83,7 @@ class Event(EventBaseModel):
             related_activities=request.related_activities,
             start_date=request.start_date,
             end_date=request.end_date,
-            coordinates=coordinates,
+            coordinates=request.coordinates,
             user_id=user_id,
         )
 
@@ -95,6 +97,7 @@ class Event(EventBaseModel):
         self.related_activities = update_event_req.related_activities
         self.start_date = update_event_req.start_date
         self.end_date = update_event_req.end_date
+        self.coordinates = update_event_req.coordinates
 
 class UpcomingEvent(BaseModel):
     id: str

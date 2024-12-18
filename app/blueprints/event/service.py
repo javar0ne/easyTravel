@@ -45,7 +45,7 @@ def create_event(user_id: str, request: CreateEventRequest):
     if organization.status == OrganizationStatus.PENDING.name:
         raise OrganizationNotActiveException()
 
-    event = Event.from_create_req(request, organization.user_id, organization.coordinates)
+    event = Event.from_create_req(request, organization.user_id)
     event.created_at = datetime.now(timezone.utc)
     result = mongo.insert_one(Collections.EVENTS, event.model_dump(exclude={"id"}))
     logger.info("event stored with id %s!", result.inserted_id)

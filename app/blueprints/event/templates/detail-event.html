@@ -1,7 +1,7 @@
 {% extends "components/template.html" %}
 {% block title %}{{ "Detail" if event else "Create" }} event{% endblock %}
 {% block navbar %}
-    {% include "components/navbar-traveler.html" %}
+    {% include "components/navbar-organization.html" %}
 {% endblock %}
 {% block content %}
     <div class="container mt-3 mt-md-0 mx-auto">
@@ -38,18 +38,30 @@
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col">
-                <label for="description">Description</label>
-                <textarea class="form-control border-0 bg-grey" placeholder="Insert a description here"
-                          id="description">{{ event.description if event and event.description else "" }}</textarea>
+            <div class="col col-md-4">
+                <label for="latitude" class="form-label">Latitude</label>
+                <input type="text" placeholder="Insert latitude" class="form-control border-0 bg-grey" id="latitude"
+                       value="{{ event.coordinates.lat if event and event.coordinates and event.coordinates.lat else "" }}">
+            </div>
+            <div class="col col-md-4">
+                <label for="longitude" class="form-label">Longitude</label>
+                <input type="text" placeholder="Insert longitude" class="form-control border-0 bg-grey" id="longitude"
+                       value="{{ event.coordinates.lng if event and event.coordinates and event.coordinates.lng else "" }}">
             </div>
         </div>
         <div class="row mt-2">
             <div class="col">
+                <label for="description">Description</label>
+                <textarea class="form-control border-0 bg-grey" placeholder="Insert a description here"
+                    id="description" rows="4">{{ event.description if event and event.description else "" }}</textarea>
+            </div>
+        </div>
+        {#<div class="row mt-2">
+            <div class="col">
                 <label for="place" class="form-label">Indicate the place</label>
                 <div id="map" class="rounded" style="height: 300px"></div>
             </div>
-        </div>
+        </div>#}
         <div class="row mt-2">
             <div class="col col-md-4">
                 <label for="avg_duration" class="d-none d-md-block form-label">Average duration</label>
@@ -108,11 +120,11 @@
 {% endblock %}
 {% block script %}
     <script>
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        {#var map = L.map('map').setView([51.505, -0.09], 13);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
+        }).addTo(map);#}
 
         $(this).on('load', () => {
             get_organization()
@@ -150,7 +162,7 @@
         })
 
         $('#daterange').daterangepicker({
-            minDate: moment()
+            minDate: moment().add(1, 'days')
         });
     </script>
 {% endblock %}

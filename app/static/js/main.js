@@ -758,17 +758,6 @@ function get_itinerary_request(id, map) {
     .then(data => {
         let stages_counter = 0;
         let coordinates = [];
-        if(data.response.status === "PENDING") {
-            setTimeout(() => get_itinerary_request(id, map), 1000);
-        } else {
-            $("#actions_container").empty();
-            $("#actions_container").append(`
-            <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save-itinerary.svg" alt="save"></a>
-            `);
-            $("#save_itinerary").on("click", () => create_itinerary(`${data.response.id}`));
-            $("#details-container-placeholder").remove();
-            $("#itinerary_date").text(moment(data.response.start_date).format("D MMM YYYY") + "-" + moment(data.response.end_date).format("D MMM YYYY"))
-        }
 
         $("#details_container").empty();
         data.response.details.forEach(detail => {
@@ -855,10 +844,22 @@ function get_itinerary_request(id, map) {
                 .on("mouseout", e => e.target.togglePopup());
             })
         })
-        window.scrollTo(0, document.body.scrollHeight);
+        if(data.response.status === "PENDING") {
+            setTimeout(() => get_itinerary_request(id, map), 1000);
+            window.scrollTo(0, document.body.scrollHeight);
+        } else {
+            $("#actions_container").empty();
+            $("#actions_container").append(`
+            <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save-itinerary.svg" alt="save"></a>
+            `);
+            $("#save_itinerary").on("click", () => create_itinerary(`${data.response.id}`));
+            $("#details-container-placeholder").remove();
+            $("#itinerary_date").text(moment(data.response.start_date).format("D MMM YYYY") + "-" + moment(data.response.end_date).format("D MMM YYYY"))
+            window.scrollTo(0, 0);
+        }
+
         map.fitBounds(coordinates);
     });
-    window.scrollTo(0, 0);
 }
 
 function create_itinerary(request_id) {
@@ -1278,18 +1279,21 @@ function validate_create_event() {
     const description = $("#description").val();
     const avg_duration = $("#avg_duration").val();
     const cost = $("#cost").val();
+    const latitude = $("#latitude").val();
+    const longitude = $("#longitude").val();
 
     let interested_in = []
     $("input[name='interested-in']:checked").each(function () {
       interested_in.push($(this).attr("value"));
     })
 
-    if(!city) {
-        show_error_toast("City required!")
-        return false;
-    }
     if(!title) {
         show_error_toast("Title required!")
+        return false;
+    }
+
+    if(!city) {
+        show_error_toast("City required!")
         return false;
     }
 
@@ -1299,6 +1303,16 @@ function validate_create_event() {
     } else {
         $('#start_date').attr("value", start_date.format('YYYY-MM-DD'));
         $('#end_date').attr("value", end_date.format('YYYY-MM-DD'));
+    }
+
+    if(!latitude) {
+        show_error_toast("Latitude required!");
+        return false;
+    }
+
+    if(!longitude) {
+        show_error_toast("Longitude required!");
+        return false;
     }
 
     if(!description) {
@@ -1332,6 +1346,8 @@ function create_event() {
         const avg_duration = $("#avg_duration").val();
         const cost = $("#cost").val();
         const accessibility = $("#accessibility").prop("checked");
+        const latitude = $("#latitude").val();
+        const longitude = $("#longitude").val();
 
         let interested_in = []
         $("input[name='interested-in']:checked").each(function () {
@@ -1355,7 +1371,11 @@ function create_event() {
                     "accessible": accessibility,
                     "related_activities": interested_in,
                     "start_date": start_date,
-                    "end_date": end_date
+                    "end_date": end_date,
+                    "coordinates": {
+                        "lat": latitude,
+                        "lng": longitude
+                    }
                 })
             }
         )
@@ -1380,6 +1400,8 @@ function update_event(id) {
         const avg_duration = $("#avg_duration").val();
         const cost = $("#cost").val();
         const accessibility = $("#accessibility").prop("checked");
+        const latitude = $("#latitude").val();
+        const longitude = $("#longitude").val();
 
         let interested_in = []
         $("input[name='interested-in']:checked").each(function () {
@@ -1403,7 +1425,11 @@ function update_event(id) {
                     "accessible": accessibility,
                     "related_activities": interested_in,
                     "start_date": start_date,
-                    "end_date": end_date
+                    "end_date": end_date,
+                    "coordinates": {
+                        "lat": latitude,
+                        "lng": longitude
+                    }
                 })
             }
         )

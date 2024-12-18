@@ -68,9 +68,9 @@ def create():
 def update(event_id):
     try:
         update_event_req = UpdateEventRequest(**request.json)
-        update_event(get_jwt_identity(), event_id, update_event_req)
+        updated_id = update_event(get_jwt_identity(), event_id, update_event_req)
 
-        return no_content_response()
+        return success_response({"id": updated_id})
     except ValidationError as err:
         logger.error("validation error while parsing event update request", err)
         return bad_request_response(err.errors())

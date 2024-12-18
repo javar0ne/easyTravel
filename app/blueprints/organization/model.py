@@ -62,12 +62,13 @@ class Organization(BaseModel):
 
 class OrganizationFull(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    email: str
     phone_number: str
     organization_name: str
     coordinates: Coordinates
     website: str
     status: str
-    email: str
+    user_id: str
 
     @staticmethod
     def from_sources(organization: Organization, user: User):
