@@ -763,7 +763,6 @@ function get_itinerary_request(id, map) {
             $("#save_itinerary").on("click", () => create_itinerary(`${data.response.id}`));
             $("#details-container-placeholder").remove();
             $("#itinerary_date").text(moment(data.response.start_date).format("D MMM YYYY") + "-" + moment(data.response.end_date).format("D MMM YYYY"))
-            window.scrollTo(0, 0);
         }
 
         $("#details_container").empty();
@@ -854,6 +853,7 @@ function get_itinerary_request(id, map) {
         window.scrollTo(0, document.body.scrollHeight);
         map.fitBounds(coordinates);
     });
+    window.scrollTo(0, 0);
 }
 
 function create_itinerary(request_id) {
@@ -919,14 +919,19 @@ function get_upcoming_itineraries() {
             const owner_components = itinerary.is_owner
                 ? `<div class="d-none d-2xl-block">
                       <div class="d-flex justify-content-between mt-3">
-                          <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
-                          <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
+                            <div class="pt-2">
+                                <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                                <span class="ms-3"><img src="../../static/svg/trash.svg" alt="trash" onclick="delete_itinerary('${itinerary.id}')" style="cursor: pointer"></span>
+                            </div>
+                            <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
                           <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
                       </div>
                   </div>
                   <div class="d-none d-md-block d-2xl-none">
                       <div class="d-flex justify-content-between mt-2 mt-xl-4 mt-xxl-4">
-                          <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                          <div class="pt-2">
+                              <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                          </div>
                           <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
                           <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-itinerary-id="${itinerary.id}" class="d-none d-xxl-block px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
                           <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-itinerary-id="${itinerary.id}" class="d-none d-xl-block d-xxl-none px-5 py-1 fs-18 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
@@ -936,7 +941,9 @@ function get_upcoming_itineraries() {
                   </div>
                   <div class="d-block d-md-none">
                       <div class="d-flex justify-content-between mt-3">
-                          <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                          <div class="pt-2">
+                            <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
+                          </div>
                           <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
                           <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-id="${itinerary.id}" class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
                       </div>
@@ -950,16 +957,21 @@ function get_upcoming_itineraries() {
                           <div class="card-body">
                               <div class="row align-items-center">
                                   <div class="col">
-                                      <h5 class="d-none d-xxl-block card-title fs-36 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
-                                      <h5 class="d-none d-xl-block d-xxl-none card-title fs-28 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
-                                      <h5 class="d-none d-md-block d-xl-none card-title fs-24 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
-                                      <h5 class="d-block d-md-none card-title fs-20 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
+                                      <h5 class="d-none d-xxl-block card-title m-0 fs-36 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
+                                      <h5 class="d-none d-xl-block d-xxl-none card-title m-0 fs-28 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
+                                      <h5 class="d-none d-md-block d-xl-none card-title m-0 fs-24 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
+                                      <h5 class="d-block d-md-none card-title m-0 fs-20 fw-bold">${itinerary.country}, ${itinerary.city}</h5>
                                   </div>
                                   <div class="d-none d-lg-block col">
                                       <div class="d-flex justify-content-end">
                                           <span class="d-none d-xxl-block badge text-bg-dark lh-lg px-3 fs-14">${itinerary.days_from_start <= 0 ? "Ongoing" : `In ${itinerary.days_from_start} day${itinerary.days_from_start === 0 || itinerary.days_from_start > 1 ? "s" : ""}`}</span>
                                           <span class="d-none d-lg-block d-xxl-none badge text-bg-dark lh-lg px-3 fs-12">${itinerary.days_from_start <= 0 ? "Ongoing" : `In ${itinerary.days_from_start} day${itinerary.days_from_start === 0 || itinerary.days_from_start > 1 ? "s" : ""}`}</span>
                                       </div>
+                                  </div>
+                                  <div class="d-block d-lg-none col-2">
+                                        <div class="d-flex justify-content-end">
+                                           <span class="ms-2"><img src="../../static/svg/trash.svg" alt="trash" onclick="delete_itinerary('${itinerary.id}')" style="cursor: pointer"></span>
+                                        </div>
                                   </div>
                               </div>
                               <p class="d-none d-lg-block card-text fs-14">${moment(itinerary.start_date).format("D MMM YYYY")} - ${moment(itinerary.end_date).format("D MMM YYYY")}</p>
@@ -1059,6 +1071,32 @@ function publish_itinerary(id, itinerary_element) {
             show_success_toast("Itinerary published successfully!");
         }
         $(`#${itinerary_element} #is_public`).val(`${is_public ? is_public : ""}`);
+    })
+}
+
+function delete_itinerary(id) {
+    fetch(
+        `${URLS.itinerary}/${id}`,
+        {
+            "method": "delete",
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`,
+                "Content-Type": "application/json"
+            },
+            "body": JSON.stringify({
+                "id": id
+            })
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("error while retrieving upcoming itineraries!");
+        }
+        return response;
+    })
+    .then(response => {
+        $("#upcoming_container").empty();
+        get_upcoming_itineraries()
     })
 }
 
