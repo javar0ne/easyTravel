@@ -218,6 +218,7 @@ def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
 
     logger.info("searching for itineraries..")
 
+    filters["is_public"] = True
     if itinerary_search.city:
         filters["city"] = itinerary_search.city
     if Budget[itinerary_search.budget] != Budget.NONE:
@@ -669,8 +670,8 @@ def get_most_saved():
     itinerary_ids = list(map(lambda x: ObjectId(x[0]), most_saved))
     itineraries = mongo.find(
         Collections.ITINERARIES,
-        {"_id": {"$in": itinerary_ids}},
-        {"city": 1, "start_date": 1, "end_date": 1, "interested_in": 1, "travelling_with": 1, "budget": 1}
+        {"_id": {"$in": itinerary_ids},"is_public": True},
+        {"city": 1, "start_date": 1, "end_date": 1, "interested_in": 1, "travelling_with": 1, "budget": 1},
     )
     spotlight_itineraries = []
 
