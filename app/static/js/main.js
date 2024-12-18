@@ -401,7 +401,7 @@ function handle_itinerary_carousel(data) {
             $('div#itinerary_carousel_container').each(function() {
                 const country_city = `${itinerary.country}, ${itinerary.city}`;
                 $(this).append(
-                    `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 0 ? "active": ""} pb-1" data-title="${country_city}" onclick="go_to_itinerary('${itinerary.id}')" style="cursor:pointer;">
+                    `<div id="itinerary_carousel_${itinerary_num}" class="carousel-item ${itinerary_num === 1 ? "active": ""} pb-1" data-title="${country_city}" onclick="go_to_itinerary('${itinerary.id}')" style="cursor:pointer;">
                         <img class="d-none d-2xl-block w-100 object-fit-cover" height="290"
                              src="${itinerary.image.urls.regular}" alt="${itinerary.image.alt_description}"/>
                         <img class="d-none d-xxl-block d-2xl-none w-100 object-fit-cover" height="250"
