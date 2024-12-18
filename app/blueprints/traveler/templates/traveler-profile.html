@@ -54,6 +54,7 @@
                         <span class="input-group-text rounded-0 border-top-0 border-start-0 border-end-0 bg-white text-muted fw-light" id="basic-addon3" role="button">edit</span>
                       </div>
                     </div>#}
+                    <div id="interested_in_container"></div>
                     <div class="mt-3">
                       <label for="currency" class="form-label fw-light">Currency</label>
                       <div class="input-group">
@@ -94,6 +95,12 @@
                 $("#date_of_birth").data("defaultValue", moment(data.response.birth_date).format("YYYY-MM-DD"));
                 $("#currency").val(data.response.currency);
                 $("#currency").data("defaultValue", data.response.currency);
+
+                data.response.interested_in.forEach(activity => {
+                    $("#interested_in_container").append(`
+                        <input type="hidden" id="interested_in" value="${activity}">
+                    `);
+                });
             })
         get_saved_itineraries();
     });
