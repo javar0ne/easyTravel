@@ -98,10 +98,11 @@ def download(itinerary_id):
         return error_response()
 
 @itinerary.post('/search')
+@roles_required([Role.TRAVELER.name])
 def search():
     try:
         itinerary_search = ItinerarySearch(**request.json)
-        itineraries = search_itineraries(itinerary_search)
+        itineraries = search_itineraries(get_jwt_identity(), itinerary_search)
 
         return success_response(itineraries.model_dump())
     except ValidationError as err:

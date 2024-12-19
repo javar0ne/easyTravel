@@ -212,9 +212,9 @@ def delete_itinerary(itinerary_id: str):
 
     logger.info("deleted itinerary with id %s!", itinerary_id)
 
-def search_itineraries(itinerary_search: ItinerarySearch) -> PaginatedResponse:
+def search_itineraries(user_id: str, itinerary_search: ItinerarySearch) -> PaginatedResponse:
     aggregations = []
-    filters = {}
+    filters = {"user_id": user_id}
     found_itineraries = []
 
     logger.info("searching for itineraries..")
