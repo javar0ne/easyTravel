@@ -7,6 +7,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from app.blueprints.admin import admin
 from app.blueprints.admin.service import create_admin_user, create_initial_config
 from app.blueprints.event import event
+from app.blueprints.event.job import job_event_newsletter
 from app.blueprints.itinerary import itinerary
 from app.blueprints.itinerary.job import job_daily_travel_schedule, job_docs_reminder
 from app.blueprints.organization import organization
@@ -18,7 +19,7 @@ from app.config import Config
 from app.extensions import mail, scheduler, JOB_NOTIFICATION_DAILY_TRAVEL_TRIGGER, JOB_NOTIFICATION_DAILY_TRAVEL_HOUR, \
     JOB_NOTIFICATION_DAILY_TRAVEL_MINUTES, JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER, JOB_NOTIFICATION_DOCS_REMINDER_HOUR, \
     JOB_NOTIFICATION_DOCS_REMINDER_MINUTES, redis_auth, mongo, assistant, redis_itinerary, \
-    unsplash
+    unsplash, JOB_EVENT_NEWSLETTER_TRIGGER, JOB_EVENT_NEWSLETTER_HOUR, JOB_EVENT_NEWSLETTER_MINUTES
 from app.response_wrapper import not_found_response, unauthorized_response, error_response
 
 
@@ -91,6 +92,13 @@ def init_scheduler(app):
         trigger=JOB_NOTIFICATION_DOCS_REMINDER_TRIGGER,
         hour=JOB_NOTIFICATION_DOCS_REMINDER_HOUR,
         minute=JOB_NOTIFICATION_DOCS_REMINDER_MINUTES
+    )
+    scheduler.add_job(
+        id="job_event_newsletter",
+        func=job_event_newsletter,
+        trigger=JOB_EVENT_NEWSLETTER_TRIGGER,
+        hour=JOB_EVENT_NEWSLETTER_HOUR,
+        minute=JOB_EVENT_NEWSLETTER_MINUTES
     )
 
 def init_http_interceptors(app):

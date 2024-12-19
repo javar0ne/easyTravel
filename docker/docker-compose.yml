@@ -4,6 +4,7 @@ services:
     #ports:
     #  - "5000:5000"
     environment:
+      - SERVER_NAME=${SERVER_NAME}
       - FLASK_ENV=development
       - LOG_LEVEL=${LOG_LEVEL}
       - MAIL_USERNAME=${MAIL_USERNAME}

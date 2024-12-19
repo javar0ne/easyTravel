@@ -2,6 +2,7 @@ import os
 
 
 class Config:
+    SERVER_NAME = os.getenv('SERVER_NAME')
     # logging
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'DEBUG')
 

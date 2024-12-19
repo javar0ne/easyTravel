@@ -124,3 +124,16 @@ def get_signup_request(token: str):
         raise TravelerSignupConfirmationNotFoundException()
 
     return traveler_signup
+
+def get_all_travelers():
+    found_travelers = []
+    cursor = mongo.find(Collections.TRAVELERS,{})
+    travelers = list(cursor)
+    if len(travelers) == 0:
+        raise ElementNotFoundException("travelers not found")
+
+    for traveler in travelers:
+        found_travelers.append(Traveler(**traveler))
+
+    logger.info("found %d travelers", len(found_travelers))
+    return found_travelers
