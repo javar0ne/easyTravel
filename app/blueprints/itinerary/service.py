@@ -133,6 +133,7 @@ def create_itinerary(itinerary_request_id: str) -> str:
     save_itinerary_meta(result.inserted_id)
 
     mongo.delete_one(Collections.ITINERARY_REQUESTS, {'_id': ObjectId(itinerary_request_id)})
+    redis_itinerary.get_client().zincrby(MOST_SAVED_ITINERARIES_KEY, 0, str(result.inserted_id))
     logger.info("itinerary stored successfully with id %s", result.inserted_id)
 
     threading.Thread(target=ask_itinerary_docs, args=(itinerary.city, result.inserted_id, itinerary.user_id, itinerary.start_date)).start()
