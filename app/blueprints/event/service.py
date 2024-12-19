@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from bson import ObjectId
 
 from app.blueprints.event.model import Event, UpdateEventRequest, CreateEventRequest, UpcomingEvent, OtherEvent, \
-    PastEvent, EventStats
+    PastEvent, EventStats, EventNewsletter
 from app.blueprints.organization.model import OrganizationStatus
 from app.blueprints.organization.service import is_organization_active, \
     get_organization_by_user_id
@@ -275,3 +275,55 @@ def get_events_stats(user_id: str):
         events_created=events_stats.get('events_created', 0),
         active_events=events_stats.get('active_events', 0),
     )
+
+def get_events_allow_to_newsletter(activities: list[str]):
+    logger.info("retrieving events allow to newsletter")
+
+    found_events = []
+    filters = {'related_activities': {'$in':
+                                          activities},
+               'end_date': {'$gte':
+                                 datetime.now(tz=timezone.utc)}}
+    pipeline = [
+        {'$sort': {
+                'created_at': 1}},
+        {'$unwind': '$related_activities'},
+        {'$group': {
+                '_id': '$related_activities',
+                'docs': {
+                    '$push': '$$ROOT'
+                }
+            }},
+        {'$project': {
+                '_id': 1,
+                'docs': {
+                    '$slice': [
+                        '$docs', 5
+                    ]
+                }
+            }},
+        {'$unwind': '$docs'},
+        {'$replaceRoot': {
+                'newRoot': '$docs'}},
+        {'$project': {
+                '_id': 1,
+                'city': 1,
+                'related_activity': '$related_activities',
+                'title': 1,
+                'description': 1,
+                'cost': 1,
+                'avg_duration': 1,
+                'accessible': 1,
+                'start_date': 1,
+                'end_date': 1,
+                'coordinates': 1,
+                'user_id': 1}}]
+    cursor = mongo.aggregate(Collections.EVENTS, filters, pipeline)
+    events = list(cursor)
+    if len(events) == 0:
+        raise ElementNotFoundException("no events found")
+
+    for event in events:
+        found_events.append(EventNewsletter(**event))
+    logger.info("found %d events to insert in newsletter", len(found_events))
+    return found_events
