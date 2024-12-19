@@ -268,12 +268,14 @@ function validate_traveler_signup_confirmation() {
     if(!min_one_activity_selected || !is_token_valid) return false;
 
     $('.card.selected').each(function () {
-        const interested_in_container = $('#interested_in_container');
+        const interested_in_container = $('div#interested_in_container');
         const card_id = $(this).attr('id');
 
-        interested_in_container.append(
-            `<input type="hidden" name="interested_in" value="${card_id}">`
-        );
+        interested_in_container.each(function(){
+            $(this).append(
+                `<input type="hidden" name="interested_in" value="${card_id}">`
+            )
+        });
     });
 
     return true;
