@@ -79,6 +79,7 @@ If you're an organization and want to sponsor your upcoming events, with easyTra
    - Some configs are provided by default, but you might need to change them:
      ```env
      LOG_LEVEL=DEBUG
+     JWT_ACCESS_TOKEN_EXPIRES=15
      
      MAIL_SERVER=smtp.gmail.com
      MAIL_PORT=587
