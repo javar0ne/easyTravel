@@ -623,10 +623,8 @@ function handle_capital_search(event, autocomplete_element) {
     }
 }
 
-function search_for_capital(city, autocomplete_element, element_id) {
-    if(!city) throw new Error("city is null!");
-
-    fetch(
+function call_rest_countries(city) {
+    return fetch(
         `${URLS.rest_countries}/capital/${encodeURIComponent(city)}?fields=capital,name,capitalInfo`
     ).then(response => {
         if(!response.ok) {
@@ -635,17 +633,22 @@ function search_for_capital(city, autocomplete_element, element_id) {
 
         return response.json();
     })
-    .then(data => {
-        $(`#${autocomplete_element}`).empty();
-        data.forEach(element => {
-            $(`#${autocomplete_element}`).append(`
-                <div onclick="set_city('${autocomplete_element}', '${element_id}', '${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ps-3 px-1 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
-            `);
+}
 
-            $(`#${autocomplete_element}`).css("display", "");
+function search_for_capital(city, autocomplete_element, element_id) {
+    if(!city) throw new Error("city is null!");
+    call_rest_countries(city)
+        .then(data => {
+            $(`#${autocomplete_element}`).empty();
+            data.forEach(element => {
+                $(`#${autocomplete_element}`).append(`
+                    <div onclick="set_city('${autocomplete_element}', '${element_id}', '${element.capital[0]}', '${element.capitalInfo.latlng}')" class="ps-3 px-1 autocomplete-item">${element.name.common}, ${element.capital[0]}</div>
+                `);
+
+                $(`#${autocomplete_element}`).css("display", "");
+            });
+            $(`#${autocomplete_element}`).css("z-index", "999");
         });
-        $(`#${autocomplete_element}`).css("z-index", "999");
-    })
 }
 
 function set_city(autocomplete_element, element_id, city, coordinates) {
@@ -657,7 +660,7 @@ function set_city(autocomplete_element, element_id, city, coordinates) {
     }
 }
 
-function generate_itinerary() {
+function generate_itinerary(event_id) {
     if(validate_generate_itinerary()) {
         const city = $("#city").val();
         const budget = $("input[name='budget']:checked").attr("value");
@@ -674,7 +677,7 @@ function generate_itinerary() {
         })
 
         fetch(
-            `${URLS.itinerary}/request`,
+            `${URLS.itinerary}/request${ event_id ? `/event/${event_id}` : ''}`,
             {
                 "method": "post",
                 "headers": {
@@ -701,7 +704,6 @@ function generate_itinerary() {
         })
         .then(data => window.location.href=`/itinerary/request/${data.response.request_id}?lat=${city_lat}&lng=${city_lng}`);
     }
-
 }
 
 function find_city_meta(city) {
@@ -756,17 +758,6 @@ function get_itinerary_request(id, map) {
     .then(data => {
         let stages_counter = 0;
         let coordinates = [];
-        if(data.response.status === "PENDING") {
-            setTimeout(() => get_itinerary_request(id, map), 1000);
-        } else {
-            $("#actions_container").empty();
-            $("#actions_container").append(`
-            <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save-itinerary.svg" alt="save"></a>
-            `);
-            $("#save_itinerary").on("click", () => create_itinerary(`${data.response.id}`));
-            $("#details-container-placeholder").remove();
-            $("#itinerary_date").text(moment(data.response.start_date).format("D MMM YYYY") + "-" + moment(data.response.end_date).format("D MMM YYYY"))
-        }
 
         $("#details_container").empty();
         data.response.details.forEach(detail => {
@@ -853,10 +844,22 @@ function get_itinerary_request(id, map) {
                 .on("mouseout", e => e.target.togglePopup());
             })
         })
-        window.scrollTo(0, document.body.scrollHeight);
+        if(data.response.status === "PENDING") {
+            setTimeout(() => get_itinerary_request(id, map), 1000);
+            window.scrollTo(0, document.body.scrollHeight);
+        } else {
+            $("#actions_container").empty();
+            $("#actions_container").append(`
+            <a id="save_itinerary" href="#" data-bs-placement="bottom" data-bs-toggle="tooltip" data-bs-title="Save itinerary"><img class="img-fluid" src="../../static/svg/save-itinerary.svg" alt="save"></a>
+            `);
+            $("#save_itinerary").on("click", () => create_itinerary(`${data.response.id}`));
+            $("#details-container-placeholder").remove();
+            $("#itinerary_date").text(moment(data.response.start_date).format("D MMM YYYY") + "-" + moment(data.response.end_date).format("D MMM YYYY"))
+            window.scrollTo(0, 0);
+        }
+
         map.fitBounds(coordinates);
     });
-    window.scrollTo(0, 0);
 }
 
 function create_itinerary(request_id) {
@@ -1161,6 +1164,9 @@ function update_traveler() {
     const currency = $("#currency").val();
     const old_currency = $("#currency").data("defaultValue");
 
+    const interested_in = [];
+    $("input#interested_in").each(function () { interested_in.push($(this).val()) });
+
     if(!name || !surname || !email || !validate_email(email) || !date_of_birth || !currency) {
         show_error_toast("Cannot update, all data are required!");
         return;
@@ -1191,7 +1197,7 @@ function update_traveler() {
                 "first_name": name,
                 "last_name": surname,
                 "birth_date": date_of_birth,
-                "interested_in": [],
+                "interested_in": interested_in,
                 "phone_number": ""
             })
         }
@@ -1276,18 +1282,21 @@ function validate_create_event() {
     const description = $("#description").val();
     const avg_duration = $("#avg_duration").val();
     const cost = $("#cost").val();
+    const latitude = $("#latitude").val();
+    const longitude = $("#longitude").val();
 
     let interested_in = []
     $("input[name='interested-in']:checked").each(function () {
       interested_in.push($(this).attr("value"));
     })
 
-    if(!city) {
-        show_error_toast("City required!")
-        return false;
-    }
     if(!title) {
         show_error_toast("Title required!")
+        return false;
+    }
+
+    if(!city) {
+        show_error_toast("City required!")
         return false;
     }
 
@@ -1297,6 +1306,16 @@ function validate_create_event() {
     } else {
         $('#start_date').attr("value", start_date.format('YYYY-MM-DD'));
         $('#end_date').attr("value", end_date.format('YYYY-MM-DD'));
+    }
+
+    if(!latitude) {
+        show_error_toast("Latitude required!");
+        return false;
+    }
+
+    if(!longitude) {
+        show_error_toast("Longitude required!");
+        return false;
     }
 
     if(!description) {
@@ -1330,6 +1349,8 @@ function create_event() {
         const avg_duration = $("#avg_duration").val();
         const cost = $("#cost").val();
         const accessibility = $("#accessibility").prop("checked");
+        const latitude = $("#latitude").val();
+        const longitude = $("#longitude").val();
 
         let interested_in = []
         $("input[name='interested-in']:checked").each(function () {
@@ -1353,7 +1374,11 @@ function create_event() {
                     "accessible": accessibility,
                     "related_activities": interested_in,
                     "start_date": start_date,
-                    "end_date": end_date
+                    "end_date": end_date,
+                    "coordinates": {
+                        "lat": latitude,
+                        "lng": longitude
+                    }
                 })
             }
         )
@@ -1378,6 +1403,8 @@ function update_event(id) {
         const avg_duration = $("#avg_duration").val();
         const cost = $("#cost").val();
         const accessibility = $("#accessibility").prop("checked");
+        const latitude = $("#latitude").val();
+        const longitude = $("#longitude").val();
 
         let interested_in = []
         $("input[name='interested-in']:checked").each(function () {
@@ -1401,7 +1428,11 @@ function update_event(id) {
                     "accessible": accessibility,
                     "related_activities": interested_in,
                     "start_date": start_date,
-                    "end_date": end_date
+                    "end_date": end_date,
+                    "coordinates": {
+                        "lat": latitude,
+                        "lng": longitude
+                    }
                 })
             }
         )
@@ -1883,4 +1914,23 @@ function get_events_stats() {
             $(this).text(data.response.events_created);
         })
     })
+}
+
+function get_event_by_id(event_id) {
+    if(!event_id) throw new Error("invalid event id!");
+    return fetch(
+        `${URLS.event}/itinerary/${event_id}`,
+        {
+            "headers": {
+                "Authorization": `Bearer ${get_access_token()}`
+            }
+        }
+    )
+    .then(response => {
+        if(!response.ok && response.status === 401) {
+            throw new Error("Authentication error!");
+        }
+
+        return response.json();
+    });
 }

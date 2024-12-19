@@ -289,7 +289,7 @@ def generate_itinerary():
         logger.error(str(err))
         return error_response()
 
-@itinerary.post('/event-itinerary-request/<event_id>')
+@itinerary.post('/request/event/<event_id>')
 @roles_required([Role.TRAVELER.name])
 def generate_event_itinerary(event_id):
     try:

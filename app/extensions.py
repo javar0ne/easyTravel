@@ -41,7 +41,6 @@ ITINERARY_USER_EVENT_PROMPT = """
 
     Add the following activity to the itinerary:
     {{
-        "period": "{event_period}",
         "title": "{event_title}",
         "description": "{event_description}",
         "cost": "{event_cost}",

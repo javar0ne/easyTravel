@@ -130,7 +130,7 @@
     </div>
     <div class="row mt-11">
         <div class="col">
-            <button type="submit" class="btn btn-primary fw-medium" onclick="generate_itinerary()">Generate</button>
+            <button id="generate_itinerary_btn" type="submit" class="btn btn-primary fw-medium">Generate</button>
         </div>
     </div>
 {#</form>#}
@@ -152,13 +152,38 @@
             .then(data => {
                  data.response.interested_in.forEach(activity => $(`input[value='${activity}']`).prop("checked", true))
             });
+
+        {% if event_id %}
+            get_event_by_id('{{ event_id }}')
+            .then(data => {
+                call_rest_countries(data.response.city)
+                    .then(capital => {
+                        $('#city').val(capital[0].capital[0]);
+                        $('#city').attr("disabled", "");
+                        $("#city_lat").val(capital[0].capitalInfo.latlng[0]);
+                        $("#city_lng").val(capital[0].capitalInfo.latlng[1]);
+                    })
+
+                    $('#daterange').daterangepicker({
+                        maxSpan: {
+                            "days": 7
+                        },
+                        minDate: moment(),
+                        maxDate: moment(data.response.end_date)
+                    });
+            });
+        {% else %}
+            $('#daterange').daterangepicker({
+                maxSpan: {
+                    "days": 7
+                },
+                "minDate": moment(),
+            });
+        {% endif %}
     })
 
-    $('#daterange').daterangepicker({
-        minDate: moment(),
-        maxSpan: {
-            "days": 7
-        }
-    });
+    $("#generate_itinerary_btn").on('click', () => {
+        generate_itinerary('{{ event_id if event_id else '' }}')
+    })
 </script>
 {% endblock %}

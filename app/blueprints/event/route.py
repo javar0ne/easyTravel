@@ -7,8 +7,7 @@ from pydantic import ValidationError
 from app.blueprints.event import event
 from app.blueprints.event.model import UpdateEventRequest, CreateEventRequest
 from app.blueprints.event.service import create_event, update_event, delete_event, search_events, \
-    get_event_by_user_and_id, get_upcoming_events, get_other_events, get_past_events, get_events_stats
-from app.blueprints.itinerary.service import get_past_itineraries
+    get_event_by_user_and_id, get_upcoming_events, get_other_events, get_past_events, get_events_stats, get_event_by_id
 from app.exceptions import ElementNotFoundException, OrganizationNotActiveException
 from app.models import Paginated
 from app.response_wrapper import bad_request_response, error_response, success_response, no_content_response, \
@@ -22,6 +21,21 @@ logger = logging.getLogger(__name__)
 def get(event_id):
     try:
         event = get_event_by_user_and_id(get_jwt_identity(), event_id)
+        return success_response(event.model_dump())
+    except ElementNotFoundException as err:
+        logger.warning(str(err))
+        return not_found_response(err.message)
+    except OrganizationNotActiveException as err:
+        return forbidden_response(err.message)
+    except Exception as err:
+        logger.error(str(err))
+        return error_response()
+
+@event.get('/itinerary/<event_id>')
+@roles_required([Role.TRAVELER.name])
+def get_for_itinerary(event_id):
+    try:
+        event = get_event_by_id(event_id)
         return success_response(event.model_dump())
     except ElementNotFoundException as err:
         logger.warning(str(err))
@@ -54,9 +68,9 @@ def create():
 def update(event_id):
     try:
         update_event_req = UpdateEventRequest(**request.json)
-        update_event(get_jwt_identity(), event_id, update_event_req)
+        updated_id = update_event(get_jwt_identity(), event_id, update_event_req)
 
-        return no_content_response()
+        return success_response({"id": updated_id})
     except ValidationError as err:
         logger.error("validation error while parsing event update request", err)
         return bad_request_response(err.errors())
