@@ -14,6 +14,11 @@ from app.exceptions import ElementNotFoundException
 from app.models import Coordinates
 
 
+# root
+@template.get('/')
+def index():
+    return redirect('/login')
+
 # user
 @template.get('/login')
 def login():
