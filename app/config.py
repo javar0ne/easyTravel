@@ -1,3 +1,4 @@
+import datetime
 import os
 
 
@@ -15,6 +16,7 @@ class Config:
 
     # jwt
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default-secret-key')
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', "15")))
 
     # job
     SCHEDULER_API_ENABLED = True
