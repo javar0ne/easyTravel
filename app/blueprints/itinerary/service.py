@@ -133,7 +133,6 @@ def create_itinerary(itinerary_request_id: str) -> str:
     save_itinerary_meta(result.inserted_id)
 
     mongo.delete_one(Collections.ITINERARY_REQUESTS, {'_id': ObjectId(itinerary_request_id)})
-    redis_itinerary.get_client().zincrby(MOST_SAVED_ITINERARIES_KEY, 0, str(result.inserted_id))
     logger.info("itinerary stored successfully with id %s", result.inserted_id)
 
     threading.Thread(target=ask_itinerary_docs, args=(itinerary.city, result.inserted_id, itinerary.user_id, itinerary.start_date)).start()
@@ -214,7 +213,7 @@ def delete_itinerary(itinerary_id: str):
 
 def search_itineraries(user_id: str, itinerary_search: ItinerarySearch) -> PaginatedResponse:
     aggregations = []
-    filters = {"user_id": user_id}
+    filters = {"user_id": {"$ne": user_id}}
     found_itineraries = []
 
     logger.info("searching for itineraries..")
@@ -392,6 +391,12 @@ def publish(publish_req: PublishReqeust):
 
     if result.matched_count == 0:
         raise ElementNotFoundException(f"no itinerary found with id {publish_req.id}")
+
+    if result.modified_count == 1:
+        if publish_req.is_public:
+            redis_itinerary.get_client().zincrby(MOST_SAVED_ITINERARIES_KEY, 0, str(result.inserted_id))
+        else:
+            redis_itinerary.get_client().zrem(MOST_SAVED_ITINERARIES_KEY, publish_req.id)
 
     logger.info("set itinerary %s is_public field to %s!", publish_req.id, publish_req.is_public)
 
