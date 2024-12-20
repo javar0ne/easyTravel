@@ -71,23 +71,6 @@ class Event(EventBaseModel):
     updated_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = None
 
-class EventNewsletter(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    city: str
-    title: str
-    description: str
-    cost: str
-    avg_duration: int
-    accessible: bool
-    related_activity: str
-    start_date: datetime
-    end_date: datetime
-    coordinates: Coordinates
-    user_id: str
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    deleted_at: Optional[datetime] = None
-
     @staticmethod
     def from_create_req(request: CreateEventRequest, user_id: str):
         return Event(
@@ -115,6 +98,23 @@ class EventNewsletter(BaseModel):
         self.start_date = update_event_req.start_date
         self.end_date = update_event_req.end_date
         self.coordinates = update_event_req.coordinates
+
+class EventNewsletter(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    city: str
+    title: str
+    description: str
+    cost: str
+    avg_duration: int
+    accessible: bool
+    related_activity: str
+    start_date: datetime
+    end_date: datetime
+    coordinates: Coordinates
+    user_id: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] = None
 
 class UpcomingEvent(BaseModel):
     id: str
