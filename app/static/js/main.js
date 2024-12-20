@@ -932,7 +932,7 @@ function get_upcoming_itineraries() {
                                 <span class="ms-3"><img src="../../static/svg/trash.svg" alt="trash" onclick="delete_itinerary('${itinerary.id}')" style="cursor: pointer"></span>
                             </div>
                             <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
-                          <button data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                          <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-itinerary-id="${itinerary.id}" class="px-5 py-1 fs-20 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
                       </div>
                   </div>
                   <div class="d-none d-md-block d-2xl-none">
@@ -953,7 +953,7 @@ function get_upcoming_itineraries() {
                             <span><img src="${itinerary.is_public ? "../../static/svg/published.svg": "../../static/svg/publish.svg"}" alt="publish" id="img_publish" onclick="publish_itinerary('${itinerary.id}', 'itinerary${num}')" style="cursor: pointer"></span>
                           </div>
                           <input type="hidden" id="is_public" value="${itinerary.is_public ? "true" : ""}">
-                          <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-id="${itinerary.id}" class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
+                          <button id="invite_traveler_btn${num}" data-bs-toggle="modal" data-bs-target="#inviteTravelersModal" data-itinerary-id="${itinerary.id}" class="px-5 py-1 fs-14 rounded bg-secondary border-0 fw-medium">Invite travelers</button>
                       </div>
                   </div>`
                 : "";
