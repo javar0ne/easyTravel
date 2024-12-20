@@ -778,7 +778,7 @@ def get_past_itineraries(user_id: str):
                 {"user_id": user_id},
                 {"shared_with": user_id}
             ],
-            "end_date": { "$lt": datetime.now(tz=timezone.utc) }
+            "end_date": { "$lt": datetime.combine(date.today(), time.min, tzinfo=timezone.utc) }
         },
         [
             {
